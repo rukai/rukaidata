@@ -1,0 +1,7 @@
+[staging]
+address="localhost"
+port=8000
+
+[production]
+address="localhost"
+port=8000
