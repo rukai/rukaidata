@@ -6,10 +6,11 @@
              extern crate getopts;
              extern crate rocket;
              extern crate rocket_contrib;
-#[macro_use] extern crate log;
+#[macro_use] extern crate serde_derive;
 
 use rocket_contrib::Template;
 use rocket::response::NamedFile;
+use rocket::State;
 
 use brawllib_rs::fighter::Fighter;
 use brawllib_rs::high_level_fighter::HighLevelFighter;
@@ -29,7 +30,7 @@ fn main() {
     let data_dir = match fs::read_dir("data") {
         Ok(dir) => dir,
         Err(_) => {
-            error!("Can't read 'data' directory.");
+            println!("Can't read 'data' directory.");
             return;
         }
     };
@@ -52,10 +53,10 @@ fn main() {
                         Some(fighter_dir)
                     };
 
-                    let fighters = match fs::read_dir("data/brawl/fighter") {
+                    let fighters = match fs::read_dir("data/Brawl/fighter") {
                         Ok(brawl_dir) => Fighter::load(brawl_dir, mod_fighter_dir, true),
                         Err(_) => {
-                            error!("Can't read 'data/brawl/fighter' directory.");
+                            println!("Can't read 'data/Brawl/fighter' directory.");
                             return;
                         }
                     };
@@ -67,7 +68,7 @@ fn main() {
                     }
                 }
                 Err(_) => {
-                    error!("Failed to open fighter directory");
+                    println!("Failed to open fighter directory");
                     return;
                 }
             };
@@ -79,9 +80,13 @@ fn main() {
         }
     }
 
+    let brawl_mods = BrawlMods {
+        mods: brawl_mods
+    };
+
     rocket::ignite()
         .manage(brawl_mods)
-        .mount("/", routes![index, files])
+        .mount("/", routes![files, index, page])
         .attach(Template::fairing())
         .launch();
 }
@@ -92,11 +97,107 @@ fn files(file: PathBuf) -> Option<NamedFile> {
 }
 
 #[get("/")]
-fn index() -> Template {
-    Template::render("index", 0)
+fn index(brawl_mods: State<BrawlMods>) -> Template {
+    let (mod_name, fighter_name) = if let Some(default_mod) = brawl_mods.mods.iter().find(|x| x.fighters.len() > 0) {
+        if let Some(default_fighter) = default_mod.fighters.get(0) {
+            (default_mod.name.clone(), default_fighter.name.clone())
+        } else {
+            let page = ErrorPage {
+                mod_links: brawl_mods.gen_mod_links(default_mod.name.clone()),
+                error:     String::from("The default mod contains no fighters"),
+            };
+            return Template::render("error", page)
+        }
+    } else {
+        let page = ErrorPage {
+            mod_links: brawl_mods.gen_mod_links(String::new()),
+            error:     String::from("No mods were loaded"),
+        };
+        return Template::render("error", page)
+    };
+
+    page(brawl_mods, mod_name, fighter_name, String::from("FOO"), 0)
+}
+
+#[get("/framedata/<mod_name>/<fighter_name>/<action>/<frame>")]
+fn page(brawl_mods: State<BrawlMods>, mod_name: String, fighter_name: String, action: String, frame: usize) -> Template {
+    if let Some(brawl_mod) = brawl_mods.mods.iter().find(|x| x.name == mod_name) {
+        let page = Page {
+            title:         format!("{} - {} Frame Data", fighter_name, mod_name),
+            mod_links:     brawl_mods.gen_mod_links(mod_name),
+            fighter_links: brawl_mod.gen_fighter_links(fighter_name),
+            //fighter:
+        };
+        Template::render("page", page)
+    } else {
+        let page = ErrorPage {
+            error:     format!("The mod {} does not exist", mod_name),
+            mod_links: brawl_mods.gen_mod_links(mod_name),
+        };
+        Template::render("error", page)
+    }
+}
+
+struct BrawlMods {
+    mods: Vec<BrawlMod>,
+}
+
+impl BrawlMods {
+    fn gen_mod_links(&self, current_mod: String) -> Vec<NavLink> {
+        let mut links = vec!();
+        for brawl_mod in &self.mods { // TODO: Allow specify ordering either via config file or the order used in --mods NAME1,NAME2
+            if let Some(fighter) = brawl_mod.fighters.get(0) {
+                if let Some(action) = fighter.actions.get(0) {
+                    links.push(NavLink {
+                        name: brawl_mod.name.clone(),
+                        link: format!("/framedata/{}/{}/{}/0", brawl_mod.name, fighter.name, action.name),
+                        current: brawl_mod.name == current_mod,
+                    });
+                }
+            }
+        }
+        links
+    }
 }
 
 struct BrawlMod {
     name:     String,
     fighters: Vec<HighLevelFighter>,
+}
+
+impl BrawlMod {
+    fn gen_fighter_links(&self, current_fighter: String) -> Vec<NavLink> {
+        let mut links = vec!();
+        for fighter in &self.fighters {
+            if let Some(action) = fighter.actions.get(0) {
+                links.push(NavLink {
+                    name: fighter.name.clone(),
+                    link: format!("/framedata/{}/{}/{}/0", self.name, fighter.name, action.name), // TODO: Maybe just replace action.name with String::from("Wait1")
+                    current: current_fighter == fighter.name,
+                });
+            }
+        }
+        links
+    }
+}
+
+#[derive(Serialize)]
+struct Page {
+    mod_links:     Vec<NavLink>,
+    fighter_links: Vec<NavLink>,
+    title:         String,
+    //fighter:       HighLevelFighter,
+}
+
+#[derive(Serialize)]
+struct ErrorPage {
+    mod_links: Vec<NavLink>,
+    error:     String,
+}
+
+#[derive(Serialize)]
+struct NavLink {
+    name:    String,
+    link:    String,
+    current: bool,
 }

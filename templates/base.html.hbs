@@ -5,18 +5,14 @@
         <meta http-equiv="content-type" content="text/html; charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-        <link rel="stylesheet" type="text/css" href="static/style.css">
+        <link rel="stylesheet" type="text/css" href="/static/style.css">
         <title>{{title}}</title>
     </head>
     <body>
         <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
             <ul class="navbar-nav mr-auto">
-            {{#if page_home}}
-            <li class="nav-item active">
-            {{else}}
             <li class="nav-item">
-            {{/if}}
-                <a class="nav-link" href="/">Brawl Frame Data</a>
+                <a class="nav-link" href="/">Frame Data</a>
             </li>
             </ul>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,29 +21,15 @@
 
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav mr-auto">
-                    {{#if page_tutorial}}
+                    {{#each mod_links}}
+                    {{#if current}}
                     <li class="nav-item active">
                     {{else}}
                     <li class="nav-item">
                     {{/if}}
-                        <a class="nav-link" href="/tutorial">Put</a>
+                    <a class="nav-link" href="{{link}}">{{name}}</a>
                     </li>
-
-                    {{#if page_manual}}
-                    <li class="nav-item active">
-                    {{else}}
-                    <li class="nav-item">
-                    {{/if}}
-                        <a class="nav-link" href="/manual">Games</a>
-                    </li>
-
-                    {{#if page_tas}}
-                    <li class="nav-item active">
-                    {{else}}
-                    <li class="nav-item">
-                    {{/if}}
-                        <a class="nav-link" href="/tas">Here</a>
-                    </li>
+                    {{/each}}
 
                     <li class="nav-item">
                         <a class="nav-link" href="https://www.patreon.com/rukai">Support@Patreon</a>

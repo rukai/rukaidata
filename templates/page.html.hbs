@@ -1,0 +1,11 @@
+{{#*inline "page"}}
+
+<div>
+    {{#each fighter_links}}
+    <p><a href="{{link}}">{{name}}</a></p>
+    {{/each}}
+</div>
+
+{{/inline}}
+
+{{~> base title=title page_home=true mod_names=mod_names ~}}

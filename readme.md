@@ -5,7 +5,7 @@ Uses [brawllib_rs](https://github.com/rukai/brawllib_rs) to display frame data o
 ## To run
 
 1.  install rustup https://rustup.rs/
-2.  right click brawl in dolphin game list -> Properties -> Filesystem -> Disc -> Partition 1 -> right click fighter -> Extract Files... -> select the directory data/brawl/fighter
+2.  right click brawl in dolphin game list -> Properties -> Filesystem -> Disc -> Partition 1 -> right click fighter -> Extract Files... -> select the directory data/Brawl/fighter
 3.  copy any mod fighter directories to the directories data/MODNAMEHERE/fighter **(optional)**
 4.  open a terminal and `cd` to the directory this readme is in.
 5.  run the command: `cargo run --release`

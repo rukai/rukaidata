@@ -8,10 +8,11 @@ authors = ["Rukai <rubickent@gmail.com>"]
 #brawllib_rs = { git = "https://github.com/rukai/brawllib_rs" }
 brawllib_rs = { path = "/home/rubic/Projects/Smash/pf_sandbox/brawl_exporter/brawllib_rs" }
 getopts = "0.2"
-log = "0.4"
 rocket = "0.3"
 rocket_codegen = "0.3"
 rocket_contrib = { version = "0.3", features = ["handlebars_templates"] }
+serde_derive = "1"
+serde = "1"
 
 [profile.release]
 debug-assertions = true
