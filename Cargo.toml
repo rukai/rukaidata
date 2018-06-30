@@ -13,6 +13,7 @@ rocket_codegen = "0.3"
 rocket_contrib = { version = "0.3", features = ["handlebars_templates"] }
 serde_derive = "1"
 serde = "1"
+serde_json = "1"
 
 [profile.release]
 debug-assertions = true

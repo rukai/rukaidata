@@ -1,9 +1,18 @@
 {{#*inline "page"}}
-
 <div>
     {{#each fighter_links}}
     <p><a href="{{link}}">{{name}}</a></p>
     {{/each}}
+</div>
+
+<div>
+    <h1>{{title}}</h1>
+    <pre>
+        <p>{{frame}}</p>
+    </pre>
+    <pre>
+        <p>{{scripts}}</p>
+    </pre>
 </div>
 
 {{/inline}}
