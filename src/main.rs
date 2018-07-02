@@ -128,6 +128,7 @@ fn page(brawl_mods: State<BrawlMods>, mod_name: String, fighter_name: String, ac
                         mod_links,
                         title:         format!("{} - {} - {}", action_name, fighter_name, mod_name),
                         fighter_links: brawl_mod.gen_fighter_links(fighter_name),
+                        action_links:  brawl_mod.gen_action_links(fighter, action_name),
                         scripts:       serde_json::to_string_pretty(&action.scripts).unwrap(),
                         frame:         serde_json::to_string_pretty(frame).unwrap(),
                     };
@@ -160,8 +161,8 @@ impl BrawlMods {
         for brawl_mod in &self.mods { // TODO: Allow specify ordering either via config file or the order used in --mods NAME1,NAME2
             if let Some(fighter) = brawl_mod.fighters.get(0) {
                 links.push(NavLink {
-                    name: brawl_mod.name.clone(),
-                    link: format!("/framedata/{}/{}/Wait1/0", brawl_mod.name, fighter.name),
+                    name:    brawl_mod.name.clone(),
+                    link:    format!("/framedata/{}/{}/Wait1/0", brawl_mod.name, fighter.name),
                     current: brawl_mod.name == current_mod,
                 });
             }
@@ -180,9 +181,21 @@ impl BrawlMod {
         let mut links = vec!();
         for fighter in &self.fighters {
             links.push(NavLink {
-                name: fighter.name.clone(),
-                link: format!("/framedata/{}/{}/Wait1/0", self.name, fighter.name),
+                name:    fighter.name.clone(),
+                link:    format!("/framedata/{}/{}/Wait1/0", self.name, fighter.name),
                 current: current_fighter == fighter.name,
+            });
+        }
+        links
+    }
+
+    fn gen_action_links(&self, fighter: &HighLevelFighter, current_action: String) -> Vec<NavLink> {
+        let mut links = vec!();
+        for action in &fighter.actions {
+            links.push(NavLink {
+                name:    action.name.clone(),
+                link:    format!("/framedata/{}/{}/{}/0", self.name, fighter.name, action.name),
+                current: current_action == action.name,
             });
         }
         links
@@ -193,6 +206,7 @@ impl BrawlMod {
 struct Page {
     mod_links:     Vec<NavLink>,
     fighter_links: Vec<NavLink>,
+    action_links:  Vec<NavLink>,
     title:         String,
     scripts:       String,
     frame:         String,
