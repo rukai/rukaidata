@@ -8,6 +8,7 @@ body {
 
 h1 {
     font-size: 2.8rem;
+    text-align: center;
 }
 
 h2 {
@@ -21,4 +22,30 @@ h3 {
 
 pre {
     color: rgb(255, 255, 255);
+}
+
+.sidebar {
+  z-index: 1000;
+  padding: 2px;
+  overflow-x: hidden;
+}
+
+.sidebar-left {
+  border-right: 1px solid #eee;
+}
+
+.sidebar-right {
+  border-left: 1px solid #eee;
+}
+
+.sidebar .nav {
+  margin-bottom: 20px;
+}
+
+.sidebar .nav-link {
+  border-radius: 0;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 0;
+  padding-bottom: 0;
 }

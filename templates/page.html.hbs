@@ -1,24 +1,45 @@
 {{#*inline "page"}}
-<div>
-    {{#each fighter_links}}
-    <p><a href="{{link}}">{{name}}</a></p>
-    {{/each}}
-</div>
 
-<div>
-    <h1>{{title}}</h1>
-    <pre>
-        <p>{{frame}}</p>
-    </pre>
-    <pre>
-        <p>{{scripts}}</p>
-    </pre>
-</div>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Display nothing from xs to sm, display something from md to xl -->
+        <nav class="d-none d-md-block col-2 sidebar sidebar-left">
+            <ul class="nav nav-pills flex-column">
+                {{#each fighter_links}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+        </nav>
 
-<div>
-    {{#each action_links}}
-    <p><a href="{{link}}">{{name}}</a></p>
-    {{/each}}
+        <!-- take up 12 columns from xs to sm, take up 8 columns from md to xl -->
+        <div class="col-12 col-md-8">
+            <h1>{{title}}</h1>
+            <pre>
+                <p>{{frame}}</p>
+            </pre>
+            <pre>
+                <p>{{scripts}}</p>
+            </pre>
+        </div>
+
+        <!-- Display nothing from xs to sm, display something from md to xl -->
+        <nav class="d-none d-md-block col-2 sidebar sidebar-right">
+            <ul class="nav nav-pills flex-column">
+                <li><a class="nav-link" href="/todo/main/link">Main</a></li>
+                {{#each action_links}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+        </nav>
+    </div>
 </div>
 
 {{/inline}}
