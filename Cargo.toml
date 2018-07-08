@@ -5,8 +5,7 @@ authors = ["Rukai <rubickent@gmail.com>"]
 
 [dependencies]
 # TODO: get brawllib_rs from crates.io. waiting on next three-rs release
-#brawllib_rs = { git = "https://github.com/rukai/brawllib_rs" }
-brawllib_rs = { path = "/home/rubic/Projects/Smash/pf_sandbox/brawl_exporter/brawllib_rs" }
+brawllib_rs = { git = "https://github.com/rukai/brawllib_rs" }
 getopts = "0.2"
 rocket = "0.3"
 rocket_codegen = "0.3"

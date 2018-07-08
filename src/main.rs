@@ -1,5 +1,4 @@
-#![feature(rust_2018_preview, plugin, decl_macro, custom_derive, nll)]
-#![warn(rust_2018_idioms)]
+#![feature(custom_attribute, plugin)]
 #![plugin(rocket_codegen)]
 
              extern crate brawllib_rs;
