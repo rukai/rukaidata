@@ -1,11 +1,7 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
-             extern crate brawllib_rs;
-             extern crate getopts;
 #[macro_use] extern crate rocket;
-             extern crate rocket_contrib;
 #[macro_use] extern crate serde_derive;
-             extern crate serde_json;
 
 use rocket_contrib::templates::Template;
 use rocket::response::NamedFile;
