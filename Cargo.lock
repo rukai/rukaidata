@@ -68,7 +68,7 @@ dependencies = [
 [[package]]
 name = "brawllib_rs"
 version = "0.1.0"
-source = "git+https://github.com/rukai/brawllib_rs#51d42fc6d98bffe98ff5cd438f887f7791aa4a84"
+source = "git+https://github.com/rukai/brawllib_rs#e3ae36cbd798c4320d4dc268aaeb48b03d4e6a66"
 dependencies = [
  "bitflags 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "byteorder 1.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
