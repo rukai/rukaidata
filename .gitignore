@@ -1,4 +1,6 @@
 /data/
 !/data/brawl/fighter/source.txt
 /target
+/npm-webpack/dist
+/npm-webpack/node_modules
 **/*.rs.bk

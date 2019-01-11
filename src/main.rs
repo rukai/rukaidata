@@ -86,9 +86,9 @@ fn main() {
         .launch();
 }
 
-#[get("/static/<file..>")]
+#[get("/dist/<file..>")]
 fn files(file: PathBuf) -> Option<NamedFile> {
-    NamedFile::open(Path::new("static/").join(file)).ok()
+    NamedFile::open(Path::new("npm-webpack/dist").join(file)).ok()
 }
 
 // TODO: Allow configuration of the default values or at least choose them smartly
