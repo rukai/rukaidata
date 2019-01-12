@@ -49,3 +49,16 @@ pre {
   padding-top: 0;
   padding-bottom: 0;
 }
+
+.hitbox-frame-button {
+    color: #FF0000;
+}
+.iasa-frame-button {
+    color: #00FF00;
+}
+.standard-frame-button {
+    color: #FFFFFF;
+}
+.current-frame-button {
+    background-color: rgb(0, 123, 255)
+}

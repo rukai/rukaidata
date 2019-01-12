@@ -35,7 +35,7 @@
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-json-tree": "^0.11.2",
-    "three": "^0.100.0",
-    "three-orbitcontrols-ts": "^0.1.2"
+    "three": "^0.94.0",
+    "orbit-controls-es6": "^2.0.0"
   }
 }

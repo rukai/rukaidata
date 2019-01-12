@@ -119,14 +119,25 @@ fn page(brawl_mods: State<BrawlMods>, mod_name: String, fighter_name: String, ac
     if let Some(brawl_mod) = brawl_mods.mods.iter().find(|x| x.name == mod_name) {
         if let Some(fighter) = brawl_mod.fighters.iter().find(|x| x.name == fighter_name) {
             if let Some(action) = fighter.actions.iter().find(|x| x.name == action_name) {
-                if let Some(frame) = action.frames.get(frame) {
+                if action.frames.get(frame).is_some() {
+                    let mut frame_buttons = vec!();
+                    for (index, frame) in action.frames.iter().enumerate() {
+                        let class = if !frame.hit_boxes.is_empty() {
+                            String::from("hitbox-frame-button")
+                        } else if index > action.iasa {
+                            String::from("iasa-frame-button")
+                        } else {
+                            String::from("standard-frame-button")
+                        };
+                        frame_buttons.push(FrameButton { index, class });
+                    }
                     let page = Page {
                         mod_links,
                         title:         format!("{} - {} - {}", action_name, fighter_name, mod_name),
                         fighter_links: brawl_mod.gen_fighter_links(fighter_name),
                         action_links:  brawl_mod.gen_action_links(fighter, action_name),
-                        scripts:       serde_json::to_string_pretty(&action.scripts).unwrap(),
-                        frame:         serde_json::to_string_pretty(frame).unwrap(),
+                        action:        serde_json::to_string(&action).unwrap(),
+                        frame_buttons,
                     };
                     Template::render("page", page)
                 } else {
@@ -204,8 +215,14 @@ struct Page {
     fighter_links: Vec<NavLink>,
     action_links:  Vec<NavLink>,
     title:         String,
-    scripts:       String,
-    frame:         String,
+    action:        String,
+    frame_buttons: Vec<FrameButton>,
+}
+
+#[derive(Serialize)]
+struct FrameButton {
+    index: usize,
+    class: String,
 }
 
 #[derive(Serialize)]
