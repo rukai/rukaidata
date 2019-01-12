@@ -14,6 +14,8 @@ rocket_contrib = { version = "0.4", features = ["handlebars_templates"] }
 serde_derive = "1"
 serde = "1"
 serde_json = "1"
+env_logger = "0.6"
+log = "0.4"
 
 [build-dependencies]
 simple_command = "0.1"

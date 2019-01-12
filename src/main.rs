@@ -14,8 +14,10 @@ use std::path::{Path, PathBuf};
 use std::fs;
 
 pub mod cli;
+pub mod logger;
 
 fn main() {
+    logger::init();
     let cli = if let Some(cli) = cli::parse_cli() {
         cli
     } else {

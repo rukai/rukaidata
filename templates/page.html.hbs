@@ -18,13 +18,11 @@
         <!-- take up 12 columns from xs to sm, take up 8 columns from md to xl -->
         <div class="col-12 col-md-8">
             <h1>{{title}}</h1>
-            <!--
-            <pre>
-                <p>{{frame}}</p>
-            </pre>
-            -->
+            <div id="fighter-render">
+            </div>
             <div id="fighter-scripts"></div>
             <script>
+                const fighter_frame_data_json = {{{frame}}}
                 const fighter_scripts_json = {{{scripts}}}
             </script>
         </div>
