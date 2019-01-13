@@ -24,7 +24,7 @@ export class FighterRender {
         this.controls.update();
         this.face_right();
 
-        this.renderer = new three.WebGLRenderer({ alpha: true });
+        this.renderer = new three.WebGLRenderer({ alpha: true, antialias: true });
         this.renderer.setClearColor(0xFFFFFF, 0);
         render_div.appendChild(this.renderer.domElement);
 
@@ -44,8 +44,8 @@ export class FighterRender {
         const render_div = document.getElementById('fighter-render');
         const width = render_div.offsetWidth;
         let height = width;
-        if (height > 900) {
-            height = 900;
+        if (height > 750) {
+            height = 750;
         }
 
         this.camera.aspect = width / height;
