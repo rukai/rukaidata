@@ -110,40 +110,35 @@ fn index(brawl_mods: State<BrawlMods>) -> Template {
         return Template::render("error", ErrorPage { mod_links, error });
     };
 
-    page(brawl_mods, mod_name, fighter_name, String::from("Wait1"), 0)
+    page(brawl_mods, mod_name, fighter_name, String::from("Wait1"))
 }
 
-#[get("/framedata/<mod_name>/<fighter_name>/<action_name>/<frame>")]
-fn page(brawl_mods: State<BrawlMods>, mod_name: String, fighter_name: String, action_name: String, frame: usize) -> Template {
+#[get("/framedata/<mod_name>/<fighter_name>/<action_name>")]
+fn page(brawl_mods: State<BrawlMods>, mod_name: String, fighter_name: String, action_name: String) -> Template {
     let mod_links = brawl_mods.gen_mod_links(mod_name.clone());
     if let Some(brawl_mod) = brawl_mods.mods.iter().find(|x| x.name == mod_name) {
         if let Some(fighter) = brawl_mod.fighters.iter().find(|x| x.name == fighter_name) {
             if let Some(action) = fighter.actions.iter().find(|x| x.name == action_name) {
-                if action.frames.get(frame).is_some() {
-                    let mut frame_buttons = vec!();
-                    for (index, frame) in action.frames.iter().enumerate() {
-                        let class = if !frame.hit_boxes.is_empty() {
-                            String::from("hitbox-frame-button")
-                        } else if index > action.iasa {
-                            String::from("iasa-frame-button")
-                        } else {
-                            String::from("standard-frame-button")
-                        };
-                        frame_buttons.push(FrameButton { index, class });
-                    }
-                    let page = Page {
-                        mod_links,
-                        title:         format!("{} - {} - {}", action_name, fighter_name, mod_name),
-                        fighter_links: brawl_mod.gen_fighter_links(fighter_name),
-                        action_links:  brawl_mod.gen_action_links(fighter, action_name),
-                        action:        serde_json::to_string(&action).unwrap(),
-                        frame_buttons,
+                let mut frame_buttons = vec!();
+                for (index, frame) in action.frames.iter().enumerate() {
+                    let class = if !frame.hit_boxes.is_empty() {
+                        String::from("hitbox-frame-button")
+                    } else if index > action.iasa {
+                        String::from("iasa-frame-button")
+                    } else {
+                        String::from("standard-frame-button")
                     };
-                    Template::render("page", page)
-                } else {
-                    let error = format!("The frame {} does not exist in action {} in fighter {} in mod {}.", frame, action_name, fighter_name, mod_name);
-                    Template::render("error", ErrorPage { mod_links, error })
+                    frame_buttons.push(FrameButton { index, class });
                 }
+                let page = Page {
+                    mod_links,
+                    title:         format!("{} - {} - {}", action_name, fighter_name, mod_name),
+                    fighter_links: brawl_mod.gen_fighter_links(fighter_name),
+                    action_links:  brawl_mod.gen_action_links(fighter, action_name),
+                    action:        serde_json::to_string(&action).unwrap(),
+                    frame_buttons,
+                };
+                Template::render("page", page)
             } else {
                 let error = format!("The action {} does not exist in fighter {} in mod {}.", action_name, fighter_name, mod_name);
                 Template::render("error", ErrorPage { mod_links, error })
@@ -169,7 +164,7 @@ impl BrawlMods {
             if let Some(fighter) = brawl_mod.fighters.get(0) {
                 links.push(NavLink {
                     name:    brawl_mod.name.clone(),
-                    link:    format!("/framedata/{}/{}/Wait1/0", brawl_mod.name, fighter.name),
+                    link:    format!("/framedata/{}/{}/Wait1", brawl_mod.name, fighter.name),
                     current: brawl_mod.name == current_mod,
                 });
             }
@@ -189,7 +184,7 @@ impl BrawlMod {
         for fighter in &self.fighters {
             links.push(NavLink {
                 name:    fighter.name.clone(),
-                link:    format!("/framedata/{}/{}/Wait1/0", self.name, fighter.name),
+                link:    format!("/framedata/{}/{}/Wait1", self.name, fighter.name),
                 current: current_fighter == fighter.name,
             });
         }
@@ -201,7 +196,7 @@ impl BrawlMod {
         for action in &fighter.actions {
             links.push(NavLink {
                 name:    action.name.clone(),
-                link:    format!("/framedata/{}/{}/{}/0", self.name, fighter.name, action.name),
+                link:    format!("/framedata/{}/{}/{}", self.name, fighter.name, action.name),
                 current: current_action == action.name,
             });
         }
