@@ -29,7 +29,7 @@ export class FighterRender {
         render_div.appendChild(this.renderer.domElement);
 
         this.window_resize();
-        window.addEventListener('resize', this.window_resize, false);
+        window.addEventListener('resize', () => this.window_resize(), false);
 
         this.action_data = action_data;
         this.frame_index = 0;
@@ -43,7 +43,10 @@ export class FighterRender {
     window_resize() {
         const render_div = document.getElementById('fighter-render');
         const width = render_div.offsetWidth;
-        const height = width;
+        let height = width;
+        if (height > 900) {
+            height = 900;
+        }
 
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
