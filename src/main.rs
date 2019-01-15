@@ -5,7 +5,6 @@
 
 use rocket_contrib::templates::Template;
 use rocket::response::NamedFile;
-use rocket::State;
 
 use brawllib_rs::fighter::Fighter;
 use brawllib_rs::high_level_fighter::HighLevelFighter;
@@ -15,6 +14,10 @@ use std::fs;
 
 pub mod cli;
 pub mod logger;
+pub mod page;
+pub mod brawl_data;
+
+use crate::brawl_data::{BrawlMods, BrawlMod};
 
 fn main() {
     logger::init();
@@ -83,7 +86,7 @@ fn main() {
 
     rocket::ignite()
         .manage(brawl_mods)
-        .mount("/", routes![files, index, page])
+        .mount("/", routes![files, page::index::serve, page::brawl_mod::serve, page::fighter::serve, page::action::serve])
         .attach(Template::fairing())
         .launch();
 }
@@ -91,144 +94,4 @@ fn main() {
 #[get("/dist/<file..>")]
 fn files(file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(Path::new("npm-webpack/dist").join(file)).ok()
-}
-
-// TODO: Allow configuration of the default values or at least choose them smartly
-#[get("/")]
-fn index(brawl_mods: State<BrawlMods>) -> Template {
-    let (mod_name, fighter_name) = if let Some(default_mod) = brawl_mods.mods.iter().find(|x| x.fighters.len() > 0) {
-        if let Some(default_fighter) = default_mod.fighters.get(0) {
-            (default_mod.name.clone(), default_fighter.name.clone())
-        } else {
-            let mod_links = brawl_mods.gen_mod_links(default_mod.name.clone());
-            let error = format!("The default mod {} contains no fighters.", default_mod.name);
-            return Template::render("error", ErrorPage { mod_links, error });
-        }
-    } else {
-        let mod_links = brawl_mods.gen_mod_links(String::new());
-        let error = String::from("No mods were loaded.");
-        return Template::render("error", ErrorPage { mod_links, error });
-    };
-
-    page(brawl_mods, mod_name, fighter_name, String::from("Wait1"))
-}
-
-#[get("/framedata/<mod_name>/<fighter_name>/<action_name>")]
-fn page(brawl_mods: State<BrawlMods>, mod_name: String, fighter_name: String, action_name: String) -> Template {
-    let mod_links = brawl_mods.gen_mod_links(mod_name.clone());
-    if let Some(brawl_mod) = brawl_mods.mods.iter().find(|x| x.name == mod_name) {
-        if let Some(fighter) = brawl_mod.fighters.iter().find(|x| x.name == fighter_name) {
-            if let Some(action) = fighter.actions.iter().find(|x| x.name == action_name) {
-                let mut frame_buttons = vec!();
-                for (index, frame) in action.frames.iter().enumerate() {
-                    let class = if !frame.hit_boxes.is_empty() {
-                        String::from("hitbox-frame-button")
-                    } else if index > action.iasa {
-                        String::from("iasa-frame-button")
-                    } else {
-                        String::from("standard-frame-button")
-                    };
-                    frame_buttons.push(FrameButton { index, class });
-                }
-                let page = Page {
-                    mod_links,
-                    title:         format!("{} - {} - {}", action_name, fighter_name, mod_name),
-                    fighter_links: brawl_mod.gen_fighter_links(fighter_name),
-                    action_links:  brawl_mod.gen_action_links(fighter, action_name),
-                    action:        serde_json::to_string(&action).unwrap(),
-                    frame_buttons,
-                };
-                Template::render("page", page)
-            } else {
-                let error = format!("The action {} does not exist in fighter {} in mod {}.", action_name, fighter_name, mod_name);
-                Template::render("error", ErrorPage { mod_links, error })
-            }
-        } else {
-            let error = format!("The Fighter {} does not exist in mod {}.", fighter_name, mod_name);
-            Template::render("error", ErrorPage { mod_links, error })
-        }
-    } else {
-        let error = format!("The mod {} does not exist.", mod_name);
-        Template::render("error", ErrorPage { mod_links, error })
-    }
-}
-
-struct BrawlMods {
-    mods: Vec<BrawlMod>,
-}
-
-impl BrawlMods {
-    fn gen_mod_links(&self, current_mod: String) -> Vec<NavLink> {
-        let mut links = vec!();
-        for brawl_mod in &self.mods { // TODO: Allow specify ordering either via config file or the order used in --mods NAME1,NAME2
-            if let Some(fighter) = brawl_mod.fighters.get(0) {
-                links.push(NavLink {
-                    name:    brawl_mod.name.clone(),
-                    link:    format!("/framedata/{}/{}/Wait1", brawl_mod.name, fighter.name),
-                    current: brawl_mod.name == current_mod,
-                });
-            }
-        }
-        links
-    }
-}
-
-struct BrawlMod {
-    name:     String,
-    fighters: Vec<HighLevelFighter>,
-}
-
-impl BrawlMod {
-    fn gen_fighter_links(&self, current_fighter: String) -> Vec<NavLink> {
-        let mut links = vec!();
-        for fighter in &self.fighters {
-            links.push(NavLink {
-                name:    fighter.name.clone(),
-                link:    format!("/framedata/{}/{}/Wait1", self.name, fighter.name),
-                current: current_fighter == fighter.name,
-            });
-        }
-        links
-    }
-
-    fn gen_action_links(&self, fighter: &HighLevelFighter, current_action: String) -> Vec<NavLink> {
-        let mut links = vec!();
-        for action in &fighter.actions {
-            links.push(NavLink {
-                name:    action.name.clone(),
-                link:    format!("/framedata/{}/{}/{}", self.name, fighter.name, action.name),
-                current: current_action == action.name,
-            });
-        }
-        links
-    }
-}
-
-#[derive(Serialize)]
-struct Page {
-    mod_links:     Vec<NavLink>,
-    fighter_links: Vec<NavLink>,
-    action_links:  Vec<NavLink>,
-    title:         String,
-    action:        String,
-    frame_buttons: Vec<FrameButton>,
-}
-
-#[derive(Serialize)]
-struct FrameButton {
-    index: usize,
-    class: String,
-}
-
-#[derive(Serialize)]
-struct ErrorPage {
-    mod_links: Vec<NavLink>,
-    error:     String,
-}
-
-#[derive(Serialize)]
-struct NavLink {
-    name:    String,
-    link:    String,
-    current: bool,
 }

@@ -1,0 +1,24 @@
+{{#*inline "page"}}
+
+<h1>{{title}}</h1>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Display nothing from xs to sm, display something from md to xl -->
+        <div class="d-none d-md-block col-2">
+        </div>
+        <div class="col-12 col-md-8">
+            <ul class="nav nav-pills flex-column">
+                {{#each fighter_links}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/each}}
+            </ul>
+        </div>
+        <!-- Display nothing from xs to sm, display something from md to xl -->
+        <div class="d-none d-md-block col-2">
+        </div>
+    </div>
+</div>
+
+{{/inline}}
+
+{{~> base title=title page_home=true mod_names=mod_names ~}}

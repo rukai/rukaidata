@@ -6,9 +6,20 @@ body {
     background-color: rgb(30, 30, 30);
 }
 
+p {
+    font-size: 0.8rem;
+}
+
+@media (min-width: 768px) {
+    p {
+        font-size: 1.1rem;
+    }
+}
+
 h1 {
+    font-weight: bold;
     text-align: center;
-    font-size: 1.0rem;
+    font-size: 1.2rem;
 }
 
 @media (min-width: 768px) {
@@ -18,7 +29,14 @@ h1 {
 }
 
 h2 {
-    font-size: 2rem;
+    font-size: 1.0rem;
+    font-weight: bold;
+}
+
+@media (min-width: 768px) {
+    h2 {
+        font-size: 2rem;
+    }
 }
 
 h3 {

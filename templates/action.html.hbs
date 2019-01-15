@@ -40,7 +40,7 @@
         <!-- Display nothing from xs to sm, display something from md to xl -->
         <nav class="d-none d-md-block col-2 sidebar sidebar-right">
             <ul class="nav nav-pills flex-column">
-                <li><a class="nav-link" href="/todo/main/link">Main</a></li>
+                <li><a class="nav-link" href="{{fighter_link}}">Main</a></li>
                 {{#each action_links}}
                 {{#if current}}
                 <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
@@ -55,4 +55,4 @@
 
 {{/inline}}
 
-{{~> base title=title page_home=true mod_names=mod_names ~}}
+{{~> base title=title page_home=false ~}}

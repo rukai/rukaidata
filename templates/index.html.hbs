@@ -1,0 +1,18 @@
+{{#*inline "page"}}
+<h1>{{title}}</h1>
+
+<p>TODO: Explain about the website</p>
+<p>We have framedata on the following mods:</p>
+<ul>
+    {{#each mod_links}}
+    <li>
+        <a href="{{link}}">{{name}}</a>
+    </li>
+    {{/each}}
+</ul>
+<h2>Frame data terms</h2>
+<p>TODO</p>
+
+{{/inline}}
+
+{{~> base title=title page_home=true ~}}
