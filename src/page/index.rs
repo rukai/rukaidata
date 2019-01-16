@@ -1,20 +1,21 @@
-use rocket_contrib::templates::Template;
-use rocket::State;
+use std::fs::File;
+
+use handlebars::Handlebars;
 
 use crate::brawl_data::BrawlMods;
 use crate::page::NavLink;
 
-#[get("/")]
-pub fn serve(brawl_mods: State<BrawlMods>) -> Template {
+pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
     let page = IndexPage {
         title:     "Brawl Mod Frame Data",
         mod_links: brawl_mods.gen_mod_links(String::new()),
     };
-    Template::render("index", page)
+    let file = File::create("npm-webpack/dist/index.html").unwrap();
+    handlebars.render_to_write("index", &page, file).unwrap();
 }
 
 #[derive(Serialize)]
 struct IndexPage {
-    mod_links:     Vec<NavLink>,
-    title:         &'static str,
+    mod_links: Vec<NavLink>,
+    title:     &'static str,
 }

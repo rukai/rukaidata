@@ -1,15 +1,10 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-
-#[macro_use] extern crate rocket;
 #[macro_use] extern crate serde_derive;
 
-use rocket_contrib::templates::Template;
-use rocket::response::NamedFile;
+use handlebars::Handlebars;
 
 use brawllib_rs::fighter::Fighter;
 use brawllib_rs::high_level_fighter::HighLevelFighter;
 
-use std::path::{Path, PathBuf};
 use std::fs;
 
 pub mod cli;
@@ -79,19 +74,18 @@ fn main() {
             });
         }
     }
+    println!("brawl files loaded");
 
     let brawl_mods = BrawlMods {
         mods: brawl_mods
     };
 
-    rocket::ignite()
-        .manage(brawl_mods)
-        .mount("/", routes![files, page::index::serve, page::brawl_mod::serve, page::fighter::serve, page::action::serve])
-        .attach(Template::fairing())
-        .launch();
-}
+    let mut handlebars = Handlebars::new();
+    handlebars.register_templates_directory(".html.hbs", "templates").unwrap();
+    println!("handlebars templates loaded");
 
-#[get("/dist/<file..>")]
-fn files(file: PathBuf) -> Option<NamedFile> {
-    NamedFile::open(Path::new("npm-webpack/dist").join(file)).ok()
+    page::index::generate(&handlebars, &brawl_mods);
+    page::brawl_mod::generate(&handlebars, &brawl_mods);
+    page::fighter::generate(&handlebars, &brawl_mods);
+    page::action::generate(&handlebars, &brawl_mods);
 }

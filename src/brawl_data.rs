@@ -48,7 +48,7 @@ impl BrawlMod {
             };
             links.push(NavLink {
                 name:    fighter.name.clone(),
-                link:    format!("/framedata/{}/{}/{}", self.name, fighter.name, action_name),
+                link:    format!("/framedata/{}/{}/{}.html", self.name, fighter.name, action_name),
                 current: current_fighter == fighter.name,
             });
         }
@@ -60,7 +60,7 @@ impl BrawlMod {
         for action in &fighter.actions {
             links.push(NavLink {
                 name:    action.name.clone(),
-                link:    format!("/framedata/{}/{}/{}", self.name, fighter.name, action.name),
+                link:    format!("/framedata/{}/{}/{}.html", self.name, fighter.name, action.name),
                 current: current_action == action.name,
             });
         }

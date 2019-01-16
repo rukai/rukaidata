@@ -1,23 +1,23 @@
-use rocket_contrib::templates::Template;
-use rocket::State;
+use std::fs::File;
+use std::fs;
+
+use handlebars::Handlebars;
 
 use crate::brawl_data::BrawlMods;
-use crate::page::error::ErrorPage;
 use crate::page::NavLink;
 
-#[get("/framedata/<mod_name>")]
-pub fn serve(brawl_mods: State<BrawlMods>, mod_name: String) -> Template {
-    let mod_links = brawl_mods.gen_mod_links(mod_name.clone());
-    if let Some(brawl_mod) = brawl_mods.mods.iter().find(|x| x.name == mod_name) {
+pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
+    for brawl_mod in &brawl_mods.mods {
         let page = ModPage {
-            mod_links,
-            title:         format!("{} Fighters", mod_name),
+            mod_links:     brawl_mods.gen_mod_links(brawl_mod.name.clone()),
+            title:         format!("{} Fighters", brawl_mod.name),
             fighter_links: brawl_mod.gen_fighter_links(),
         };
-        Template::render("mod", page)
-    } else {
-        let error = format!("The mod {} does not exist.", mod_name);
-        Template::render("error", ErrorPage { mod_links, error })
+
+        fs::create_dir_all(format!("npm-webpack/dist/framedata/{}", brawl_mod.name)).unwrap();
+        let path = format!("npm-webpack/dist/framedata/{}/index.html", brawl_mod.name);
+        let file = File::create(path).unwrap();
+        handlebars.render_to_write("mod", &page, file).unwrap();
     }
 }
 
