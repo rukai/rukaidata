@@ -1,4 +1,4 @@
-# Brawl Frame Data Web [![dependency status](https://deps.rs/repo/github/rukai/brawl-frame-data-web/status.svg)](https://deps.rs/repo/github/rukai/brawl-frame-data-web)
+# Brawl Frame Data Web [![dependency status](https://deps.rs/repo/github/rukai/brawl-frame-data-web/status.svg)](https://deps.rs/repo/github/rukai/brawl-frame-data-web) [![Build Status](https://travis-ci.com/rukai/brawl-frame-data-web.svg?branch=master)](https://travis-ci.com/rukai/brawl-frame-data-web)
 
 Uses [brawllib_rs](https://github.com/rukai/brawllib_rs) to display frame data on characters.
 

@@ -1,0 +1,16 @@
+language: rust
+rust:
+  - stable
+
+script:
+  - export RUST_BACKTRACE=1
+  - sudo apt-get install npm
+  - cd rust
+  - cargo test
+  - cargo test --release
+  - cargo run
+  - cargo run --release
+
+branches:
+  only:
+    - master
