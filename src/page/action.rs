@@ -2,6 +2,7 @@ use std::fs::File;
 use std::fs;
 
 use handlebars::Handlebars;
+use rayon::prelude::*;
 
 use crate::brawl_data::BrawlMods;
 use crate::page::NavLink;
@@ -10,7 +11,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
     for brawl_mod in &brawl_mods.mods {
         let mod_links = brawl_mods.gen_mod_links(brawl_mod.name.clone());
         for fighter in &brawl_mod.fighters {
-            for action in &fighter.actions {
+            fighter.actions.par_iter().for_each(|action| {
                 let mut frame_buttons = vec!();
                 for (index, frame) in action.frames.iter().enumerate() {
                     let class = if !frame.hit_boxes.is_empty() {
@@ -38,8 +39,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
                     brawl_mod.name, fighter.name, action.name);
                 let file = File::create(path).unwrap();
                 handlebars.render_to_write("action", &page, file).unwrap();
-                println!("{}", action.name);
-            }
+                info!("{} {} {}", brawl_mod.name, fighter.name, action.name);
+            });
         }
     }
 }

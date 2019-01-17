@@ -1,4 +1,5 @@
 #[macro_use] extern crate serde_derive;
+#[macro_use] extern crate log;
 
 use handlebars::Handlebars;
 
@@ -74,7 +75,7 @@ fn main() {
             });
         }
     }
-    println!("brawl files loaded");
+    info!("brawl files loaded");
 
     let brawl_mods = BrawlMods {
         mods: brawl_mods
@@ -82,7 +83,7 @@ fn main() {
 
     let mut handlebars = Handlebars::new();
     handlebars.register_templates_directory(".html.hbs", "templates").unwrap();
-    println!("handlebars templates loaded");
+    info!("handlebars templates loaded");
 
     page::index::generate(&handlebars, &brawl_mods);
     page::brawl_mod::generate(&handlebars, &brawl_mods);

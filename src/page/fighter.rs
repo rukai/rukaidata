@@ -2,6 +2,7 @@ use std::fs::File;
 use std::fs;
 
 use handlebars::Handlebars;
+use rayon::prelude::*;
 
 use brawllib_rs::sakurai::FighterAttributes;
 
@@ -11,7 +12,7 @@ use crate::page::NavLink;
 pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
     for brawl_mod in &brawl_mods.mods {
         let mod_links = brawl_mods.gen_mod_links(brawl_mod.name.clone());
-        for fighter in &brawl_mod.fighters {
+        brawl_mod.fighters.par_iter().for_each(|fighter| {
             let page = FighterPage {
                 mod_links:     &mod_links,
                 title:         format!("{} - {}", brawl_mod.name, fighter.name),
@@ -24,7 +25,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
             let path = format!("npm-webpack/dist/framedata/{}/{}/index.html", brawl_mod.name, fighter.name);
             let file = File::create(path).unwrap();
             handlebars.render_to_write("fighter", &page, file).unwrap();
-        }
+        });
     }
 }
 
