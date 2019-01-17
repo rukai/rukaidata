@@ -25,7 +25,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
                 }
 
                 let page = ActionPage {
-                    fighter_link:  format!("/framedata/{}/{}", brawl_mod.name, fighter.name),
+                    fighter_link:  format!("/{}/{}", brawl_mod.name, fighter.name),
                     mod_links:     &mod_links,
                     title:         format!("{} - {} - {}", brawl_mod.name, fighter.name, action.name),
                     fighter_links: brawl_mod.gen_fighter_links_action(fighter.name.clone(), action.name.clone()),
@@ -34,8 +34,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
                     frame_buttons,
                 };
 
-                fs::create_dir_all(format!("npm-webpack/dist/framedata/{}/{}", brawl_mod.name, fighter.name)).unwrap();
-                let path = format!("npm-webpack/dist/framedata/{}/{}/{}.html",
+                fs::create_dir_all(format!("../root/{}/{}", brawl_mod.name, fighter.name)).unwrap();
+                let path = format!("../root/{}/{}/{}.html",
                     brawl_mod.name, fighter.name, action.name);
                 let file = File::create(path).unwrap();
                 handlebars.render_to_write("action", &page, file).unwrap();

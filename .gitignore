@@ -1,6 +1,9 @@
 /data/
 !/data/brawl/fighter/source.txt
-/target
-/npm-webpack/dist
+/rust/target
 /npm-webpack/node_modules
+
+/root/**
+!/root/assets_static
+
 **/*.rs.bk

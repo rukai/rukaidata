@@ -21,8 +21,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
                 attributes:    attributes_to_strings(&fighter.attributes),
             };
 
-            fs::create_dir_all(format!("npm-webpack/dist/framedata/{}/{}", brawl_mod.name, fighter.name)).unwrap();
-            let path = format!("npm-webpack/dist/framedata/{}/{}/index.html", brawl_mod.name, fighter.name);
+            fs::create_dir_all(format!("../root/{}/{}", brawl_mod.name, fighter.name)).unwrap();
+            let path = format!("../root/{}/{}/index.html", brawl_mod.name, fighter.name);
             let file = File::create(path).unwrap();
             handlebars.render_to_write("fighter", &page, file).unwrap();
         });

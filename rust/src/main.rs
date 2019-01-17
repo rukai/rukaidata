@@ -23,7 +23,7 @@ fn main() {
         return;
     };
 
-    let data_dir = match fs::read_dir("data") {
+    let data_dir = match fs::read_dir("../data") {
         Ok(dir) => dir,
         Err(_) => {
             println!("Can't read 'data' directory.");
@@ -49,7 +49,7 @@ fn main() {
                         Some(fighter_dir)
                     };
 
-                    let fighters = match fs::read_dir("data/Brawl/fighter") {
+                    let fighters = match fs::read_dir("../data/Brawl/fighter") {
                         Ok(brawl_dir) => Fighter::load(brawl_dir, mod_fighter_dir, true),
                         Err(_) => {
                             println!("Can't read 'data/Brawl/fighter' directory.");

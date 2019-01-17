@@ -10,7 +10,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
         title:     "Brawl Mod Frame Data",
         mod_links: brawl_mods.gen_mod_links(String::new()),
     };
-    let file = File::create("npm-webpack/dist/index.html").unwrap();
+    let file = File::create("../root/index.html").unwrap();
     handlebars.render_to_write("index", &page, file).unwrap();
 }
 

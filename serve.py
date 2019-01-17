@@ -1,3 +1,3 @@
 #!/bin/sh
-cd npm-webpack/dist
+cd root
 python3 -m http.server

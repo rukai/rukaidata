@@ -12,7 +12,7 @@ impl BrawlMods {
         for brawl_mod in &self.mods { // TODO: Allow specify ordering either via config file or the order used in --mods NAME1,NAME2
             links.push(NavLink {
                 name:    brawl_mod.name.clone(),
-                link:    format!("/framedata/{}", brawl_mod.name),
+                link:    format!("/{}", brawl_mod.name),
                 current: brawl_mod.name == current_mod,
             });
         }
@@ -31,7 +31,7 @@ impl BrawlMod {
         for fighter in &self.fighters {
             links.push(NavLink {
                 name:    fighter.name.clone(),
-                link:    format!("/framedata/{}/{}", self.name, fighter.name),
+                link:    format!("/{}/{}", self.name, fighter.name),
                 current: false,
             });
         }
@@ -48,7 +48,7 @@ impl BrawlMod {
             };
             links.push(NavLink {
                 name:    fighter.name.clone(),
-                link:    format!("/framedata/{}/{}/{}.html", self.name, fighter.name, action_name),
+                link:    format!("/{}/{}/{}.html", self.name, fighter.name, action_name),
                 current: current_fighter == fighter.name,
             });
         }
@@ -60,7 +60,7 @@ impl BrawlMod {
         for action in &fighter.actions {
             links.push(NavLink {
                 name:    action.name.clone(),
-                link:    format!("/framedata/{}/{}/{}.html", self.name, fighter.name, action.name),
+                link:    format!("/{}/{}/{}.html", self.name, fighter.name, action.name),
                 current: current_action == action.name,
             });
         }
