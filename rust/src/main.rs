@@ -13,7 +13,7 @@ pub mod logger;
 pub mod page;
 pub mod brawl_data;
 
-use crate::brawl_data::{BrawlMods, BrawlMod};
+use brawl_data::{BrawlMods, BrawlMod};
 
 fn main() {
     logger::init();
