@@ -34,10 +34,24 @@ export class FighterRender {
         this.action_data = action_data;
         this.frame_index = 0;
         this.run = false;
+        this.wireframe = false;
         this.material = new three.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.5 });
 
         this.setup_frame();
         this.animate();
+    }
+
+    wire_frame_toggle() {
+        const button = document.getElementById('wire-frame-toggle');
+        this.wireframe = !this.wireframe;
+        if (this.wireframe) {
+            button.innerHTML = "Transparent";
+            this.material = new three.MeshBasicMaterial({ color: 0xffffff, transparent: true, wireframe: true });
+        } else {
+            button.innerHTML = "Wireframe";
+            this.material = new three.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.5 });
+        }
+        this.setup_frame();
     }
 
     window_resize() {
@@ -109,11 +123,6 @@ export class FighterRender {
         this.controls.update();
     }
 
-    // TODO
-    // The current geometry generation is taken exactly from brawlbox.
-    // However the brawlbox code is really inefficient.
-    // We could improve it by generating each vertex only once for the edge generation.
-    // Then the face and side generation should no longer create any vertices, just link the vertices created by edge generation.
     setup_frame() {
         const frame = this.action_data.frames[this.frame_index];
 
@@ -146,340 +155,76 @@ export class FighterRender {
             stretch_face.divideScalar(radius);
             stretch_face.divide(bone_scale);
 
-            let left_offset = 1;
-            if (stretch.x > 0) {
-                left_offset = (stretch.x / radius + 1) / bone_scale.x;
-            }
+            const vertices = [];
+            const indices = [];
 
-            let right_offset = -1;
-            if (stretch.x < 0) {
-                right_offset = (stretch.x / radius - 1) / bone_scale.x;
-            }
+            var index_offset = 0;
 
-            let top_offset = 1;
-            if (stretch.y > 0) {
-                top_offset = (stretch.y / radius + 1) / bone_scale.y;
-            }
+            const widthSegments = 23; // needs to be odd, so we have a middle segment
+            const heightSegments = 17; // needs to be odd, so we have a middle segment
+            const grid = []
+            // modified UV sphere generation from:
+            // https://github.com/mrdoob/three.js/blob/4ca3860851d0cd33535afe801a1aa856da277f3a/src/geometries/SphereGeometry.js
+            for (var iy = 0; iy <= heightSegments; iy++) {
+                var verticesRow = [];
+                var v = iy / heightSegments;
 
-            let bottom_offset = -1;
-            if (stretch.y < 0) {
-                bottom_offset = (stretch.y / radius - 1) / bone_scale.y;
-            }
+                for (var ix = 0; ix <= widthSegments; ix++) {
+                    var u = ix / widthSegments;
 
-            let front_offset = 1;
-            if (stretch.z > 0) {
-                front_offset = (stretch.z / radius + 1) / bone_scale.z;
-            }
-
-            let back_offset = -1;
-            if (stretch.z < 0) {
-                back_offset = (stretch.z / radius - 1) / bone_scale.z;
-            }
-
-            const vertices = [
-                // left face
-                left_offset, 0.0,            0.0,
-                left_offset, stretch_face.y, 0.0,
-                left_offset, stretch_face.y, stretch_face.z,
-                left_offset, 0.0,            stretch_face.z,
-
-                // right face
-                right_offset, 0.0,            0.0,
-                right_offset, stretch_face.y, 0.0,
-                right_offset, stretch_face.y, stretch_face.z,
-                right_offset, 0.0,            stretch_face.z,
-
-                // top face
-                0.0,            top_offset, 0.0,
-                0.0,            top_offset, stretch_face.z,
-                stretch_face.x, top_offset, stretch_face.z,
-                stretch_face.x, top_offset, 0.0,
-
-                // bottom face
-                0.0,            bottom_offset, 0.0,
-                0.0,            bottom_offset, stretch_face.z,
-                stretch_face.x, bottom_offset, stretch_face.z,
-                stretch_face.x, bottom_offset, 0.0,
-
-                // front face
-                0.0,            0.0,            front_offset,
-                stretch_face.x, 0.0,            front_offset,
-                stretch_face.x, stretch_face.y, front_offset,
-                0.0,            stretch_face.y, front_offset,
-
-                // back face
-                0.0,            0.0,            back_offset,
-                stretch_face.x, 0.0,            back_offset,
-                stretch_face.x, stretch_face.y, back_offset,
-                0.0,            stretch_face.y, back_offset,
-            ];
-
-            const indices = [
-                0, 1, 2,
-                0, 2, 3,
-
-                6, 5, 4,
-                6, 4, 7,
-
-                8, 9, 10,
-                8, 10, 11,
-
-                14, 13, 12,
-                14, 12, 15,
-
-                18, 17, 16,
-                18, 16, 19,
-
-                20, 21, 22,
-                20, 22, 23,
-            ];
-
-            var index_offset = 24;
-
-            // generate eight corners: XYZ, XYz, XyZ, Xyz, xYZ, xYz, xyZ, xyz
-            const resolution = 16;
-            const angle_iterations = 360 / resolution
-            for (var quadrant = 0; quadrant < 8; quadrant++) {
-                for (var i = 0; i < 180 / angle_iterations; i++) {
-                    const ring_angle1 = (i * angle_iterations) / 180 * Math.PI;
-                    const ring_angle2 = ((i + 1) * angle_iterations) / 180 * Math.PI;
-
-                    for (var j = 0; j < 360 / angle_iterations; j++) {
-                        const angle1 = (j * angle_iterations) / 180 * Math.PI;
-                        const angle2 = ((j + 1) * angle_iterations) / 180 * Math.PI;
-
-                        var q = 0;
-                        var corner_offset = new three.Vector3();
-
-                        if (Math.cos(angle2) >= 0) { // X
-                            q += 4;
-                            if (stretch.x > 0) {
-                                corner_offset.x = stretch_face.x;
-                            }
-                        }
-                        else if (stretch.x < 0) {
+                    // The x, y and z stretch values, split the sphere in half, across its dimension.
+                    // This can result in 8 individual sphere corners.
+                    var corner_offset = new three.Vector3();
+                    if (u >= 0.25 && u <= 0.75) { // X
+                        if (stretch.x > 0) {
                             corner_offset.x = stretch_face.x;
                         }
+                    }
+                    else if (stretch.x < 0) {
+                        corner_offset.x = stretch_face.x;
+                    }
 
-                        if (Math.sin(angle2) >= 0) { // Y
-                            q += 2;
-                            if (stretch.y > 0) {
-                                corner_offset.y = stretch_face.y;
-                            }
-                        }
-                        else if (stretch.y < 0) {
+                    if (v >= 0 && v <= 0.5) { // Y
+                        if (stretch.y > 0) {
                             corner_offset.y = stretch_face.y;
                         }
+                    }
+                    else if (stretch.y < 0) {
+                        corner_offset.y = stretch_face.y;
+                    }
 
-                        if (Math.cos(ring_angle2) >= 0) { // Z
-                            q += 1;
-                            if (stretch.z > 0) {
-                                corner_offset.z = stretch_face.z;
-                            }
-                        }
-                        else if (stretch.z < 0) {
+                    if (u >= 0 && u <= 0.5) { // Z
+                        if (stretch.z > 0) {
                             corner_offset.z = stretch_face.z;
                         }
-
-                        if (quadrant == q) {
-                            vertices.push(corner_offset.x + Math.cos(angle1) * Math.sin(ring_angle2));
-                            vertices.push(corner_offset.y + Math.sin(angle1) * Math.sin(ring_angle2));
-                            vertices.push(corner_offset.z + Math.cos(ring_angle2));
-
-                            vertices.push(corner_offset.x + Math.cos(angle2) * Math.sin(ring_angle2));
-                            vertices.push(corner_offset.y + Math.sin(angle2) * Math.sin(ring_angle2));
-                            vertices.push(corner_offset.z + Math.cos(ring_angle2));
-
-                            vertices.push(corner_offset.x + Math.cos(angle2) * Math.sin(ring_angle1));
-                            vertices.push(corner_offset.y + Math.sin(angle2) * Math.sin(ring_angle1));
-                            vertices.push(corner_offset.z + Math.cos(ring_angle1));
-
-                            vertices.push(corner_offset.x + Math.cos(angle1) * Math.sin(ring_angle1));
-                            vertices.push(corner_offset.y + Math.sin(angle1) * Math.sin(ring_angle1));
-                            vertices.push(corner_offset.z + Math.cos(ring_angle1));
-
-                            indices.push(index_offset);
-                            indices.push(index_offset+1);
-                            indices.push(index_offset+2);
-
-                            indices.push(index_offset);
-                            indices.push(index_offset+2);
-                            indices.push(index_offset+3);
-                            index_offset += 4;
-                        }
                     }
+                    else if (stretch.z < 0) {
+                        corner_offset.z = stretch_face.z;
+                    }
+
+                    // vertex generation is supposed have the 8 sphere corners take up exactly 1/8th of the unit sphere.
+                    // However that is difficult because we would need to double up the middle segments.
+                    // So instead we just make it look like this is the case by having large widthSegments and heightSegments.
+                    const sin_v_pi = Math.sin(v * Math.PI);
+                    vertices.push(corner_offset.x - Math.cos(u * Math.PI * 2) * sin_v_pi);
+                    vertices.push(corner_offset.y + Math.cos(v * Math.PI));
+                    vertices.push(corner_offset.z + Math.sin(u * Math.PI * 2) * sin_v_pi);
+
+                    verticesRow.push(index_offset++);
                 }
+                grid.push(verticesRow);
             }
 
-            // generate edges
-            for (var i = 0; i < 360 / angle_iterations; i++) {
-                // x-axis edges
-                const ang1 = (i * angle_iterations) / 180 * Math.PI;
-                const ang2 = ((i + 1) * angle_iterations) / 180 * Math.PI;
+            for (var iy = 0; iy < heightSegments; iy++) {
+                for (var ix = 0; ix < widthSegments; ix++) {
+                    var a = grid[iy][(ix + 1) % widthSegments];
+                    var b = grid[iy][ix];
+                    var c = grid[iy + 1][ix];
+                    var d = grid[iy + 1][(ix + 1) % widthSegments];
 
-                var z1 = Math.cos(ang1);
-                var z2 = Math.cos(ang2);
-                var y1 = Math.sin(ang1);
-                var y2 = Math.sin(ang2);
-
-                var x1 = stretch.x < 0 ? stretch_face.x : 0;
-                var x2 = stretch.x > 0 ? stretch_face.x : 0;
-
-                if (y2 >= 0 && stretch.y > 0)
-                {
-                    y1 += stretch_face.y;
-                    y2 += stretch_face.y;
+                    indices.push(a, b, d);
+                    indices.push(b, c, d);
                 }
-                if (y2 <= 0 && stretch.y < 0)
-                {
-                    y1 += stretch_face.y;
-                    y2 += stretch_face.y;
-                }
-                if (z2 >= 0 && stretch.z > 0)
-                {
-                    z1 += stretch_face.z;
-                    z2 += stretch_face.z;
-                }
-                if (z2 <= 0 && stretch.z < 0)
-                {
-                    z1 += stretch_face.z;
-                    z2 += stretch_face.z;
-                }
-
-                vertices.push(x1);
-                vertices.push(y1);
-                vertices.push(z1);
-
-                vertices.push(x2);
-                vertices.push(y1);
-                vertices.push(z1);
-
-                vertices.push(x2);
-                vertices.push(y2);
-                vertices.push(z2);
-
-                vertices.push(x1);
-                vertices.push(y2);
-                vertices.push(z2);
-
-                indices.push(index_offset);
-                indices.push(index_offset+1);
-                indices.push(index_offset+2);
-
-                indices.push(index_offset);
-                indices.push(index_offset+2);
-                indices.push(index_offset+3);
-                index_offset += 4;
-
-                // y-axis edges
-                var x1 = Math.cos(ang1);
-                var x2 = Math.cos(ang2);
-                var z1 = Math.sin(ang1);
-                var z2 = Math.sin(ang2);
-
-                var y1 = stretch.y < 0 ? stretch_face.y : 0;
-                var y2 = stretch.y > 0 ? stretch_face.y : 0;
-
-                if (x2 >= 0 && stretch.x > 0)
-                {
-                    x1 += stretch_face.x;
-                    x2 += stretch_face.x;
-                }
-                if (x2 <= 0 && stretch.x < 0)
-                {
-                    x1 += stretch_face.x;
-                    x2 += stretch_face.x;
-                }
-                if (z2 >= 0 && stretch.z > 0)
-                {
-                    z1 += stretch_face.z;
-                    z2 += stretch_face.z;
-                }
-                if (z2 <= 0 && stretch.z < 0)
-                {
-                    z1 += stretch_face.z;
-                    z2 += stretch_face.z;
-                }
-
-                vertices.push(x1);
-                vertices.push(y1);
-                vertices.push(z1);
-
-                vertices.push(x1);
-                vertices.push(y2);
-                vertices.push(z1);
-
-                vertices.push(x2);
-                vertices.push(y2);
-                vertices.push(z2);
-
-                vertices.push(x2);
-                vertices.push(y1);
-                vertices.push(z2);
-
-                indices.push(index_offset);
-                indices.push(index_offset+1);
-                indices.push(index_offset+2);
-
-                indices.push(index_offset);
-                indices.push(index_offset+2);
-                indices.push(index_offset+3);
-                index_offset += 4;
-
-                // z-axis edges
-                var x1 = Math.cos(ang1);
-                var x2 = Math.cos(ang2);
-                var y1 = Math.sin(ang1);
-                var y2 = Math.sin(ang2);
-
-                var z1 = stretch.z < 0 ? stretch_face.z : 0;
-                var z2 = stretch.z > 0 ? stretch_face.z : 0;
-
-                if (x2 >= 0 && stretch.x > 0)
-                {
-                    x1 += stretch_face.x;
-                    x2 += stretch_face.x;
-                }
-                if (x2 <= 0 && stretch.x < 0)
-                {
-                    x1 += stretch_face.x;
-                    x2 += stretch_face.x;
-                }
-                if (y2 >= 0 && stretch.y > 0)
-                {
-                    y1 += stretch_face.y;
-                    y2 += stretch_face.y;
-                }
-                if (y2 <= 0 && stretch.y < 0)
-                {
-                    y1 += stretch_face.y;
-                    y2 += stretch_face.y;
-                }
-
-                vertices.push(x2);
-                vertices.push(y2);
-                vertices.push(z1);
-
-                vertices.push(x2);
-                vertices.push(y2);
-                vertices.push(z2);
-
-                vertices.push(x1);
-                vertices.push(y1);
-                vertices.push(z2);
-
-                vertices.push(x1);
-                vertices.push(y1);
-                vertices.push(z1);
-
-                indices.push(index_offset);
-                indices.push(index_offset+1);
-                indices.push(index_offset+2);
-
-                indices.push(index_offset);
-                indices.push(index_offset+2);
-                indices.push(index_offset+3);
-                index_offset += 4;
             }
 
             const geometry = new three.BufferGeometry();
