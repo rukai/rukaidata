@@ -31,8 +31,13 @@ export class FighterRender {
         this.window_resize();
         window.addEventListener('resize', () => this.window_resize(), false);
 
+        var url = new URL(location);
+        this.frame_index = parseInt(url.searchParams.get("frame"), 10);
+        if (Number.isNaN(this.frame_index)) {
+            this.frame_index = 0;
+        }
+
         this.action_data = action_data;
-        this.frame_index = 0;
         this.run = false;
         this.wireframe = false;
         this.material = new three.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.5 });
@@ -71,6 +76,11 @@ export class FighterRender {
     run_toggle() {
         if (this.run) {
             this.stop()
+
+            // hack to set the url correctly on run_toggle as the index value is one off
+            var url = new URL(location);
+            url.searchParams.set("frame", this.frame_index - 1);
+            window.history.replaceState({}, "", url);
         }
         else {
             this.start()
@@ -86,12 +96,17 @@ export class FighterRender {
     stop() {
         const button = document.getElementById('run-toggle');
         button.innerHTML = "Run";
+
         this.run = false;
+
+        var url = new URL(location);
+        url.searchParams.set("frame", this.frame_index);
+        window.history.replaceState({}, "", url);
     }
 
     previous_frame() {
-        this.stop();
         this.frame_index -= 1;
+        this.stop();
         if (this.frame_index == -1) {
             this.frame_index = this.action_data.frames.length - 1;
         }
@@ -99,8 +114,8 @@ export class FighterRender {
     }
 
     next_frame() {
-        this.stop();
         this.frame_index += 1;
+        this.stop();
         if (this.frame_index >= this.action_data.frames.length) {
             this.frame_index = 0;
         }
@@ -108,8 +123,8 @@ export class FighterRender {
     }
 
     set_frame(index) {
-        this.stop();
         this.frame_index = index;
+        this.stop();
         this.setup_frame();
     }
 
