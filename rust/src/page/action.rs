@@ -24,6 +24,16 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
                     frame_buttons.push(FrameButton { index, class });
                 }
 
+                // Despite being a twitter description, this is designed for use on discord over twitter.
+                // We make use of the 78 lines that discord displays.
+                // Ignoring that twitter only displays the first 3 lines.
+                let mut twitter_description = String::new();
+                twitter_description.push_str(&format!("IASA: {}", action.iasa));
+                twitter_description.push_str(&format!("\nFrames: {}", action.frames.len()));
+                // TODO: Add a landing_lag: Option<u32> field to HighLevelAction, it should check if the name of the action is AttackAirN etc. Then grab the appropriate landing lag from the attributes
+                //twitter_description.push_str(&format!("\nLanding Lag: {}", 0));
+                twitter_description.push_str("Current gif is a placeholder:");
+
                 let page = ActionPage {
                     fighter_link:  format!("/{}/{}", brawl_mod.name, fighter.name),
                     mod_links:     &mod_links,
@@ -32,6 +42,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
                     action_links:  brawl_mod.gen_action_links(fighter, action.name.clone()),
                     action:        serde_json::to_string(&action).unwrap(),
                     frame_buttons,
+                    twitter_image: String::from("/assets_static/meta-banner.gif"),
+                    twitter_description,
                 };
 
                 fs::create_dir_all(format!("../root/{}/{}", brawl_mod.name, fighter.name)).unwrap();
@@ -47,13 +59,15 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
 
 #[derive(Serialize)]
 pub struct ActionPage<'a> {
-    mod_links:     &'a [NavLink],
-    fighter_links: Vec<NavLink>,
-    action_links:  Vec<NavLink>,
-    fighter_link:  String,
-    title:         String,
-    action:        String,
-    frame_buttons: Vec<FrameButton>,
+    mod_links:           &'a [NavLink],
+    fighter_links:       Vec<NavLink>,
+    action_links:        Vec<NavLink>,
+    fighter_link:        String,
+    title:               String,
+    action:              String,
+    frame_buttons:       Vec<FrameButton>,
+    twitter_description: String,
+    twitter_image:       String,
 }
 
 #[derive(Serialize)]
@@ -61,4 +75,3 @@ pub struct FrameButton {
     index: usize,
     class: String,
 }
-
