@@ -13,7 +13,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
         for fighter in &brawl_mod.fighters {
             fighter.actions.par_iter().for_each(|action| {
                 let mut frame_buttons = vec!();
-                for (index, frame) in action.frames.iter().enumerate() {
+                for (mut index, frame) in action.frames.iter().enumerate() {
+                    index += 1;
                     let class = if !frame.hit_boxes.is_empty() {
                         String::from("hitbox-frame-button")
                     } else if index > action.iasa {

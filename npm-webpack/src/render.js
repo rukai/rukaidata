@@ -47,6 +47,7 @@ export class FighterRender {
 
         this.run = false;
         this.ecb_material = new three.MeshBasicMaterial({ color: 0xf15c0a, transparent: true, opacity: 0.5, side: three.DoubleSide });
+        this.hitbox_material = new three.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5 });
 
         this.setup_frame();
         this.animate();
@@ -132,18 +133,18 @@ export class FighterRender {
     }
 
     set_frame(index) {
-        this.frame_index = index;
+        this.frame_index = index - 1;
         this.stop();
         this.setup_frame();
     }
 
     face_left() {
-        this.camera.position.set(40, 8, 0);
+        this.camera.position.set(60, 8, 0);
         this.controls.update();
     }
 
     face_right() {
-        this.camera.position.set(-40, 8, 0);
+        this.camera.position.set(-60, 8, 0);
         this.controls.update();
     }
 
@@ -179,6 +180,67 @@ export class FighterRender {
             this.scene.add(new three.Mesh(geometry, this.ecb_material));
         }
 
+        // generate hitboxes
+        for (let hit_box of frame.hit_boxes) {
+            const vertices = [];
+            const indices = [];
+            const widthSegments = 23;
+            const heightSegments = 17;
+            const grid = []
+            var index_offset = 0;
+            // modified UV sphere generation from:
+            // https://github.com/mrdoob/three.js/blob/4ca3860851d0cd33535afe801a1aa856da277f3a/src/geometries/SphereGeometry.js
+            for (var iy = 0; iy <= heightSegments; iy++) {
+                var verticesRow = [];
+                var v = iy / heightSegments;
+
+                for (var ix = 0; ix <= widthSegments; ix++) {
+                    var u = ix / widthSegments;
+
+                    const half_offset = new three.Vector3(hit_box.next.x, hit_box.next.y, hit_box.next.z);
+                    if (hit_box.prev != null) {
+                        const diff = new three.Vector3(
+                            hit_box.next.x - hit_box.prev.x,
+                            hit_box.next.y - hit_box.prev.y,
+                            hit_box.next.z - hit_box.prev.z
+                        );
+                        //if (u ) {
+                        if (iy % 2 == 0) {
+                            half_offset.x = hit_box.prev.x;
+                            half_offset.y = hit_box.prev.y;
+                            half_offset.z = hit_box.prev.z;
+                        }
+                    }
+
+                    const sin_v_pi = Math.sin(v * Math.PI);
+                    vertices.push(half_offset.x + hit_box.next_values.size * Math.cos(u * Math.PI * 2) * sin_v_pi);
+                    vertices.push(half_offset.y + hit_box.next_values.size * Math.cos(v * Math.PI));
+                    vertices.push(half_offset.z + hit_box.next_values.size * Math.sin(u * Math.PI * 2) * sin_v_pi);
+
+                    verticesRow.push(index_offset++);
+                }
+                grid.push(verticesRow);
+            }
+
+            for (var iy = 0; iy < heightSegments; iy++) {
+                for (var ix = 0; ix < widthSegments; ix++) {
+                    var a = grid[iy][(ix + 1) % widthSegments];
+                    var b = grid[iy][ix];
+                    var c = grid[iy + 1][ix];
+                    var d = grid[iy + 1][(ix + 1) % widthSegments];
+
+                    indices.push(a, b, d);
+                    indices.push(b, c, d);
+                }
+            }
+
+            const geometry = new three.BufferGeometry();
+            geometry.addAttribute('position', new three.BufferAttribute(new Float32Array(vertices), 3));
+            geometry.setIndex(indices);
+
+            this.scene.add(new three.Mesh(geometry, this.hitbox_material));
+        }
+
         // generate hurtboxes
         for (let hurt_box of frame.hurt_boxes) {
             const bm = hurt_box.bone_matrix;
@@ -212,15 +274,15 @@ export class FighterRender {
             // modified UV sphere generation from:
             // https://github.com/mrdoob/three.js/blob/4ca3860851d0cd33535afe801a1aa856da277f3a/src/geometries/SphereGeometry.js
             for (var iy = 0; iy <= heightSegments; iy++) {
-                var verticesRow = [];
-                var v = iy / heightSegments;
+                const verticesRow = [];
+                const v = iy / heightSegments;
 
                 for (var ix = 0; ix <= widthSegments; ix++) {
-                    var u = ix / widthSegments;
+                    const u = ix / widthSegments;
 
                     // The x, y and z stretch values, split the sphere in half, across its dimension.
                     // This can result in 8 individual sphere corners.
-                    var corner_offset = new three.Vector3();
+                    const corner_offset = new three.Vector3();
                     if (u >= 0.25 && u <= 0.75) { // X
                         if (stretch.x > 0) {
                             corner_offset.x = stretch_face.x;
@@ -263,10 +325,10 @@ export class FighterRender {
 
             for (var iy = 0; iy < heightSegments; iy++) {
                 for (var ix = 0; ix < widthSegments; ix++) {
-                    var a = grid[iy][(ix + 1) % widthSegments];
-                    var b = grid[iy][ix];
-                    var c = grid[iy + 1][ix];
-                    var d = grid[iy + 1][(ix + 1) % widthSegments];
+                    const a = grid[iy][(ix + 1) % widthSegments];
+                    const b = grid[iy][ix];
+                    const c = grid[iy + 1][ix];
+                    const d = grid[iy + 1][(ix + 1) % widthSegments];
 
                     indices.push(a, b, d);
                     indices.push(b, c, d);
@@ -303,7 +365,7 @@ export class FighterRender {
         // update frame select
         for (var button of document.querySelectorAll('.frame-button')) {
             button.classList.remove('current-frame-button');
-            if (parseInt(button.innerHTML, 10) == this.frame_index) {
+            if (parseInt(button.innerHTML, 10) - 1 == this.frame_index) {
                 button.classList.add('current-frame-button');
             }
         }
