@@ -26,12 +26,21 @@
                 <a href="javascript:fighter_render.set_frame({{index}});" class="frame-button {{class}}">{{index}}</a> |
                 {{/each}}
             </p>
-            <button type="button" id="run-toggle" class="btn btn-sm btn-primary" onclick="fighter_render.run_toggle()">Run</button>
-            <button type="button" class="btn btn-sm btn-primary" onclick="fighter_render.previous_frame()">Previous Frame</button>
-            <button type="button" class="btn btn-sm btn-primary" onclick="fighter_render.next_frame()">Next Frame</button>
-            <button type="button" class="btn btn-sm btn-primary" onclick="fighter_render.face_left()">Face Left</button>
-            <button type="button" class="btn btn-sm btn-primary" onclick="fighter_render.face_right()">Face Right</button>
-            <button type="button" id="wire-frame-toggle" class="btn btn-sm btn-primary" onclick="fighter_render.wire_frame_toggle()">Wireframe</button>
+            <div>
+                <button type="button" id="run-toggle" class="btn btn-sm btn-primary" onclick="fighter_render.run_toggle()">Run</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="fighter_render.previous_frame()">Previous Frame</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="fighter_render.next_frame()">Next Frame</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="fighter_render.face_left()">Face Left</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="fighter_render.face_right()">Face Right</button>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="wireframe-checkbox" onclick="fighter_render.wireframe_toggle()">
+                <label class="form-check-label" for="wireframe-checkbox">Wireframe</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="ecb-checkbox" onclick="fighter_render.ecb_toggle()">
+                <label class="form-check-label" for="ecb-checkbox">ECB</label>
+            </div>
             <div id="fighter-scripts"></div>
             <script>
                 const fighter_action_data = {{{action}}};

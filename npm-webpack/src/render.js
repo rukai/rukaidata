@@ -17,6 +17,7 @@ export class FighterRender {
     constructor(action_data) {
         const render_div = document.getElementById('fighter-render');
 
+        this.action_data = action_data;
         this.scene = new three.Scene();
         this.camera = new three.PerspectiveCamera(40, 1, 1.0, 1000);
         this.controls = new OrbitControls(this.camera, render_div);
@@ -31,32 +32,24 @@ export class FighterRender {
         this.window_resize();
         window.addEventListener('resize', () => this.window_resize(), false);
 
-        var url = new URL(location);
-        this.frame_index = parseInt(url.searchParams.get("frame"), 10);
-        if (Number.isNaN(this.frame_index)) {
+        this.frame_index = parseInt(this.get_from_url("frame"), 10);
+        // handle invalid frame index
+        if (Number.isNaN(this.frame_index) || this.frame_index < 0 || this.frame_index >= this.action_data.frames.length) {
             this.frame_index = 0;
         }
 
-        this.action_data = action_data;
+        this.ecb_checkbox = document.getElementById('ecb-checkbox');
+        this.ecb_checkbox.checked = this.get_bool_from_url("ecb");
+
+        this.wireframe_checkbox = document.getElementById('wireframe-checkbox');
+        this.wireframe_checkbox.checked = this.get_bool_from_url("wireframe");
+        this.wireframe_toggle();
+
         this.run = false;
-        this.wireframe = false;
-        this.material = new three.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.5 });
+        this.ecb_material = new three.MeshBasicMaterial({ color: 0xf15c0a, transparent: true, opacity: 0.5, side: three.DoubleSide });
 
         this.setup_frame();
         this.animate();
-    }
-
-    wire_frame_toggle() {
-        const button = document.getElementById('wire-frame-toggle');
-        this.wireframe = !this.wireframe;
-        if (this.wireframe) {
-            button.innerHTML = "Transparent";
-            this.material = new three.MeshBasicMaterial({ color: 0xffffff, transparent: true, wireframe: true });
-        } else {
-            button.innerHTML = "Wireframe";
-            this.material = new three.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.5 });
-        }
-        this.setup_frame();
     }
 
     window_resize() {
@@ -73,14 +66,32 @@ export class FighterRender {
         this.renderer.setSize(width, height);
     }
 
+    wireframe_toggle() {
+        if (this.wireframe_checkbox.checked) {
+            this.hurtbox_material = new three.MeshBasicMaterial({ color: 0xffff00, transparent: true, wireframe: true });
+        } else {
+            this.hurtbox_material = new three.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.4 });
+        }
+        this.setup_frame();
+        this.set_bool_in_url("wireframe", this.wireframe_checkbox.checked);
+    }
+
+    ecb_toggle() {
+        this.setup_frame();
+        this.set_bool_in_url("ecb", this.ecb_checkbox.checked);
+    }
+
     run_toggle() {
         if (this.run) {
-            this.stop()
+            // this.animate() increments this.frame_index after calling this.setup_frame() to avoid skipping the first frame.
+            // However that means frame_index is ahead of where it should be.
+            // So before this.stop() we decrement this.frame_index back to where it was.
+            this.frame_index -= 1;
+            if (this.frame_index == -1) {
+                this.frame_index = this.action_data.frames.length - 1;
+            }
 
-            // hack to set the url correctly on run_toggle as the index value is one off
-            var url = new URL(location);
-            url.searchParams.set("frame", this.frame_index - 1);
-            window.history.replaceState({}, "", url);
+            this.stop()
         }
         else {
             this.start()
@@ -99,26 +110,24 @@ export class FighterRender {
 
         this.run = false;
 
-        var url = new URL(location);
-        url.searchParams.set("frame", this.frame_index);
-        window.history.replaceState({}, "", url);
+        this.set_in_url("frame", Math.max(0, Math.min(this.action_data.frames.length-1, this.frame_index)));
     }
 
     previous_frame() {
         this.frame_index -= 1;
-        this.stop();
         if (this.frame_index == -1) {
             this.frame_index = this.action_data.frames.length - 1;
         }
+        this.stop();
         this.setup_frame();
     }
 
     next_frame() {
         this.frame_index += 1;
-        this.stop();
         if (this.frame_index >= this.action_data.frames.length) {
             this.frame_index = 0;
         }
+        this.stop();
         this.setup_frame();
     }
 
@@ -146,6 +155,28 @@ export class FighterRender {
             const child = this.scene.children[0];
             this.scene.remove(child);
             child.geometry.dispose();
+        }
+
+        // generate ecb
+        if (this.ecb_checkbox.checked) {
+            const mid_y = (frame.ecb.top + frame.ecb.bottom) / 2.0;
+            const vertices = [
+                0, frame.ecb.top,    0,
+                0, mid_y,            frame.ecb.left,
+                0, mid_y,            frame.ecb.right,
+                0, frame.ecb.bottom, 0,
+            ];
+
+            const indices = [
+                0, 1, 2,
+                1, 2, 3,
+            ];
+
+            const geometry = new three.BufferGeometry();
+            geometry.addAttribute('position', new three.BufferAttribute(new Float32Array(vertices), 3));
+            geometry.setIndex(indices);
+
+            this.scene.add(new three.Mesh(geometry, this.ecb_material));
         }
 
         // generate hurtboxes
@@ -246,7 +277,7 @@ export class FighterRender {
             geometry.addAttribute('position', new three.BufferAttribute(new Float32Array(vertices), 3));
             geometry.setIndex(indices);
 
-            const cube = new three.Mesh(geometry, this.material);
+            const cube = new three.Mesh(geometry, this.hurtbox_material);
 
             const transform_translation = new three.Matrix4();
             transform_translation.makeTranslation(hurt_box.hurt_box.offset.x / (bone_scale.x * radius),
@@ -280,6 +311,7 @@ export class FighterRender {
 
     animate() {
         if (this.run) {
+            // this.frame_index needs to be incremented after this.setup_frame() to avoid skipping the first frame
             this.setup_frame();
             this.frame_index += 1;
             if (this.frame_index >= this.action_data.frames.length) {
@@ -289,5 +321,31 @@ export class FighterRender {
 
         this.renderer.render(this.scene, this.camera);
         requestAnimationFrame(() => this.animate());
+    }
+
+    set_in_url(name, data) {
+        var url = new URL(location);
+        url.searchParams.set(name, data);
+        window.history.replaceState({}, "", url);
+    }
+
+    set_bool_in_url(name, data) {
+        var url = new URL(location);
+        if (data) {
+            url.searchParams.set(name, data);
+        } else {
+            url.searchParams.delete(name);
+        }
+        window.history.replaceState({}, "", url);
+    }
+
+    get_from_url(name) {
+        var url = new URL(location);
+        return url.searchParams.get(name);
+    }
+
+    get_bool_from_url(name) {
+        var url = new URL(location);
+        return url.searchParams.get(name) === "true";
     }
 }
