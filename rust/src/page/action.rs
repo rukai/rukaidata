@@ -33,7 +33,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
                 twitter_description.push_str(&format!("\nFrames: {}", action.frames.len()));
                 // TODO: Add a landing_lag: Option<u32> field to HighLevelAction, it should check if the name of the action is AttackAirN etc. Then grab the appropriate landing lag from the attributes
                 //twitter_description.push_str(&format!("\nLanding Lag: {}", 0));
-                twitter_description.push_str("Current gif is a placeholder:");
+                twitter_description.push_str("\nCurrent gif is a placeholder:");
 
                 let page = ActionPage {
                     fighter_link:  format!("/{}/{}", brawl_mod.name, fighter.name),

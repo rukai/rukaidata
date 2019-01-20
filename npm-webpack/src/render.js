@@ -182,6 +182,14 @@ export class FighterRender {
 
         // generate hitboxes
         for (let hit_box of frame.hit_boxes) {
+            var prev_distance = 0;
+            var prev = null;
+            const next = new three.Vector3(hit_box.next.x, hit_box.next.y, hit_box.next.z);
+            if (hit_box.prev != null) {
+                prev = new three.Vector3(hit_box.prev.x, hit_box.prev.y, hit_box.prev.z);
+                prev_distance = next.distanceTo(prev);
+            }
+
             const vertices = [];
             const indices = [];
             const widthSegments = 23;
@@ -196,26 +204,17 @@ export class FighterRender {
 
                 for (var ix = 0; ix <= widthSegments; ix++) {
                     var u = ix / widthSegments;
-
-                    const half_offset = new three.Vector3(hit_box.next.x, hit_box.next.y, hit_box.next.z);
-                    if (hit_box.prev != null) {
-                        const diff = new three.Vector3(
-                            hit_box.next.x - hit_box.prev.x,
-                            hit_box.next.y - hit_box.prev.y,
-                            hit_box.next.z - hit_box.prev.z
-                        );
-                        //if (u ) {
-                        if (iy % 2 == 0) {
-                            half_offset.x = hit_box.prev.x;
-                            half_offset.y = hit_box.prev.y;
-                            half_offset.z = hit_box.prev.z;
+                    var y_offset = 0;
+                    if (prev != null) {
+                        if (v >= 0 && v <= 0.5) {
+                            y_offset += prev_distance;
                         }
                     }
 
                     const sin_v_pi = Math.sin(v * Math.PI);
-                    vertices.push(half_offset.x + hit_box.next_values.size * Math.cos(u * Math.PI * 2) * sin_v_pi);
-                    vertices.push(half_offset.y + hit_box.next_values.size * Math.cos(v * Math.PI));
-                    vertices.push(half_offset.z + hit_box.next_values.size * Math.sin(u * Math.PI * 2) * sin_v_pi);
+                    vertices.push(hit_box.next_values.size * Math.cos(u * Math.PI * 2) * sin_v_pi);
+                    vertices.push(hit_box.next_values.size * Math.cos(v * Math.PI) + y_offset);
+                    vertices.push(hit_box.next_values.size * Math.sin(u * Math.PI * 2) * sin_v_pi);
 
                     verticesRow.push(index_offset++);
                 }
@@ -224,10 +223,10 @@ export class FighterRender {
 
             for (var iy = 0; iy < heightSegments; iy++) {
                 for (var ix = 0; ix < widthSegments; ix++) {
-                    var a = grid[iy][(ix + 1) % widthSegments];
+                    var a = grid[iy][ix + 1];
                     var b = grid[iy][ix];
                     var c = grid[iy + 1][ix];
-                    var d = grid[iy + 1][(ix + 1) % widthSegments];
+                    var d = grid[iy + 1][ix + 1];
 
                     indices.push(a, b, d);
                     indices.push(b, c, d);
@@ -238,17 +237,35 @@ export class FighterRender {
             geometry.addAttribute('position', new three.BufferAttribute(new Float32Array(vertices), 3));
             geometry.setIndex(indices);
 
-            this.scene.add(new three.Mesh(geometry, this.hitbox_material));
+            const hit_box_mesh = new three.Mesh(geometry, this.hitbox_material);
+
+            const rotation = new three.Quaternion();
+            if (prev != null) {
+                const diff = prev.clone();
+                diff.sub(next);
+                diff.normalize();
+                rotation.setFromUnitVectors(new three.Vector3(0, 1, 0), diff);
+            }
+
+            const transform = new three.Matrix4();
+            transform.compose(next, rotation, new three.Vector3(1, 1, 1));
+
+            hit_box_mesh.matrixAutoUpdate = false;
+            hit_box_mesh.matrix.copy(transform);
+
+            this.scene.add(hit_box_mesh);
         }
 
         // generate hurtboxes
         for (let hurt_box of frame.hurt_boxes) {
             const bm = hurt_box.bone_matrix;
             const bone_matrix = new three.Matrix4();
-            bone_matrix.set(bm.x.x, bm.y.x, bm.z.x, bm.w.x,
-                          bm.x.y, bm.y.y, bm.z.y, bm.w.y,
-                          bm.x.z, bm.y.z, bm.z.z, bm.w.z,
-                          bm.x.w, bm.y.w, bm.z.w, bm.w.w);
+            bone_matrix.set(
+                bm.x.x, bm.y.x, bm.z.x, bm.w.x,
+                bm.x.y, bm.y.y, bm.z.y, bm.w.y,
+                bm.x.z, bm.y.z, bm.z.z, bm.w.z,
+                bm.x.w, bm.y.w, bm.z.w, bm.w.w
+            );
             const bone_scale = new three.Vector3();
             bone_scale.setFromMatrixScale(bone_matrix);
 
@@ -342,9 +359,11 @@ export class FighterRender {
             const cube = new three.Mesh(geometry, this.hurtbox_material);
 
             const transform_translation = new three.Matrix4();
-            transform_translation.makeTranslation(hurt_box.hurt_box.offset.x / (bone_scale.x * radius),
-                                                    hurt_box.hurt_box.offset.y / (bone_scale.y * radius),
-                                                    hurt_box.hurt_box.offset.z / (bone_scale.z * radius));
+            transform_translation.makeTranslation(
+                hurt_box.hurt_box.offset.x / (bone_scale.x * radius),
+                hurt_box.hurt_box.offset.y / (bone_scale.y * radius),
+                hurt_box.hurt_box.offset.z / (bone_scale.z * radius)
+            );
 
             const transform_scale = new three.Matrix4();
             transform_scale.makeScale(radius, radius, radius);
@@ -353,9 +372,6 @@ export class FighterRender {
             transform.copy(bone_matrix);
             transform.multiply(transform_scale);
             transform.multiply(transform_translation);
-
-            const orientation = new three.Quaternion();
-            orientation.setFromRotationMatrix(transform);
 
             cube.matrixAutoUpdate = false;
             cube.matrix.copy(transform);
