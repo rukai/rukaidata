@@ -91,6 +91,9 @@ fn process_events(events: &[EventAst]) -> String {
     for event in events {
         match event {
             EventAst::Nop => { }
+            EventAst::ChangeAction { action, test } => {
+                result.push_str(&format!("<li>ChangeAction {{ action: {}, when: ({}) }}</li>", action, process_expression(test)));
+            }
             EventAst::IfStatement ( IfStatement { test, then_branch, else_branch } ) => {
                 result.push_str(&format!("<li>if ({})", process_expression(test)));
                 result.push_str(&process_events(&then_branch.events));

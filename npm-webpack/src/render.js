@@ -48,6 +48,7 @@ export class FighterRender {
         this.run = false;
         this.ecb_material = new three.MeshBasicMaterial({ color: 0xf15c0a, transparent: true, opacity: 0.5, side: three.DoubleSide });
         this.hitbox_material = new three.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5 });
+        this.grabbox_material = new three.MeshBasicMaterial({ color: 0xff00ff, transparent: true, opacity: 0.5 });
 
         this.setup_frame();
         this.animate();
@@ -69,9 +70,13 @@ export class FighterRender {
 
     wireframe_toggle() {
         if (this.wireframe_checkbox.checked) {
-            this.hurtbox_material = new three.MeshBasicMaterial({ color: 0xffff00, transparent: true, wireframe: true });
+            this.hurtbox_normal_material = new three.MeshBasicMaterial({ color: 0xffff00, transparent: true, wireframe: true });
+            this.hurtbox_intangible_material = new three.MeshBasicMaterial({ color: 0x0000ff, transparent: true, wireframe: true });
+            this.hurtbox_invincible_material = new three.MeshBasicMaterial({ color: 0x00ff00, transparent: true, wireframe: true });
         } else {
-            this.hurtbox_material = new three.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.4 });
+            this.hurtbox_normal_material = new three.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.4 });
+            this.hurtbox_intangible_material = new three.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.4 });
+            this.hurtbox_invincible_material = new three.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4 });
         }
         this.setup_frame();
         this.set_bool_in_url("wireframe", this.wireframe_checkbox.checked);
@@ -182,11 +187,23 @@ export class FighterRender {
 
         // generate hitboxes
         for (let hit_box of frame.hit_boxes) {
+            // hit/grab box specific logic
+            var material = this.hitbox_material;
+            if (hit_box.next_values.Grab != null) {
+                material = this.grabbox_material;
+            }
+            else if(hit_box.next_values.Hit != null) {
+                if (!hit_box.next_values.Hit.can_hit_multiplayer_characters) {
+                    // only display hitboxes that are used in regular matches
+                    continue;
+                }
+            }
+
             var prev_distance = 0;
             var prev = null;
-            const next = new three.Vector3(hit_box.next.x, hit_box.next.y, hit_box.next.z);
-            if (hit_box.prev != null) {
-                prev = new three.Vector3(hit_box.prev.x, hit_box.prev.y, hit_box.prev.z);
+            const next = new three.Vector3(hit_box.next_pos.x, hit_box.next_pos.y, hit_box.next_pos.z);
+            if (hit_box.prev_pos != null) {
+                prev = new three.Vector3(hit_box.prev_pos.x, hit_box.prev_pos.y, hit_box.prev_pos.z);
                 prev_distance = next.distanceTo(prev);
             }
 
@@ -212,9 +229,9 @@ export class FighterRender {
                     }
 
                     const sin_v_pi = Math.sin(v * Math.PI);
-                    vertices.push(hit_box.next_values.size * Math.cos(u * Math.PI * 2) * sin_v_pi);
-                    vertices.push(hit_box.next_values.size * Math.cos(v * Math.PI) + y_offset);
-                    vertices.push(hit_box.next_values.size * Math.sin(u * Math.PI * 2) * sin_v_pi);
+                    vertices.push(hit_box.next_size * Math.cos(u * Math.PI * 2) * sin_v_pi);
+                    vertices.push(hit_box.next_size * Math.cos(v * Math.PI) + y_offset);
+                    vertices.push(hit_box.next_size * Math.sin(u * Math.PI * 2) * sin_v_pi);
 
                     verticesRow.push(index_offset++);
                 }
@@ -237,7 +254,7 @@ export class FighterRender {
             geometry.addAttribute('position', new three.BufferAttribute(new Float32Array(vertices), 3));
             geometry.setIndex(indices);
 
-            const hit_box_mesh = new three.Mesh(geometry, this.hitbox_material);
+            const hit_box_mesh = new three.Mesh(geometry, material);
 
             const rotation = new three.Quaternion();
             if (prev != null) {
@@ -356,7 +373,15 @@ export class FighterRender {
             geometry.addAttribute('position', new three.BufferAttribute(new Float32Array(vertices), 3));
             geometry.setIndex(indices);
 
-            const cube = new three.Mesh(geometry, this.hurtbox_material);
+            var material = this.hurtbox_normal_material;
+            if (hurt_box.state == "IntangibleFlashing" || hurt_box.state == "IntangibleNoFlashing" || hurt_box.state == "IntangibleQuickFlashing") {
+                material = this.hurtbox_intangible_material;
+            }
+            else if (hurt_box.state == "Invincible") {
+                material = this.hurtbox_invincible_material;
+            }
+
+            const cube = new three.Mesh(geometry, material);
 
             const transform_translation = new three.Matrix4();
             transform_translation.makeTranslation(
