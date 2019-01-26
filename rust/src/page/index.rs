@@ -7,7 +7,7 @@ use crate::page::NavLink;
 
 pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
     let page = IndexPage {
-        title:     "Brawl Mod Frame Data",
+        title:     "Rukai Data",
         mod_links: brawl_mods.gen_mod_links(String::new()),
     };
     let file = File::create("../root/index.html").unwrap();

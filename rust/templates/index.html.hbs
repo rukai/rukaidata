@@ -1,17 +1,36 @@
 {{#*inline "page"}}
-<h1>{{title}}</h1>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Display nothing from xs to sm, take up space from md to xl -->
+        <div class="d-none d-md-block col-2 sidebar"></div>
 
-<p>TODO: Explain about the website</p>
-<p>We have framedata on the following mods:</p>
-<ul>
-    {{#each mod_links}}
-    <li>
-        <a href="{{link}}">{{name}}</a>
-    </li>
-    {{/each}}
-</ul>
-<h2>Frame data terms</h2>
-<p>TODO</p>
+        <!-- take up 12 columns from xs to sm, take up 8 columns from md to xl -->
+        <div class="col-8 col-md-8">
+            <h1>{{title}}</h1>
+            <p>We have framedata on the following brawl mods:</p>
+            <ul>
+                {{#each mod_links}}
+                <li>
+                    <a href="{{link}}">{{name}}</a>
+                </li>
+                {{/each}}
+            </ul>
+            <h2>Frame data terms</h2>
+            <p>TODO</p>
+
+            <h2>Support Me!</h2>
+            <p>
+            Fund development of this project on Patreon.
+            <a href="https://www.patreon.com/bePatron?u=6776200" data-patreon-widget-type="become-patron-button">Patron!</a>
+            <script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script>
+            <p>
+        </div>
+
+        <!-- Display nothing from xs to sm, take up space from md to xl -->
+        <div class="col-4 col-md-2 sidebar"></div>
+    </div>
+</div>
+
 
 {{/inline}}
 
