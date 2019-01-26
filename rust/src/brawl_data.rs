@@ -66,5 +66,17 @@ impl BrawlMod {
         }
         links
     }
+
+    pub fn gen_script_links(&self, fighter: &HighLevelFighter, current_action: String) -> Vec<NavLink> {
+        let mut links = vec!();
+        for action in &fighter.actions {
+            links.push(NavLink {
+                name:    action.name.clone(),
+                link:    format!("/{}/{}/{}.html", self.name, fighter.name, action.name),
+                current: current_action == action.name,
+            });
+        }
+        links
+    }
 }
 

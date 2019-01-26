@@ -1,0 +1,35 @@
+{{#*inline "page"}}
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Display nothing from xs to sm, display something from md to xl -->
+        <nav class="d-none d-md-block col-2 sidebar sidebar-left">
+            <ul class="nav nav-pills flex-column">
+                {{#each fighter_links}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}/attributes.html">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}/attributes.html">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+        </nav>
+
+        <!-- take up 12 columns from xs to sm, take up 8 columns from md to xl -->
+        <div class="col-8 col-md-8">
+            <h1>{{title}}</h1>
+            <table>
+                {{#each attributes}}
+                <tr><td>{{name}}</td></td><td>{{value}}</td></tr>
+                {{/each}}
+            </table>
+        </div>
+
+        <!-- Display nothing from xs to sm, take up space from md to xl -->
+        <div class="col-4 col-md-2"></div>
+    </div>
+</div>
+
+{{/inline}}
+
+{{~> base title=title page_home=false ~}}

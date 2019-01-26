@@ -88,5 +88,9 @@ fn main() {
     page::index::generate(&handlebars, &brawl_mods);
     page::brawl_mod::generate(&handlebars, &brawl_mods);
     page::fighter::generate(&handlebars, &brawl_mods);
+    page::attributes::generate(&handlebars, &brawl_mods);
+    page::actions::generate(&handlebars, &brawl_mods);
     page::action::generate(&handlebars, &brawl_mods);
+    page::scripts::generate(&handlebars, &brawl_mods);
+    page::variables::generate(&handlebars, &brawl_mods);
 }
