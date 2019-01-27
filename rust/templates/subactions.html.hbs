@@ -7,9 +7,9 @@
             <ul class="nav nav-pills flex-column">
                 {{#each fighter_links}}
                 {{#if current}}
-                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                <li><a class="nav-link active" href="{{link}}/subactions.html">{{name}}</a></li>
                 {{else}}
-                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                <li><a class="nav-link" href="{{link}}/subactions.html">{{name}}</a></li>
                 {{/if}}
                 {{/each}}
             </ul>
@@ -20,17 +20,15 @@
             <h1>{{title}}</h1>
             <nav class="sidebar">
                 <ul class="nav nav-pills flex-column">
-                    <li><a class="nav-link" href="attributes.html">Attributes</a></li>
-                    <li><a class="nav-link" href="actions">Actions</a></li>
-                    <li><a class="nav-link" href="subactions">Subactions (This is where the good stuff is)</a></li>
-                    <li><a class="nav-link" href="scripts">Subroutine Scripts</a></li>
-                    <li><a class="nav-link" href="variables.html">Variables</a></li>
+                    {{#each subaction_links}}
+                    <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                    {{/each}}
                 </ul>
             </nav>
         </div>
 
         <!-- Display nothing from xs to sm, display something from md to xl -->
-        <div class="col-4 col-md-2 sidebar"></div>
+        <div class="col-4 col-md-2"></div>
     </div>
 </div>
 

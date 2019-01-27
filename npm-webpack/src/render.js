@@ -14,10 +14,10 @@ const ANIMATION_FLAGS = {
 };
 
 export class FighterRender {
-    constructor(action_data) {
+    constructor(subaction_data) {
         const render_div = document.getElementById('fighter-render');
 
-        this.action_data = action_data;
+        this.subaction_data = subaction_data;
         this.scene = new three.Scene();
         this.camera = new three.PerspectiveCamera(40, 1, 1.0, 1000);
         this.controls = new OrbitControls(this.camera, render_div);
@@ -34,7 +34,7 @@ export class FighterRender {
 
         this.frame_index = parseInt(this.get_from_url("frame"), 10);
         // handle invalid frame index
-        if (Number.isNaN(this.frame_index) || this.frame_index < 0 || this.frame_index >= this.action_data.frames.length) {
+        if (Number.isNaN(this.frame_index) || this.frame_index < 0 || this.frame_index >= this.subaction_data.frames.length) {
             this.frame_index = 0;
         }
 
@@ -94,7 +94,7 @@ export class FighterRender {
             // So before this.stop() we decrement this.frame_index back to where it was.
             this.frame_index -= 1;
             if (this.frame_index == -1) {
-                this.frame_index = this.action_data.frames.length - 1;
+                this.frame_index = this.subaction_data.frames.length - 1;
             }
 
             this.stop()
@@ -116,13 +116,13 @@ export class FighterRender {
 
         this.run = false;
 
-        this.set_in_url("frame", Math.max(0, Math.min(this.action_data.frames.length-1, this.frame_index)));
+        this.set_in_url("frame", Math.max(0, Math.min(this.subaction_data.frames.length-1, this.frame_index)));
     }
 
     previous_frame() {
         this.frame_index -= 1;
         if (this.frame_index == -1) {
-            this.frame_index = this.action_data.frames.length - 1;
+            this.frame_index = this.subaction_data.frames.length - 1;
         }
         this.stop();
         this.setup_frame();
@@ -130,7 +130,7 @@ export class FighterRender {
 
     next_frame() {
         this.frame_index += 1;
-        if (this.frame_index >= this.action_data.frames.length) {
+        if (this.frame_index >= this.subaction_data.frames.length) {
             this.frame_index = 0;
         }
         this.stop();
@@ -154,7 +154,7 @@ export class FighterRender {
     }
 
     setup_frame() {
-        const frame = this.action_data.frames[this.frame_index];
+        const frame = this.subaction_data.frames[this.frame_index];
 
         // clear all objects from previous frame
         while (this.scene.children.length) {
@@ -417,7 +417,7 @@ export class FighterRender {
             // this.frame_index needs to be incremented after this.setup_frame() to avoid skipping the first frame
             this.setup_frame();
             this.frame_index += 1;
-            if (this.frame_index >= this.action_data.frames.length) {
+            if (this.frame_index >= this.subaction_data.frames.length) {
                 this.frame_index = 0;
             }
         }

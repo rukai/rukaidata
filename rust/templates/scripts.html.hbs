@@ -18,9 +18,18 @@
         <!-- take up 12 columns from xs to sm, take up 8 columns from md to xl -->
         <div class="col-8 col-md-8">
             <h1>{{title}}</h1>
+            <h2>Fighter Specific Subroutines</h2>
             <nav class="sidebar">
                 <ul class="nav nav-pills flex-column">
-                    {{#each scripts}}
+                    {{#each script_fragment_fighter_links}}
+                    <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                    {{/each}}
+                </ul>
+            </nav>
+            <h2>Common Subroutines</h2>
+            <nav class="sidebar">
+                <ul class="nav nav-pills flex-column">
+                    {{#each script_fragment_common_links}}
                     <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
                     {{/each}}
                 </ul>

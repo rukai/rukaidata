@@ -11,9 +11,10 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
     for brawl_mod in &brawl_mods.mods {
         let mod_links = brawl_mods.gen_mod_links(brawl_mod.name.clone());
         brawl_mod.fighters.par_iter().for_each(|fighter| {
+            let fighter = &fighter.fighter;
             let page = VariablesPage {
                 mod_links:     &mod_links,
-                fighter_links: brawl_mod.gen_fighter_links(),
+                fighter_links: brawl_mod.gen_fighter_links(&fighter.name),
                 title:         format!("{} - {} - Variables", brawl_mod.name, fighter.name),
             };
 

@@ -8,10 +8,19 @@ use crate::page::NavLink;
 
 pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
     for brawl_mod in &brawl_mods.mods {
+        let mut fighter_links = vec!();
+        for fighter in &brawl_mod.fighters {
+            fighter_links.push(NavLink {
+                name:    fighter.fighter.name.clone(),
+                link:    format!("/{}/{}", brawl_mod.name, fighter.fighter.name),
+                current: false,
+            });
+        }
+
         let page = ModPage {
             mod_links:     brawl_mods.gen_mod_links(brawl_mod.name.clone()),
             title:         format!("{} Fighters", brawl_mod.name),
-            fighter_links: brawl_mod.gen_fighter_links(),
+            fighter_links,
         };
 
         fs::create_dir_all(format!("../root/{}", brawl_mod.name)).unwrap();

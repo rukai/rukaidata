@@ -4,7 +4,7 @@ use std::fs;
 use handlebars::Handlebars;
 use rayon::prelude::*;
 
-use brawllib_rs::sakurai::FighterAttributes;
+use brawllib_rs::sakurai::fighter_data::FighterAttributes;
 
 use crate::brawl_data::BrawlMods;
 use crate::page::NavLink;
@@ -13,10 +13,11 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
     for brawl_mod in &brawl_mods.mods {
         let mod_links = brawl_mods.gen_mod_links(brawl_mod.name.clone());
         brawl_mod.fighters.par_iter().for_each(|fighter| {
+            let fighter = &fighter.fighter;
             let page = AttributesPage {
                 mod_links:     &mod_links,
                 title:         format!("{} - {} - Attributes", brawl_mod.name, fighter.name),
-                fighter_links: brawl_mod.gen_fighter_links(),
+                fighter_links: brawl_mod.gen_fighter_links(&fighter.name),
                 attributes:    attributes_to_strings(&fighter.attributes),
             };
 

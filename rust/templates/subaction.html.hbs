@@ -1,0 +1,79 @@
+{{#*inline "page"}}
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Display nothing from xs to sm, display something from md to xl -->
+        <nav class="d-none d-md-block col-2 sidebar sidebar-left">
+            <ul class="nav nav-pills flex-column">
+                {{#each fighter_links}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+        </nav>
+
+        <!-- take up 12 columns from xs to sm, take up 8 columns from md to xl -->
+        <div class="col-12 col-md-8">
+            <h1>{{title}}</h1>
+            <div id="fighter-render">
+            </div>
+            <p>
+                |
+                {{#each frame_buttons}}
+                <a href="javascript:fighter_render.set_frame({{index}});" class="frame-button {{class}}">{{index}}</a> |
+                {{/each}}
+            </p>
+            <div>
+                <button type="button" id="run-toggle" class="btn btn-sm btn-primary" onclick="fighter_render.run_toggle()">Run</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="fighter_render.previous_frame()">Previous Frame</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="fighter_render.next_frame()">Next Frame</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="fighter_render.face_left()">Face Left</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="fighter_render.face_right()">Face Right</button>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="wireframe-checkbox" onclick="fighter_render.wireframe_toggle()">
+                <label class="form-check-label" for="wireframe-checkbox">Wireframe</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="ecb-checkbox" onclick="fighter_render.ecb_toggle()">
+                <label class="form-check-label" for="ecb-checkbox">ECB</label>
+            </div>
+
+            <h2 id="script-main">Main Script</h2>
+            {{{script_main}}}
+            <h2 id="script-gfx">GFX Script</h2>
+            {{{script_gfx}}}
+            <h2 id="script-sfx">SFX Script</h2>
+            {{{script_sfx}}}
+            <h2 id="script-other">Other Script</h2>
+            {{{script_other}}}
+
+            <div id="fighter-scripts"></div>
+            <script>
+                const fighter_subaction_data = {{{subaction}}};
+            </script>
+        </div>
+
+        <!-- Display nothing from xs to sm, display something from md to xl -->
+        <nav class="d-none d-md-block col-2 sidebar sidebar-right">
+            <ul class="nav nav-pills flex-column">
+                <li><a class="nav-link" href="{{fighter_link}}">Main</a></li>
+                {{#each subaction_links}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+        </nav>
+    </div>
+</div>
+<script src="/assets_webpack/main.js"></script>
+
+{{/inline}}
+
+{{~> base title=title page_home=false twitter_description=twitter_description twitter_image=twitter_image ~}}

@@ -18,17 +18,25 @@
         <!-- take up 12 columns from xs to sm, take up 8 columns from md to xl -->
         <div class="col-12 col-md-8">
             <h1>{{title}}</h1>
-            <h2 id="script-entry">Entry Script</h2>
-            {{{script_entry}}}
-            <h2 id="script-exit">Exit Script</h2>
-            {{{script_exit}}}
+            {{{script}}}
         </div>
 
         <!-- Display nothing from xs to sm, display something from md to xl -->
         <nav class="d-none d-md-block col-2 sidebar sidebar-right">
+            <p>Fighter Specific</p>
             <ul class="nav nav-pills flex-column">
-                <li><a class="nav-link" href="{{fighter_link}}">Main</a></li>
-                {{#each action_links}}
+                {{#each script_fighter_links}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+
+            <p>Common</p>
+            <ul class="nav nav-pills flex-column">
+                {{#each script_common_links}}
                 {{#if current}}
                 <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
                 {{else}}
@@ -39,7 +47,6 @@
         </nav>
     </div>
 </div>
-<script src="/assets_webpack/main.js"></script>
 
 {{/inline}}
 
