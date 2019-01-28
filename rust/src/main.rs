@@ -8,6 +8,7 @@ pub mod logger;
 pub mod page;
 pub mod brawl_data;
 pub mod process_scripts;
+pub mod assets;
 
 use brawl_data::BrawlMods;
 
@@ -32,6 +33,8 @@ fn main() {
             page::script::generate(&handlebars, &brawl_mods);
             page::scripts::generate(&handlebars, &brawl_mods);
             page::variables::generate(&handlebars, &brawl_mods);
+
+            assets::generate();
         }
     }
 }
