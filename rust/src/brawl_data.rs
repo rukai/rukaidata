@@ -31,9 +31,9 @@ impl BrawlMods {
     pub fn new(cli: &CLIResults) -> Option<BrawlMods> {
         match fs::read_dir("../data") {
             Ok(dir) => {
-                Some(BrawlMods {
-                    mods: dir.filter_map(|x| BrawlMod::new(x.unwrap(), &cli)).collect(),
-                })
+                let mut mods: Vec<_> = dir.filter_map(|x| BrawlMod::new(x.unwrap(), &cli)).collect();
+                mods.sort_by_key(|x| x.name.clone());
+                Some(BrawlMods { mods })
             }
             Err(_) => {
                 println!("Can't read 'data' directory.");
@@ -139,6 +139,8 @@ impl BrawlMod {
                     return None;
                 }
             };
+
+            brawl_fighters.sort_by_key(|x| x.fighter.name.clone());
 
             Some(BrawlMod {
                 name:     mod_name,
