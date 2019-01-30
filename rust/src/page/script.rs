@@ -7,8 +7,9 @@ use rayon::prelude::*;
 use crate::brawl_data::BrawlMods;
 use crate::page::NavLink;
 use crate::process_scripts;
+use crate::assets::AssetPaths;
 
-pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
+pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetPaths) {
     for brawl_mod in &brawl_mods.mods {
         let mod_links = brawl_mods.gen_mod_links(brawl_mod.name.clone());
 
@@ -31,6 +32,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
                     script_common_links:  brawl_mod.gen_script_fragment_common_links(&fighter.fighter, script.offset),
                     script:               process_scripts::process_events(&script.block.events, brawl_mod, &fighter),
                     fighter_links:        &fighter_links,
+                    assets,
                 };
 
                 fs::create_dir_all(format!("../root/{}/{}/scripts", brawl_mod.name, fighter.fighter.name)).unwrap();
@@ -49,6 +51,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
                     script_common_links:  brawl_mod.gen_script_fragment_common_links(&fighter.fighter, script.offset),
                     script:               process_scripts::process_events(&script.block.events, brawl_mod, &fighter),
                     fighter_links:        &fighter_links,
+                    assets,
                 };
 
                 fs::create_dir_all(format!("../root/{}/{}/scripts", brawl_mod.name, fighter.fighter.name)).unwrap();
@@ -64,6 +67,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
 
 #[derive(Serialize)]
 pub struct ScriptPage<'a> {
+    assets:               &'a AssetPaths,
     mod_links:            &'a [NavLink],
     fighter_links:        &'a [NavLink],
     script_common_links:  Vec<NavLink>,

@@ -5,8 +5,9 @@ use handlebars::Handlebars;
 
 use crate::brawl_data::BrawlMods;
 use crate::page::NavLink;
+use crate::assets::AssetPaths;
 
-pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
+pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetPaths) {
     for brawl_mod in &brawl_mods.mods {
         let mut fighter_links = vec!();
         for fighter in &brawl_mod.fighters {
@@ -21,6 +22,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
             mod_links:     brawl_mods.gen_mod_links(brawl_mod.name.clone()),
             title:         format!("{} Fighters", brawl_mod.name),
             fighter_links,
+            assets,
         };
 
         fs::create_dir_all(format!("../root/{}", brawl_mod.name)).unwrap();
@@ -31,7 +33,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
 }
 
 #[derive(Serialize)]
-struct ModPage {
+struct ModPage<'a> {
+    assets:        &'a AssetPaths,
     mod_links:     Vec<NavLink>,
     fighter_links: Vec<NavLink>,
     title:         String,

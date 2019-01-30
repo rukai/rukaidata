@@ -6,13 +6,15 @@ use rayon::prelude::*;
 
 use crate::brawl_data::BrawlMods;
 use crate::page::NavLink;
+use crate::assets::AssetPaths;
 
-pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
+pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetPaths) {
     for brawl_mod in &brawl_mods.mods {
         let mod_links = brawl_mods.gen_mod_links(brawl_mod.name.clone());
         brawl_mod.fighters.par_iter().for_each(|fighter| {
             let fighter = &fighter.fighter;
             let page = ActionsPage {
+                assets,
                 mod_links:     &mod_links,
                 title:         format!("{} - {} - Actions", brawl_mod.name, fighter.name),
                 fighter_links: brawl_mod.gen_fighter_links(&fighter.name),
@@ -29,6 +31,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
 
 #[derive(Serialize)]
 struct ActionsPage<'a> {
+    assets:        &'a AssetPaths,
     mod_links:     &'a [NavLink],
     title:         String,
     fighter_links: Vec<NavLink>,

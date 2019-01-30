@@ -7,8 +7,9 @@ use rayon::prelude::*;
 use crate::brawl_data::BrawlMods;
 use crate::page::NavLink;
 use crate::process_scripts;
+use crate::assets::AssetPaths;
 
-pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
+pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetPaths) {
     for brawl_mod in &brawl_mods.mods {
         let mod_links = brawl_mods.gen_mod_links(brawl_mod.name.clone());
 
@@ -24,6 +25,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
             }
             fighter.fighter.actions.par_iter().for_each(|action| {
                 let page = ActionPage {
+                    assets,
                     mod_links:     &mod_links,
                     title:         format!("{} - {} - Action - {}", brawl_mod.name, fighter.fighter.name, action.name),
                     action_links:  brawl_mod.gen_action_links(&fighter.fighter, &action.name),
@@ -45,6 +47,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods) {
 
 #[derive(Serialize)]
 pub struct ActionPage<'a> {
+    assets:        &'a AssetPaths,
     mod_links:     &'a [NavLink],
     fighter_links: &'a [NavLink],
     action_links:  Vec<NavLink>,

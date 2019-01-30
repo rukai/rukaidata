@@ -11,6 +11,7 @@ pub mod process_scripts;
 pub mod assets;
 
 use brawl_data::BrawlMods;
+use assets::AssetPaths;
 
 fn main() {
     logger::init();
@@ -22,19 +23,19 @@ fn main() {
             handlebars.register_templates_directory(".html.hbs", "templates").unwrap();
             info!("handlebars templates loaded");
 
-            page::index::generate(&handlebars, &brawl_mods);
-            page::brawl_mod::generate(&handlebars, &brawl_mods);
-            page::fighter::generate(&handlebars, &brawl_mods);
-            page::attributes::generate(&handlebars, &brawl_mods);
-            page::actions::generate(&handlebars, &brawl_mods);
-            page::action::generate(&handlebars, &brawl_mods);
-            page::subactions::generate(&handlebars, &brawl_mods);
-            page::subaction::generate(&handlebars, &brawl_mods);
-            page::script::generate(&handlebars, &brawl_mods);
-            page::scripts::generate(&handlebars, &brawl_mods);
-            page::variables::generate(&handlebars, &brawl_mods);
+            let assets = AssetPaths::new();
 
-            assets::generate();
+            page::index::generate(&handlebars, &brawl_mods, &assets);
+            page::brawl_mod::generate(&handlebars, &brawl_mods, &assets);
+            page::fighter::generate(&handlebars, &brawl_mods, &assets);
+            page::attributes::generate(&handlebars, &brawl_mods, &assets);
+            page::actions::generate(&handlebars, &brawl_mods, &assets);
+            page::action::generate(&handlebars, &brawl_mods, &assets);
+            page::subactions::generate(&handlebars, &brawl_mods, &assets);
+            page::subaction::generate(&handlebars, &brawl_mods, &assets);
+            page::script::generate(&handlebars, &brawl_mods, &assets);
+            page::scripts::generate(&handlebars, &brawl_mods, &assets);
+            page::variables::generate(&handlebars, &brawl_mods, &assets);
         }
     }
 }
