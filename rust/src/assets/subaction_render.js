@@ -816,6 +816,13 @@ class FighterRender {
             child.geometry.dispose();
         }
 
+        const transform_translation_frame = new THREE.Matrix4();
+        transform_translation_frame.makeTranslation(
+            0.0,
+            frame.y_pos,
+            frame.x_pos,
+        );
+
         // generate ecb
         if (this.ecb_checkbox.checked) {
             const mid_y = (frame.ecb.top + frame.ecb.bottom) / 2.0;
@@ -835,7 +842,10 @@ class FighterRender {
             geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
             geometry.setIndex(indices);
 
-            this.scene.add(new THREE.Mesh(geometry, this.ecb_material));
+            const mesh = new THREE.Mesh(geometry, this.ecb_material);
+            mesh.position.z = frame.x_pos;
+            mesh.position.y = frame.y_pos;
+            this.scene.add(mesh);
         }
 
         // generate hitboxes
@@ -854,9 +864,9 @@ class FighterRender {
 
             var prev_distance = 0;
             var prev = null;
-            const next = new THREE.Vector3(hit_box.next_pos.x, hit_box.next_pos.y, hit_box.next_pos.z);
+            const next = new THREE.Vector3(hit_box.next_pos.x, hit_box.next_pos.y + frame.y_pos, hit_box.next_pos.z + frame.x_pos);
             if (hit_box.prev_pos != null) {
-                prev = new THREE.Vector3(hit_box.prev_pos.x, hit_box.prev_pos.y, hit_box.prev_pos.z);
+                prev = new THREE.Vector3(hit_box.prev_pos.x, hit_box.prev_pos.y + frame.y_pos, hit_box.prev_pos.z + frame.x_pos);
                 prev_distance = next.distanceTo(prev);
             }
 
@@ -1047,7 +1057,8 @@ class FighterRender {
             transform_scale.makeScale(radius, radius, radius);
 
             const transform = new THREE.Matrix4();
-            transform.copy(bone_matrix);
+            transform.copy(transform_translation_frame);
+            transform.multiply(bone_matrix);
             transform.multiply(transform_scale);
             transform.multiply(transform_translation);
 

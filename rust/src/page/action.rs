@@ -19,7 +19,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                 let other_name = &other_fighter.fighter.name;
                 fighter_links.push(NavLink {
                     name:    other_name.clone(),
-                    link:    format!("/{}/{}/actions", brawl_mod.name, fighter.fighter.name),
+                    link:    format!("/{}/{}/actions", brawl_mod.name, other_fighter.fighter.name),
                     current: other_name == &fighter.fighter.name,
                 });
             }

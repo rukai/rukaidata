@@ -4,12 +4,11 @@ rust:
 
 script:
   - export RUST_BACKTRACE=1
-  - sudo apt-get install npm
   - cd rust
   - cargo test
   - cargo test --release
-  - cargo run
-  - cargo run --release
+  - cargo build
+  - cargo build --release
 
 branches:
   only:

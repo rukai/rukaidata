@@ -13,12 +13,23 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
         let mod_links = brawl_mods.gen_mod_links(brawl_mod.name.clone());
         brawl_mod.fighters.par_iter().for_each(|fighter| {
             let fighter = &fighter.fighter;
+
+            let mut fighter_links = vec!();
+            for other_fighter in &brawl_mod.fighters {
+                let other_name = &other_fighter.fighter.name;
+                fighter_links.push(NavLink {
+                    name:    other_name.clone(),
+                    link:    format!("/{}/{}/actions", brawl_mod.name, other_fighter.fighter.name),
+                    current: other_name == &fighter.name,
+                });
+            }
+
             let page = ActionsPage {
-                assets,
                 mod_links:     &mod_links,
                 title:         format!("{} - {} - Actions", brawl_mod.name, fighter.name),
-                fighter_links: brawl_mod.gen_fighter_links(&fighter.name),
                 action_links:  brawl_mod.gen_action_links(fighter, ""),
+                fighter_links,
+                assets,
             };
 
             fs::create_dir_all(format!("../root/{}/{}/actions", brawl_mod.name, fighter.name)).unwrap();

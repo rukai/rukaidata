@@ -81,7 +81,7 @@ impl BrawlMod {
                     };
                     for fighter in fighters {
                         let lower_fighter_name = fighter.cased_name.to_lowercase();
-                        if cli.fighter_names.len() == 0 || cli.fighter_names.iter().any(|x| x == &lower_fighter_name) {
+                        if (cli.fighter_names.len() == 0 || cli.fighter_names.iter().any(|x| x == &lower_fighter_name)) && lower_fighter_name != "poketrainer" {
                             let fighter = HighLevelFighter::new(&fighter);
 
                             let mut script_lookup = HashMap::new();
@@ -120,13 +120,14 @@ impl BrawlMod {
                                 let name = script.offset.to_string();
                                 let address = format!("/{}/{}/scripts/{}.html", mod_name, fighter.name, name);
                                 script_lookup.insert(script.offset, ScriptInfo { name, address });
+                                //assert!(script_lookup.insert(script.offset, ScriptInfo { name, address }).is_none()); // TODO: Collides with the COMMON action entry/exit scripts. Need to research if common has its own namespace?? How are collisions resolved??
                             }
 
                             for script in &fighter.scripts_fragment_common {
                                 let name = script.offset.to_string();
                                 let address = format!("/{}/{}/scripts/{}.html", mod_name, fighter.name, name);
                                 script_lookup.insert(script.offset, ScriptInfo { name, address });
-                                //assert!(script_lookup.insert(script.offset, ScriptInfo { name, address }).is_none());
+                                //assert!(script_lookup.insert(script.offset, ScriptInfo { name, address }).is_none()); // TODO
                             }
 
                             brawl_fighters.push(BrawlFighter { fighter, script_lookup });

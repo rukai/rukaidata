@@ -1,4 +1,4 @@
-use brawllib_rs::script_ast::{EventAst, IfStatement, Expression, UnaryExpression, BinaryExpression};
+use brawllib_rs::script_ast::{EventAst, ForLoop, Iterations, IfStatement, Expression, UnaryExpression, BinaryExpression};
 
 use crate::brawl_data::{BrawlMod, BrawlFighter};
 
@@ -53,6 +53,13 @@ pub fn process_events(events: &[EventAst], brawl_mod: &BrawlMod, fighter: &Brawl
                     error!("Failed to lookup action for ChangeSubactionRestartFrame");
                 }
             }
+            EventAst::ForLoop ( ForLoop { iterations, block } ) => {
+                let iterations = match iterations {
+                    Iterations::Finite (i) => i.to_string(),
+                    Iterations::Infinite => "Infinite".to_string(),
+                };
+                result.push_str(&format!("<li>loop {} times: {}</li>", iterations, &process_events(&block.events, brawl_mod, fighter)));
+            }
             EventAst::IfStatement ( IfStatement { test, then_branch, else_branch } ) => {
                 result.push_str(&format!("<li>if ({}) {} </li>", process_expression(test), &process_events(&then_branch.events, brawl_mod, fighter)));
 
@@ -78,7 +85,15 @@ pub fn process_events(events: &[EventAst], brawl_mod: &BrawlMod, fighter: &Brawl
                     error!("Failed to lookup script for goto destination");
                 }
             }
-            EventAst::Unknown (event) => result.push_str(&format!("<li>Unknown event {:x?}</li>", event)),
+            EventAst::CallEveryFrame { thread_id, offset } => {
+                if let Some(script_info) = script_lookup.get(&(*offset as u32)) {
+                    result.push_str(&format!("<li>CallEveryFrame {{ thread_id: {}, script: <a href='{}'>{}</a> }}</li>", thread_id, script_info.address, script_info.name));
+                } else {
+                    result.push_str(&format!("<li>{:?}</li>", event));
+                    error!("Failed to lookup script for CallEveryFrame destination");
+                }
+            }
+            EventAst::Unknown (event) => result.push_str(&format!("<li>UnknownEvent {{ namespace: 0x{:x}, code: 0x{:x}, unk1: 0x{:x}, argments: {:?} }}</li>", event.namespace, event.code, event.unk1, event.arguments)),
             _ => result.push_str(&format!("<li>{:?}</li>", event)),
         }
     }
@@ -94,7 +109,7 @@ fn process_expression(expr: &Expression) -> String {
         Expression::Binary (BinaryExpression { left, operator, right })
             => format!("{} {:?} {}", process_expression(left), operator, process_expression(right)),
         Expression::Not (expr) => format!("not({})", process_expression(expr)),
-        Expression::Variable (variable) => format!("variable(0x{:x})", variable),
+        Expression::Variable (variable) => format!("{:?}", variable),
         Expression::Value (value) => format!("value({})", value),
         Expression::Scalar (scalar) => format!("scalar({})", scalar),
     }
