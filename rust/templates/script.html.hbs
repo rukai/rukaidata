@@ -23,7 +23,7 @@
 
         <!-- Display nothing from xs to sm, display something from md to xl -->
         <nav class="d-none d-md-block col-2 sidebar sidebar-right">
-            <p>Fighter Specific</p>
+            <h2>Fighter Specific</h2>
             <ul class="nav nav-pills flex-column">
                 {{#each script_fighter_links}}
                 {{#if current}}
@@ -34,7 +34,7 @@
                 {{/each}}
             </ul>
 
-            <p>Common</p>
+            <h2>Common</h2>
             <ul class="nav nav-pills flex-column">
                 {{#each script_common_links}}
                 {{#if current}}

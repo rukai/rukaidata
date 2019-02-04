@@ -4,7 +4,7 @@ use std::fs;
 use handlebars::Handlebars;
 use rayon::prelude::*;
 
-use crate::brawl_data::BrawlMods;
+use crate::brawl_data::{BrawlMods, SubactionLinks};
 use crate::page::NavLink;
 use crate::process_scripts;
 use crate::assets::AssetPaths;
@@ -101,7 +101,7 @@ pub struct SubactionPage<'a> {
     assets:              &'a AssetPaths,
     mod_links:           &'a [NavLink],
     fighter_links:       Vec<NavLink>,
-    subaction_links:     Vec<NavLink>,
+    subaction_links:     SubactionLinks,
     fighter_link:        String,
     title:               String,
     subaction:           String,

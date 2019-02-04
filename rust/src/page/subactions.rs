@@ -4,7 +4,7 @@ use std::fs;
 use handlebars::Handlebars;
 use rayon::prelude::*;
 
-use crate::brawl_data::BrawlMods;
+use crate::brawl_data::{BrawlMods, SubactionLinks};
 use crate::page::NavLink;
 use crate::assets::AssetPaths;
 
@@ -31,9 +31,9 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
 
 #[derive(Serialize)]
 struct SubactionsPage<'a> {
-    assets:        &'a AssetPaths,
+    assets:          &'a AssetPaths,
     mod_links:       &'a [NavLink],
     fighter_links:   Vec<NavLink>,
-    subaction_links: Vec<NavLink>,
+    subaction_links: SubactionLinks,
     title:           String,
 }

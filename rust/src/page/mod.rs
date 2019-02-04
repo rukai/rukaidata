@@ -11,7 +11,7 @@ pub mod script;
 pub mod scripts;
 pub mod variables;
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct NavLink {
     pub name:    String,
     pub link:    String,

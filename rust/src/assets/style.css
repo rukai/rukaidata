@@ -37,6 +37,10 @@ h2 {
     h2 {
         font-size: 2rem;
     }
+    nav.sidebar > h2 {
+        font-size: 1.2rem;
+        margin-bottom: 0;
+    }
 }
 
 h3 {

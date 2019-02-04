@@ -164,16 +164,169 @@ impl BrawlMod {
         links
     }
 
-    pub fn gen_subaction_links(&self, fighter: &HighLevelFighter, current_subaction: String) -> Vec<NavLink> {
-        let mut links = vec!();
+    pub fn gen_subaction_links(&self, fighter: &HighLevelFighter, current_subaction: String) -> SubactionLinks {
+        let mut attacks_jab = vec!();
+        let mut attacks_tilt = vec!();
+        let mut attacks_smash = vec!();
+        let mut attacks_dash = vec!();
+        let mut attacks_aerial = vec!();
+        let mut specials = vec!();
+        let mut grabs = vec!();
+        let mut ledge_options = vec!();
+        let mut knockdowns = vec!();
+        let mut trips = vec!();
+        let mut dodges = vec!();
+        let mut finals = vec!();
+        let mut taunts = vec!();
+        let mut stun = vec!();
+        let mut sleep = vec!();
+        let mut swim = vec!();
+        let mut item = vec!();
+        let mut item_throw = vec!();
+        let mut movements = vec!();
+        let mut crawl = vec!();
+        let mut glide = vec!();
+        let mut wall_ceiling_tech = vec!();
+        let mut footstool = vec!();
+        let mut misc = vec!();
+        let mut none = vec!();
+
         for subaction in &fighter.subactions {
-            links.push(NavLink {
+            let link = NavLink {
                 name:    subaction.name.clone(),
                 link:    format!("/{}/{}/subactions/{}.html", self.name, fighter.name, subaction.name),
                 current: current_subaction == subaction.name,
-            });
+            };
+
+            // This heuristic is kind of dumb.
+            // alernatively I could try and read which actions/subactions call each other to
+            // determine where to add each subaction
+            //
+            // NOTE: Be careful that sometimes the check uses link.name.contains(..) and other times it uses link.name.starts_with(..)
+            if link.name.contains("Cliff") {
+                ledge_options.push(link);
+            }
+            else if link.name.contains("Item") || link.name.contains("Gekikara") {
+                item.push(link);
+            }
+            else if link.name.contains("Ganon") || link.name.contains("Snake") || link.name.contains("Bitten") || link.name.contains("Stick") || link.name.contains("Rope") || link.name.contains("Ladder") || link.name.contains("Egg") || link.name.contains("Capture") || link.name.contains("Zitabata") || link.name.contains("Swing"){
+                misc.push(link);
+            }
+            else if link.name.contains("FuraFura") {
+                stun.push(link);
+            }
+            else if link.name.contains("FuraSleep") {
+                sleep.push(link);
+            }
+            else if link.name.contains("Swim") {
+                swim.push(link);
+            }
+            else if link.name.contains("Slip") {
+                trips.push(link);
+            }
+            else if link.name.contains("Glide") {
+                glide.push(link);
+            }
+            else if link.name.contains("Shank") || link.name.contains("AttackSquat") || link.name.contains("SquatF") || link.name.contains("SquatB") {
+                crawl.push(link);
+            }
+            else if link.name.contains("Down") {
+                knockdowns.push(link);
+            }
+            else if link.name.contains("AirCatch") {
+                misc.push(link);
+            }
+            else if link.name.contains("Catch") || link.name.starts_with("Throw") && !link.name.contains("Thrown") {
+                grabs.push(link);
+            }
+            else if !link.name.starts_with("Throw") && link.name.contains("Throw") && !link.name.contains("Thrown") {
+                item_throw.push(link);
+            }
+            else if link.name.contains("Step") {
+                footstool.push(link);
+            }
+            else if link.name.contains("Fall") || link.name.contains("Landing") {
+                movements.push(link);
+            }
+            else if link.name.contains("Special") {
+                specials.push(link);
+            }
+            else if link.name.contains("Final") {
+                finals.push(link);
+            }
+            else if link.name.contains("AttackEnd") {
+                misc.push(link);
+            }
+            else if link.name.contains("Attack") {
+                let number: String = link.name.chars().filter(|x| x.is_digit(10)).collect();
+                if link.name.contains("Air") {
+                    attacks_aerial.push(link);
+                }
+                else if link.name.contains("Attack") && number.starts_with("1") {
+                    attacks_jab.push(link);
+                }
+                else if link.name.contains("Attack") && number.starts_with("3") {
+                    attacks_tilt.push(link);
+                }
+                else if link.name.contains("Attack") && number.starts_with("4") {
+                    attacks_smash.push(link);
+                }
+                else if link.name.contains("Attack") {
+                    attacks_dash.push(link);
+                }
+                else {
+                    error!("Missed an attack for {} in the subaction navigation", fighter.name);
+                }
+            }
+            else if link.name.contains("Appeal") || link.name.contains("Win") || link.name == "Lose" {
+                taunts.push(link);
+            }
+            else if link.name.contains("Wait") || link.name.contains("Dash") || link.name.contains("Run") || link.name.contains("Turn") || link.name.contains("Walk") || link.name.contains("Jump") || link.name.contains("MissFoot") || link.name.contains("Ottotto") || link.name.contains("Squat") {
+                movements.push(link);
+            }
+            else if link.name.contains("Stop") || link.name.contains("PassiveWallJump") {
+                wall_ceiling_tech.push(link);
+            }
+            else if link.name.contains("Escape") || link.name.contains("Guard") {
+                dodges.push(link);
+            }
+            else if link.name.contains("NONE") || link.name.starts_with("_") {
+                none.push(link);
+            }
+            else {
+                misc.push(link);
+            }
         }
-        links
+        attacks_jab.sort_by_key(|x| x.name.clone());
+        attacks_tilt.sort_by_key(|x| x.name.clone());
+        attacks_smash.sort_by_key(|x| x.name.clone());
+        attacks_dash.sort_by_key(|x| x.name.clone());
+        attacks_aerial.sort_by_key(|x| x.name.clone());
+        specials.sort_by_key(|x| x.name.clone());
+        grabs.sort_by_key(|x| x.name.clone());
+        ledge_options.sort_by_key(|x| x.name.clone());
+        knockdowns.sort_by_key(|x| x.name.clone());
+        trips.sort_by_key(|x| x.name.clone());
+        dodges.sort_by_key(|x| x.name.clone());
+        taunts.sort_by_key(|x| x.name.clone());
+        finals.sort_by_key(|x| x.name.clone());
+        stun.sort_by_key(|x| x.name.clone());
+        sleep.sort_by_key(|x| x.name.clone());
+        swim.sort_by_key(|x| x.name.clone());
+        wall_ceiling_tech.sort_by_key(|x| x.name.clone());
+        footstool.sort_by_key(|x| x.name.clone());
+        glide.sort_by_key(|x| x.name.clone());
+        crawl.sort_by_key(|x| x.name.clone());
+        movements.sort_by_key(|x| x.name.clone());
+        item.sort_by_key(|x| x.name.clone());
+        item_throw.sort_by_key(|x| x.name.clone());
+        misc.sort_by_key(|x| x.name.clone());
+        none.sort_by_key(|x| x.name.clone());
+
+        let has_glide = glide.len() > 0;
+        let has_crawl = crawl.len() > 0;
+
+        SubactionLinks { attacks_aerial, attacks_jab, attacks_tilt, attacks_smash, attacks_dash, grabs, specials, knockdowns, trips, ledge_options, dodges, wall_ceiling_tech, glide, crawl, footstool, movements, finals, taunts, stun, sleep, swim, item, item_throw, none, misc, has_glide, has_crawl }
     }
 
     pub fn gen_script_fragment_common_links(&self, fighter: &HighLevelFighter, current_script: u32) -> Vec<NavLink> {
@@ -211,4 +364,35 @@ impl BrawlMod {
         }
         links
     }
+}
+
+#[derive(Serialize)]
+pub struct SubactionLinks {
+    pub attacks_jab:       Vec<NavLink>,
+    pub attacks_tilt:      Vec<NavLink>,
+    pub attacks_smash:     Vec<NavLink>,
+    pub attacks_dash:      Vec<NavLink>,
+    pub attacks_aerial:    Vec<NavLink>,
+    pub grabs:             Vec<NavLink>,
+    pub specials:          Vec<NavLink>,
+    pub knockdowns:        Vec<NavLink>,
+    pub trips:             Vec<NavLink>,
+    pub ledge_options:     Vec<NavLink>,
+    pub dodges:            Vec<NavLink>,
+    pub wall_ceiling_tech: Vec<NavLink>,
+    pub footstool:         Vec<NavLink>,
+    pub glide:             Vec<NavLink>,
+    pub crawl:             Vec<NavLink>,
+    pub movements:         Vec<NavLink>,
+    pub finals:            Vec<NavLink>,
+    pub taunts:            Vec<NavLink>,
+    pub stun:              Vec<NavLink>,
+    pub sleep:             Vec<NavLink>,
+    pub swim:              Vec<NavLink>,
+    pub item:              Vec<NavLink>,
+    pub item_throw:        Vec<NavLink>,
+    pub misc:              Vec<NavLink>,
+    pub none:              Vec<NavLink>,
+    pub has_glide:         bool,
+    pub has_crawl:         bool,
 }

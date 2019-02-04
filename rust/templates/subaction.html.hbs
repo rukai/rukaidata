@@ -59,9 +59,253 @@
 
         <!-- Display nothing from xs to sm, display something from md to xl -->
         <nav class="d-none d-md-block col-2 sidebar sidebar-right">
+            <h2>Jabs</h2>
             <ul class="nav nav-pills flex-column">
-                <li><a class="nav-link" href="{{fighter_link}}">Main</a></li>
-                {{#each subaction_links}}
+                {{#each subaction_links.attacks_jab}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Tilt Attacks</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.attacks_tilt}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Smash Attacks</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.attacks_smash}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Dash Attack</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.attacks_dash}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Aerial Attacks</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.attacks_aerial}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Grabs</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.grabs}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Ledge Options</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.ledge_options}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Dodge</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.dodges}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Knockdown</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.knockdowns}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Trip</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.trips}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Movement</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.movements}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            {{#if subaction_links.has_glide}}
+            <h2>Glide</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.glide}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            {{/if}}
+            {{#if subaction_links.has_crawl}}
+            <h2>Crawl</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.crawl}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            {{/if}}
+            <h2>Footstool</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.footstool}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Specials</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.specials}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Wall/Ceiling Tech</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.wall_ceiling_tech}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Stun</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.stun}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Sleep</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.sleep}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Swim</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.swim}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Final Smash</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.finals}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Taunts and Victory</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.taunts}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Item Throw</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.item_throw}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Item</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.item}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>Misc</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.misc}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
+            <h2>None</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each subaction_links.none}}
                 {{#if current}}
                 <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
                 {{else}}
