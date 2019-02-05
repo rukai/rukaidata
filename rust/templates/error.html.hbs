@@ -1,8 +1,26 @@
 {{#*inline "page"}}
 
-<div>
-    <h1>Error</h1>
-    <p>{{error}}</p>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Display nothing from xs to sm, take up space from md to xl -->
+        <div class="d-none d-md-block col-2 sidebar"></div>
+
+        <!-- take up 12 columns from xs to sm, take up 8 columns from md to xl -->
+        <div class="col-8 col-md-8">
+            <h1>404 Error</h1>
+            <p>Maybe try exploring one of the brawl mods we have data on:</p>
+            <ul>
+                {{#each mod_links}}
+                <li>
+                    <a href="{{link}}">{{name}}</a>
+                </li>
+                {{/each}}
+            </ul>
+        </div>
+
+        <!-- Display nothing from xs to sm, take up space from md to xl -->
+        <div class="col-4 col-md-2 sidebar"></div>
+    </div>
 </div>
 
 {{/inline}}

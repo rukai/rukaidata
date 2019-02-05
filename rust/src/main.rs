@@ -26,6 +26,7 @@ fn main() {
             let assets = AssetPaths::new();
 
             page::index::generate(&handlebars, &brawl_mods, &assets);
+            page::error::generate(&handlebars, &brawl_mods, &assets);
             page::brawl_mod::generate(&handlebars, &brawl_mods, &assets);
             page::fighter::generate(&handlebars, &brawl_mods, &assets);
             page::attributes::generate(&handlebars, &brawl_mods, &assets);
