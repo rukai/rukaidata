@@ -82,6 +82,19 @@ class OrbitControls extends THREE.EventDispatcher {
     this.getPolarAngle = () => spherical.phi;
     this.getAzimuthalAngle = () => spherical.theta;
 
+    this.reset = function () {
+      scope.target.copy(scope.target0);
+      scope.object.position.copy(scope.position0);
+      scope.object.zoom = scope.zoom0;
+
+      scope.object.updateProjectionMatrix();
+      scope.dispatchEvent(changeEvent);
+
+      scope.update();
+
+      state = STATE.NONE;
+    };
+
     // this method is exposed, but perhaps it would be better if we can make it private...
     this.update = (function () {
       var offset = new THREE.Vector3();
@@ -647,11 +660,6 @@ class OrbitControls extends THREE.EventDispatcher {
     // force an update at start
     this.update();
   };
-
-  get center () {
-    console.warn('OrbitControls: .center has been renamed to .target');
-    return this.target
-  }
 }
 
 const ANIMATION_FLAGS = {
@@ -667,22 +675,36 @@ const ANIMATION_FLAGS = {
 };
 
 class FighterRender {
-    constructor(subaction_data) {
+    constructor(subaction_data, subaction_extent) {
         const render_div = document.getElementById('fighter-render');
 
         this.subaction_data = subaction_data;
+        this.subaction_extent = subaction_extent;
+        this.extent_middle_y = (subaction_extent.up + subaction_extent.down) / 2;
+        this.extent_middle_z = (subaction_extent.left + subaction_extent.right) / 2;
+        this.fov = 40.0;
+
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(40, 1, 1.0, 1000);
+        this.camera = new THREE.PerspectiveCamera(this.fov, 1, 1, 1000);
+        //this.camera = new THREE.OrthographicCamera(
+        //    subaction_extent.left,
+        //    subaction_extent.right,
+        //    subaction_extent.up,
+        //    subaction_extent.down,
+        //    -1000,
+        //    1000
+        //);
+
         this.controls = new OrbitControls(this.camera, render_div);
-        this.controls.target.set(0, 8, 0);
         this.controls.update();
-        this.face_right();
 
         this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         this.renderer.setClearColor(0xFFFFFF, 0);
         render_div.appendChild(this.renderer.domElement);
 
         this.window_resize();
+        this.face_right();
+
         window.addEventListener('resize', () => this.window_resize(), false);
 
         this.frame_index = parseInt(this.get_from_url("frame"), 10);
@@ -714,8 +736,14 @@ class FighterRender {
         if (height > 750) {
             height = 750;
         }
+        const aspect = width / height;
 
-        this.camera.aspect = width / height;
+        const max_radius = Math.max(this.subaction_extent.up - this.extent_middle_y, this.subaction_extent.right - this.extent_middle_z);
+        const fov_rad = this.fov * Math.PI / 180.0;
+        // The new value will be used on next call to face_left() or face_right()
+        this.camera_distance = max_radius / (Math.tan(fov_rad / 2.0) * aspect);
+
+        this.camera.aspect = aspect;
         this.camera.updateProjectionMatrix();
         this.controls.update();
         this.renderer.setSize(width, height);
@@ -797,12 +825,16 @@ class FighterRender {
     }
 
     face_left() {
-        this.camera.position.set(60, 8, 0);
+        this.controls.reset();
+        this.controls.target.set(0,                    this.extent_middle_y, this.extent_middle_z);
+        this.camera.position.set(this.camera_distance, this.extent_middle_y, this.extent_middle_z);
         this.controls.update();
     }
 
     face_right() {
-        this.camera.position.set(-60, 8, 0);
+        this.controls.reset();
+        this.controls.target.set(0,                     this.extent_middle_y, this.extent_middle_z);
+        this.camera.position.set(-this.camera_distance, this.extent_middle_y, this.extent_middle_z);
         this.controls.update();
     }
 
@@ -826,11 +858,17 @@ class FighterRender {
         // generate ecb
         if (this.ecb_checkbox.checked) {
             const mid_y = (frame.ecb.top + frame.ecb.bottom) / 2.0;
+            //const vertices = [
+            //    0, frame.ecb.top,    0,
+            //    0, mid_y,            frame.ecb.left,
+            //    0, mid_y,            frame.ecb.right,
+            //    0, frame.ecb.bottom, 0,
+            //];
             const vertices = [
-                0, frame.ecb.top,    0,
-                0, mid_y,            frame.ecb.left,
-                0, mid_y,            frame.ecb.right,
-                0, frame.ecb.bottom, 0,
+                0, this.subaction_extent.up,   0,
+                0, this.extent_middle_y,       this.subaction_extent.left,
+                0, this.extent_middle_y,       this.subaction_extent.right,
+                0, this.subaction_extent.down, 0,
             ];
 
             const indices = [
@@ -1117,4 +1155,4 @@ class FighterRender {
     }
 }
 
-window.fighter_render = new FighterRender(fighter_subaction_data);
+window.fighter_render = new FighterRender(fighter_subaction_data, fighter_subaction_extent);

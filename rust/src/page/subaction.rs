@@ -69,13 +69,17 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     });
                 }
 
+                let mut subaction_extent = subaction.hurt_box_extent();
+                subaction_extent.extend(&subaction.hit_box_extent());
+
                 let page = SubactionPage {
                     assets,
-                    fighter_link:    format!("/{}/{}", brawl_mod.name, fighter_name),
-                    mod_links:       &mod_links,
-                    title:           format!("{} - {} - Subaction - {}", brawl_mod.name, fighter_name, subaction.name),
-                    subaction_links: brawl_mod.gen_subaction_links(&fighter.fighter, subaction.name.clone()),
-                    subaction:       serde_json::to_string(&subaction).unwrap(),
+                    fighter_link:     format!("/{}/{}", brawl_mod.name, fighter_name),
+                    mod_links:        &mod_links,
+                    title:            format!("{} - {} - Subaction - {}", brawl_mod.name, fighter_name, subaction.name),
+                    subaction_links:  brawl_mod.gen_subaction_links(&fighter.fighter, subaction.name.clone()),
+                    subaction:        serde_json::to_string(&subaction).unwrap(),
+                    subaction_extent: serde_json::to_string(&subaction_extent).unwrap(),
                     fighter_links,
                     script_main,
                     script_gfx,
@@ -105,6 +109,7 @@ pub struct SubactionPage<'a> {
     fighter_link:        String,
     title:               String,
     subaction:           String,
+    subaction_extent:    String,
     script_main:         String,
     script_gfx:          String,
     script_sfx:          String,

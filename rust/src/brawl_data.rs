@@ -218,6 +218,9 @@ impl BrawlMod {
             else if link.name.contains("FuraSleep") {
                 sleep.push(link);
             }
+            else if link.name.contains("Final") {
+                finals.push(link);
+            }
             else if link.name.contains("Swim") {
                 swim.push(link);
             }
@@ -250,9 +253,6 @@ impl BrawlMod {
             }
             else if link.name.contains("Special") {
                 specials.push(link);
-            }
-            else if link.name.contains("Final") {
-                finals.push(link);
             }
             else if link.name.contains("AttackEnd") {
                 misc.push(link);
