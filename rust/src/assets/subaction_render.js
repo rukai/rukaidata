@@ -1,3 +1,5 @@
+"use strict";
+
 class OrbitControls extends THREE.EventDispatcher {
   constructor (object, domElement) {
     super();
@@ -682,28 +684,19 @@ class FighterRender {
         this.subaction_extent = subaction_extent;
         this.extent_middle_y = (subaction_extent.up + subaction_extent.down) / 2;
         this.extent_middle_z = (subaction_extent.left + subaction_extent.right) / 2;
+        this.extent_height = this.subaction_extent.up   - this.subaction_extent.down;
+        this.extent_width = this.subaction_extent.right - this.subaction_extent.left;
+        this.extent_aspect = this.extent_width / this.extent_height;
         this.fov = 40.0;
 
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(this.fov, 1, 1, 1000);
-        //this.camera = new THREE.OrthographicCamera(
-        //    subaction_extent.left,
-        //    subaction_extent.right,
-        //    subaction_extent.up,
-        //    subaction_extent.down,
-        //    -1000,
-        //    1000
-        //);
-
+        this.camera = new THREE.PerspectiveCamera(this.fov, 1, 1, 1000); // The values here dont really matter, the camera gets overwritten in the later call to this.window_resize()
         this.controls = new OrbitControls(this.camera, render_div);
         this.controls.update();
 
         this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         this.renderer.setClearColor(0xFFFFFF, 0);
         render_div.appendChild(this.renderer.domElement);
-
-        this.window_resize();
-        this.face_right();
 
         window.addEventListener('resize', () => this.window_resize(), false);
 
@@ -718,12 +711,20 @@ class FighterRender {
 
         this.wireframe_checkbox = document.getElementById('wireframe-checkbox');
         this.wireframe_checkbox.checked = this.get_bool_from_url("wireframe");
-        this.wireframe_toggle();
+
+        this.perspective_checkbox = document.getElementById('perspective-checkbox');
+        this.perspective_checkbox.checked = this.get_bool_from_url("perspective");
 
         this.run = false;
         this.ecb_material = new THREE.MeshBasicMaterial({ color: 0xf15c0a, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
         this.hitbox_material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5 });
         this.grabbox_material = new THREE.MeshBasicMaterial({ color: 0xff00ff, transparent: true, opacity: 0.5 });
+
+        // Manually call these callbacks to initialize stuff
+        this.window_resize();
+        this.face_right();
+        this.wireframe_toggle();
+        this.perspective_toggle();
 
         this.setup_frame();
         this.animate();
@@ -736,17 +737,65 @@ class FighterRender {
         if (height > 750) {
             height = 750;
         }
-        const aspect = width / height;
+        this.aspect = width / height;
+        this.pixel_height = height;
+        this.pixel_width = width;
 
-        const max_radius = Math.max(this.subaction_extent.up - this.extent_middle_y, this.subaction_extent.right - this.extent_middle_z);
+        var radius = Math.max(
+            this.subaction_extent.up    - this.extent_middle_y,
+            this.subaction_extent.right - this.extent_middle_z
+        );
         const fov_rad = this.fov * Math.PI / 180.0;
         // The new value will be used on next call to face_left() or face_right()
-        this.camera_distance = max_radius / (Math.tan(fov_rad / 2.0) * aspect);
+        this.camera_distance = radius / Math.tan(fov_rad / 2.0);
 
-        this.camera.aspect = aspect;
-        this.camera.updateProjectionMatrix();
+        // This logic probably only works because this.pixel_width >= this.pixel_height is always true
+        if (this.extent_aspect > this.aspect) {
+            this.camera_distance /= this.aspect;
+        }
+        else if (this.extent_width > this.extent_height) {
+            this.camera_distance /= this.extent_aspect;
+        }
+
+        this.recreate_camera();
         this.controls.update();
         this.renderer.setSize(width, height);
+    }
+
+    recreate_camera() {
+        const old_position = this.camera.position;
+        if (this.perspective_checkbox.checked) {
+            this.camera = new THREE.PerspectiveCamera(this.fov, this.aspect, 1, 1000);
+            this.camera.position.copy(old_position);
+            this.controls.object = this.camera;
+            this.controls.update();
+        }
+        else {
+            var height = this.extent_height;
+            var width  = this.extent_width;
+
+            if (this.extent_aspect > this.aspect) {
+                // keep width at max size
+                // shrink height to keep aspect ratio
+                height = width / this.aspect;
+            }
+            else {
+                // keep height at max size
+                // shrink width to keep aspect ratio
+                width = height * this.aspect;
+            }
+            this.camera = new THREE.OrthographicCamera(
+                -width/2.0,
+                width/2.0,
+                height/2.0,
+                -height/2.0,
+                1,
+                1000
+            );
+            this.camera.position.copy(old_position);
+            this.controls.object = this.camera;
+            this.controls.update();
+        }
     }
 
     wireframe_toggle() {
@@ -754,7 +803,8 @@ class FighterRender {
             this.hurtbox_normal_material = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, wireframe: true });
             this.hurtbox_intangible_material = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, wireframe: true });
             this.hurtbox_invincible_material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, wireframe: true });
-        } else {
+        }
+        else {
             this.hurtbox_normal_material = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.4 });
             this.hurtbox_intangible_material = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.4 });
             this.hurtbox_invincible_material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4 });
@@ -766,6 +816,12 @@ class FighterRender {
     ecb_toggle() {
         this.setup_frame();
         this.set_bool_in_url("ecb", this.ecb_checkbox.checked);
+    }
+
+    perspective_toggle() {
+        this.recreate_camera();
+        this.setup_frame();
+        this.set_bool_in_url("perspective", this.perspective_checkbox.checked);
     }
 
     run_toggle() {
@@ -858,17 +914,11 @@ class FighterRender {
         // generate ecb
         if (this.ecb_checkbox.checked) {
             const mid_y = (frame.ecb.top + frame.ecb.bottom) / 2.0;
-            //const vertices = [
-            //    0, frame.ecb.top,    0,
-            //    0, mid_y,            frame.ecb.left,
-            //    0, mid_y,            frame.ecb.right,
-            //    0, frame.ecb.bottom, 0,
-            //];
             const vertices = [
-                0, this.subaction_extent.up,   0,
-                0, this.extent_middle_y,       this.subaction_extent.left,
-                0, this.extent_middle_y,       this.subaction_extent.right,
-                0, this.subaction_extent.down, 0,
+                0, frame.ecb.top,    0,
+                0, mid_y,            frame.ecb.left,
+                0, mid_y,            frame.ecb.right,
+                0, frame.ecb.bottom, 0,
             ];
 
             const indices = [
