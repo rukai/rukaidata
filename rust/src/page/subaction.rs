@@ -14,7 +14,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
         let mod_links = brawl_mods.gen_mod_links(brawl_mod.name.clone());
 
         for fighter in &brawl_mod.fighters {
-            fighter.fighter.subactions.par_iter().for_each(|subaction| {
+            fighter.fighter.subactions.par_iter().enumerate().for_each(|(index, subaction)| {
                 let fighter_name = &fighter.fighter.name;
                 // Originally tried to handle scripts as a table of frame,main,gfx,sfx,other but
                 // that would require simulating the scripts and with what inputs???
@@ -43,12 +43,194 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     frame_buttons.push(FrameButton { index, class });
                 }
 
-                // Despite being a twitter description, this is designed for use on discord over twitter.
+                // generate auto cancel ranges
+                let mut auto_cancel = String::new();
+                let mut landing_lag_prev = true;
+                let mut last_frame_change = 0;
+                for (index, frame) in subaction.frames.iter().enumerate() {
+                    if frame.landing_lag && !landing_lag_prev {
+                        if auto_cancel.len() != 0 {
+                            auto_cancel.push_str(", ");
+                        }
+                        auto_cancel.push_str(&format!("{}-{}", last_frame_change + 1, index + 1));
+                    }
+                    if landing_lag_prev != frame.landing_lag {
+                        last_frame_change = index;
+                        landing_lag_prev = frame.landing_lag;
+                    }
+                }
+                if !landing_lag_prev && last_frame_change != 0 {
+                    if auto_cancel.len() != 0 {
+                        auto_cancel.push_str(", ");
+                    }
+                    auto_cancel.push_str(&format!("{}-{}", last_frame_change + 1, subaction.frames.len()));
+                }
+
+                let mut invincible = String::new();
+                let mut intangible = String::new();
+                let mut partial_invincible = String::new();
+                let mut partial_intangible = String::new();
+                let mut start_invincible = None;
+                let mut start_intangible = None;
+                let mut start_partial_intangible = None;
+                let mut start_partial_invincible = None;
+                for (i, frame) in subaction.frames.iter().enumerate() {
+                    let all_invincible = frame.hurt_boxes.iter().all(|x| x.state.is_invincible());
+                    let any_invincible = frame.hurt_boxes.iter().any(|x| x.state.is_invincible());
+                    let all_intangible = frame.hurt_boxes.iter().all(|x| x.state.is_intangible());
+                    let any_intangible = frame.hurt_boxes.iter().any(|x| x.state.is_intangible());
+
+                    // fullly invincible
+                    if all_invincible && start_invincible.is_none() {
+                        start_invincible = Some(i);
+                    }
+                    if !all_invincible {
+                        if let Some(start) = start_invincible.take() {
+                            if invincible.len() > 0 {
+                                invincible.push_str(", ");
+                            }
+                            invincible.push_str(&format!("{}-{}", start + 1, i));
+                        }
+                    }
+
+                    // partially invincible
+                    if !all_invincible && any_invincible && start_partial_invincible.is_none() {
+                        start_partial_invincible = Some(i);
+                    }
+                    if !any_invincible {
+                        if let Some(start) = start_partial_invincible.take() {
+                            if partial_invincible.len() > 0 {
+                                partial_invincible.push_str(", ");
+                            }
+                            partial_invincible.push_str(&format!("{}-{}", start + 1, i));
+                        }
+                    }
+
+                    // fully intangible
+                    if all_intangible && start_intangible.is_none() {
+                        start_intangible = Some(i);
+                    }
+                    if !all_intangible {
+                        if let Some(start) = start_intangible.take() {
+                            if intangible.len() > 0 {
+                                intangible.push_str(", ");
+                            }
+                            intangible.push_str(&format!("{}-{}", start + 1, i));
+                        }
+                    }
+
+                    // partially intangible
+                    if !all_intangible && any_intangible && start_partial_intangible.is_none() {
+                        start_partial_intangible = Some(i);
+                    }
+                    if !any_intangible {
+                        if let Some(start) = start_partial_intangible.take() {
+                            if partial_intangible.len() > 0 {
+                                partial_intangible.push_str(", ");
+                            }
+                            partial_intangible.push_str(&format!("{}-{}", start + 1, i));
+                        }
+                    }
+                }
+
+                // handle invincible/intangible states that were not turned off
+                if let Some(start) = start_invincible.take() {
+                    if invincible.len() > 0 {
+                        invincible.push_str(", ");
+                    }
+                    invincible.push_str(&format!("{}-{}", start + 1, subaction.frames.len()));
+                }
+                if let Some(start) = start_partial_invincible.take() {
+                    if partial_invincible.len() > 0 {
+                        partial_invincible.push_str(", ");
+                    }
+                    partial_invincible.push_str(&format!("{}-{}", start + 1, subaction.frames.len()));
+                }
+                if let Some(start) = start_intangible.take() {
+                    if intangible.len() > 0 {
+                        intangible.push_str(", ");
+                    }
+                    intangible.push_str(&format!("{}-{}", start + 1, subaction.frames.len()));
+                }
+                if let Some(start) = start_partial_intangible.take() {
+                    if partial_intangible.len() > 0 {
+                        partial_intangible.push_str(", ");
+                    }
+                    partial_intangible.push_str(&format!("{}-{}", start + 1, subaction.frames.len()));
+                }
+
+                let mut attributes = vec!();
+                attributes.push(Attribute {
+                    name: "IASA",
+                    value: (subaction.iasa + 1).to_string()
+                });
+                if auto_cancel.len() > 0 {
+                    attributes.push(Attribute {
+                        name: "Auto Cancel",
+                        value: auto_cancel.clone()
+                    });
+                }
+                if let Some(landing_lag) = subaction.landing_lag {
+                    attributes.push(Attribute {
+                        name: "Landing Lag",
+                        value: landing_lag.to_string()
+                    });
+                }
+                if invincible.len() > 0 {
+                    attributes.push(Attribute {
+                        name: "Fully Invincible",
+                        value: invincible.clone()
+                    });
+                }
+                if intangible.len() > 0 {
+                    attributes.push(Attribute {
+                        name: "Fully Intangible",
+                        value: intangible.clone()
+                    });
+                }
+                if partial_invincible.len() > 0 {
+                    attributes.push(Attribute {
+                        name: "Partially Invincible",
+                        value: partial_invincible.clone()
+                    });
+                }
+                if partial_intangible.len() > 0 {
+                    attributes.push(Attribute {
+                        name: "Partially Intangible",
+                        value: partial_intangible.clone()
+                    });
+                }
+                attributes.push(Attribute {
+                    name: "Subaction Index",
+                    value: index.to_string()
+                });
+
+                // Despite being a twitter description, this is designed for use on discord instead of twitter.
                 // We make use of the 78 lines that discord displays.
                 // Ignoring that twitter only displays the first 3 lines.
+                //
+                // We can't reuse the `attributes` vec as we have different values here e.g. frame count and no subaction index
                 let mut twitter_description = String::new();
-                twitter_description.push_str(&format!("IASA: {}", subaction.iasa));
-                twitter_description.push_str(&format!("\nFrames: {}", subaction.frames.len()));
+                twitter_description.push_str(&format!("Frames: {}", subaction.frames.len()));
+                twitter_description.push_str(&format!("\nIASA: {}", subaction.iasa + 1));
+                if auto_cancel.len() > 0 {
+                    twitter_description.push_str(&format!("\nAuto Cancel: {}", auto_cancel));
+                }
+                if let Some(landing_lag) = subaction.landing_lag {
+                    twitter_description.push_str(&format!("\nLanding Lag: {}", landing_lag));
+                }
+                if intangible.len() > 0 {
+                    twitter_description.push_str(&format!("\nFully Intangible: {}", intangible));
+                }
+                if invincible.len() > 0 {
+                    twitter_description.push_str(&format!("\nFully Invincible: {}", invincible));
+                }
+                if partial_intangible.len() > 0 {
+                    twitter_description.push_str(&format!("\nPartially Intangible: {}", partial_intangible));
+                }
+                if partial_invincible.len() > 0 {
+                    twitter_description.push_str(&format!("\nPartially Invincible: {}", partial_invincible));
+                }
                 // TODO: Add a landing_lag: Option<u32> field to HighLevelAction, it should check if the name of the subaction is AttackAirN etc. Then grab the appropriate landing lag from the attributes
                 //twitter_description.push_str(&format!("\nLanding Lag: {}", 0));
                 twitter_description.push_str("\n\nCurrent gif is a placeholder:");
@@ -80,6 +262,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     subaction_links:  brawl_mod.gen_subaction_links(&fighter.fighter, subaction.name.clone()),
                     subaction:        serde_json::to_string(&subaction).unwrap(),
                     subaction_extent: serde_json::to_string(&subaction_extent).unwrap(),
+                    attributes,
                     fighter_links,
                     script_main,
                     script_gfx,
@@ -108,6 +291,7 @@ pub struct SubactionPage<'a> {
     subaction_links:     SubactionLinks,
     fighter_link:        String,
     title:               String,
+    attributes:          Vec<Attribute>,
     subaction:           String,
     subaction_extent:    String,
     script_main:         String,
@@ -123,4 +307,10 @@ pub struct SubactionPage<'a> {
 pub struct FrameButton {
     index: usize,
     class: String,
+}
+
+#[derive(Serialize)]
+struct Attribute {
+    name: &'static str,
+    value: String,
 }

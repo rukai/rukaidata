@@ -46,13 +46,23 @@
                 <label class="form-check-label" for="perspective-checkbox">Perspective</label>
             </div>
 
-            <h2 id="script-main">Main Script</h2>
+            <h2>Stats</h2>
+            <table>
+                {{#each attributes}}
+                <tr><td>{{name}}:</td></td><td>{{value}}</td></tr>
+                {{/each}}
+            </table>
+            <h2>Hitboxes</h2>
+            <!-- Sick hitbox table goes here-->
+
+            <h2 id="script-main">Scripts</h2>
+            <h3 id="script-main">Main</h3>
             {{{script_main}}}
-            <h2 id="script-gfx">GFX Script</h2>
+            <h3 id="script-gfx">GFX</h3>
             {{{script_gfx}}}
-            <h2 id="script-sfx">SFX Script</h2>
+            <h3 id="script-sfx">SFX</h3>
             {{{script_sfx}}}
-            <h2 id="script-other">Other Script</h2>
+            <h3 id="script-other">Other</h3>
             {{{script_other}}}
 
             <div id="fighter-scripts"></div>
