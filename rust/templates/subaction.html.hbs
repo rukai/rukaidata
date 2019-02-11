@@ -53,9 +53,25 @@
                 {{/each}}
             </table>
             <h2>Hitboxes</h2>
+            {{#each hitbox_tables}}
+            <h3>{{frames}}</h3>
+            <table>
+                <tr>
+                {{#each header}}
+                <th>{{this}}</th>
+                {{/each}}
+                </tr>
+                {{#each rows}}
+                <tr>
+                    {{#each this}}
+                    <td>{{this}}</td>
+                    {{/each}}
+                {{/each}}
+            </table>
+            {{/each}}
             <!-- Sick hitbox table goes here-->
 
-            <h2 id="script-main">Scripts</h2>
+            <h2>Scripts</h2>
             <h3 id="script-main">Main</h3>
             {{{script_main}}}
             <h3 id="script-gfx">GFX</h3>

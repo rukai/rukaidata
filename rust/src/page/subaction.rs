@@ -3,6 +3,7 @@ use std::fs;
 
 use handlebars::Handlebars;
 use rayon::prelude::*;
+use brawllib_rs::high_level_fighter::CollisionBoxValues;
 
 use crate::brawl_data::{BrawlMods, SubactionLinks};
 use crate::page::NavLink;
@@ -205,6 +206,81 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     value: index.to_string()
                 });
 
+                // generate hitbox tables
+                let mut hitbox_tables = vec!();
+                let mut last_change_frame = None;
+                for i in 0..subaction.frames.len() {
+                    let prev_frame = subaction.frames.get(i - 1);
+                    let frame = &subaction.frames[i];
+
+                    // get the values of the previous and next hitboxes
+                    let prev_values = if let Some(prev_frame) = prev_frame {
+                        prev_frame.hit_boxes.iter().map(|x| &x.next_values).collect()
+                    } else {
+                        vec!()
+                    };
+                    let next_values: Vec<_> = frame.hit_boxes.iter().map(|x| &x.next_values).collect();
+
+                    // start a new table when the hitbox values or number of hitboxes change and there are hitboxes
+                    // TODO: This comparison ignores hitbox_id, is this acceptable?
+                    if prev_values != next_values {
+                        if let Some(first_frame) = last_change_frame {
+                            let frames = if first_frame + 1 == i {
+                                format!("Frame: {}", i)
+                            } else {
+                                format!("Frames: {}-{}", first_frame+1, i)
+                            };
+
+                            // TODO: determine what optional columns to use
+
+                            last_change_frame = Some(i);
+                            let mut header = vec!();
+                            header.push("ID");
+                            header.push("Damage");
+                            header.push("BKB");
+                            header.push("KBG");
+                            header.push("Angle");
+                            header.push("Effect");
+                            header.push("Clang");
+                            header.push("Direct");
+                            header.push("Sound");
+                            header.push("Can Hit");
+                            header.push("Angle Flip");
+
+                            let mut rows = vec!();
+                            for hitbox in prev_frame.map(|x| &x.hit_boxes).unwrap_or(&frame.hit_boxes) {
+                                let mut row = vec!();
+                                row.push(hitbox.hitbox_index.to_string());
+                                if let CollisionBoxValues::Hit(hit) = &hitbox.next_values {
+                                    row.push(hit.damage.to_string());
+                                    row.push(hit.bkb.to_string());
+                                    row.push(hit.kbg.to_string());
+                                    row.push(hit.trajectory.to_string()); // TODO: Use icons
+                                    row.push(format!("{:?}", hit.effect));
+                                    row.push(hit.clang.to_string());
+                                    row.push(hit.direct.to_string());
+                                    row.push(format!("{:?}", hit.sound));
+                                    row.push(format!("enabled: {}, etc", hit.enabled.to_string())); // TODO: Use icons
+                                    row.push(format!("{:?}", hit.angle_flipping));
+                                }
+                                rows.push(row);
+                            }
+
+                            hitbox_tables.push(HitBoxTable { frames, header, rows });
+                        }
+                    }
+
+                    // set initial last_change_frame
+                    if prev_values != next_values && frame.hit_boxes.len() > 0 && last_change_frame.is_none() {
+                        last_change_frame = Some(i);
+                    }
+
+                    // no more hitboxes, clear last_change_frame
+                    if prev_values != next_values && frame.hit_boxes.len() == 0 {
+                        last_change_frame = None;
+                    }
+                }
+
                 // Despite being a twitter description, this is designed for use on discord instead of twitter.
                 // We make use of the 78 lines that discord displays.
                 // Ignoring that twitter only displays the first 3 lines.
@@ -263,6 +339,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     subaction:        serde_json::to_string(&subaction).unwrap(),
                     subaction_extent: serde_json::to_string(&subaction_extent).unwrap(),
                     attributes,
+                    hitbox_tables,
                     fighter_links,
                     script_main,
                     script_gfx,
@@ -292,6 +369,7 @@ pub struct SubactionPage<'a> {
     fighter_link:        String,
     title:               String,
     attributes:          Vec<Attribute>,
+    hitbox_tables:       Vec<HitBoxTable>,
     subaction:           String,
     subaction_extent:    String,
     script_main:         String,
@@ -313,4 +391,11 @@ pub struct FrameButton {
 struct Attribute {
     name: &'static str,
     value: String,
+}
+
+#[derive(Serialize)]
+struct HitBoxTable {
+    frames: String,
+    header: Vec<&'static str>,
+    rows:   Vec<Vec<String>>,
 }
