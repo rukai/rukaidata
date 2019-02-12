@@ -4,6 +4,7 @@ use std::fs;
 use handlebars::Handlebars;
 use rayon::prelude::*;
 use brawllib_rs::high_level_fighter::CollisionBoxValues;
+use brawllib_rs::script_ast::AngleFlip;
 
 use crate::brawl_data::{BrawlMods, SubactionLinks};
 use crate::page::NavLink;
@@ -221,9 +222,9 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     };
                     let next_values: Vec<_> = frame.hit_boxes.iter().map(|x| &x.next_values).collect();
 
-                    // start a new table when the hitbox values or number of hitboxes change and there are hitboxes
+                    // start a new table when ((the hitbox values or number of hitboxes change) and there are hitboxes) or it is the last frame
                     // TODO: This comparison ignores hitbox_id, is this acceptable?
-                    if prev_values != next_values {
+                    if prev_values != next_values || i + 1 == subaction.frames.len() {
                         if let Some(first_frame) = last_change_frame {
                             let frames = if first_frame + 1 == i {
                                 format!("Frame: {}", i)
@@ -235,38 +236,113 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
 
                             last_change_frame = Some(i);
                             let mut header = vec!();
-                            header.push("ID");
-                            header.push("Damage");
-                            header.push("BKB");
-                            header.push("KBG");
+                            header.push(r#"<abbr title="Lower hitbox IDs take priority over higher ones. i.e. if hitbox 0 and 1 are both hit, hitbox 0 is used">ID</abbr>"#);
+                            header.push(r#"<abbr title="Damage">Dmg</abbr>"#);
+                            header.push(r#"<abbr title="Base knockback">BKB</abbr>"#);
+                            header.push(r#"<abbr title="Knockback growth">KBG</abbr>"#);
                             header.push("Angle");
+                            header.push("Angle Flip");
                             header.push("Effect");
                             header.push("Clang");
                             header.push("Direct");
                             header.push("Sound");
-                            header.push("Can Hit");
-                            header.push("Angle Flip");
+                            header.push("Targets");
 
                             let mut rows = vec!();
                             for hitbox in prev_frame.map(|x| &x.hit_boxes).unwrap_or(&frame.hit_boxes) {
                                 let mut row = vec!();
                                 row.push(hitbox.hitbox_index.to_string());
-                                if let CollisionBoxValues::Hit(hit) = &hitbox.next_values {
-                                    row.push(hit.damage.to_string());
-                                    row.push(hit.bkb.to_string());
-                                    row.push(hit.kbg.to_string());
-                                    row.push(hit.trajectory.to_string()); // TODO: Use icons
-                                    row.push(format!("{:?}", hit.effect));
-                                    row.push(hit.clang.to_string());
-                                    row.push(hit.direct.to_string());
-                                    row.push(format!("{:?}", hit.sound));
-                                    row.push(format!("enabled: {}, etc", hit.enabled.to_string())); // TODO: Use icons
-                                    row.push(format!("{:?}", hit.angle_flipping));
+                                match &hitbox.next_values {
+                                    CollisionBoxValues::Hit(hit) => {
+                                        if !hit.enabled {
+                                            continue;
+                                        }
+
+                                        row.push(hit.damage.to_string());
+                                        row.push(hit.bkb.to_string());
+                                        row.push(hit.kbg.to_string());
+                                        let angle_name = match hit.trajectory {
+                                            0 => String::from(r#"<abbr title="">0</abbr>"#),
+                                            361 => String::from(r#"<abbr title="Sakurai Angle: When hit in the air angle is 45. When hit on the ground, if knockback < 32 then angle is 0, otherwise angle is 44.">361</abbr>"#),
+                                            363 => String::from(r#"<abbr title="">363</abbr>"#),
+                                            365 => String::from(r#"<abbr title="">365</abbr>"#),
+                                            a   => a.to_string(),
+                                        };
+                                        row.push(format!(r#"<canvas class="hitbox-angle-render" width="0" height="0" hitbox-id="{}" angle="{}"></canvas>{}"#, hitbox.hitbox_index, hit.trajectory, angle_name));
+                                        match hit.angle_flipping {
+                                            AngleFlip::AwayFromAttacker => row.push(String::from(r#"<abbr title="Reverse Hittable: If the victim is behind the attacker the angle is flipped.">RH</abbr>"#)),
+                                            AngleFlip::AttackerDir => row.push(String::from(r#"<abbr title="Forwards: The launch angle is flipped if the attacker is facing left">F</abbr>"#)),
+                                            AngleFlip::AttackerDirReverse => row.push(String::from(r#"<abbr title="Backwards: The launch angle is flipped if the attacker is facing right">B</abbr>"#)),
+                                            AngleFlip::FaceZaxis => row.push(String::from(r#"<abbr title="tooltiptext">Face Z Axis: A buggy unused angle flip, makes the victim face the screen and other weird stuff">FZA</abbr>"#)),
+                                            AngleFlip::Unknown (_) => row.push(format!("{:?}", hit.angle_flipping)),
+                                        }
+                                        row.push(format!("{:?}", hit.effect));
+                                        row.push(hit.clang.to_string());
+                                        row.push(hit.direct.to_string());
+                                        row.push(format!("{:?}", hit.sound));
+                                        let mut can_hit = String::new();
+
+                                        let enable_fighter_ground = if hit.can_hit_fighter() && hit.ground { "" } else { "icon-disable" };
+                                        let enable_fighter_air    = if hit.can_hit_fighter() && hit.aerial { "" } else { "icon-disable" };
+                                        can_hit.push_str(&format!(r#"<img title="Fighter on the ground" class="spritesheet-fighter-ground {}" src="{}" />"#, enable_fighter_air, assets.spritesheet_png));
+                                        can_hit.push_str(&format!(r#"<img title="Fighter in the air" class="spritesheet-fighter-air {}" src="{}" />"#, enable_fighter_ground, assets.spritesheet_png));
+
+                                        let enable_waddle = if hit.can_hit_waddle_dee_doo() { "" } else { "icon-disable" };
+                                        can_hit.push_str(&format!(r#"<img title="Waddle Dee and Waddle Doo" class="spritesheet-waddle {}" src="{}" />"#, enable_waddle, assets.spritesheet_png));
+
+                                        let enable_pikmin = if hit.can_hit_pikmin() { "" } else { "icon-disable" };
+                                        can_hit.push_str(&format!(r#"<img title="Pikmin" class="spritesheet-pikmin {}" src="{}" />"#, enable_pikmin, assets.spritesheet_png));
+
+                                        let enable_gyro = if hit.can_hit_gyro() { "" } else { "icon-disable" };
+                                        can_hit.push_str(&format!(r#"<img title="ROB Gyro" class="spritesheet-gyro {}" src="{}" />"#, enable_gyro, assets.spritesheet_png));
+
+                                        let enable_grenade = if hit.can_hit_snake_grenade() { "" } else { "icon-disable" };
+                                        can_hit.push_str(&format!(r#"<img title="Snake's Grenade" class="spritesheet-snake-grenade {}" src="{}" />"#, enable_grenade, assets.spritesheet_png));
+
+                                        let enable_mr_saturn = if hit.can_hit_mr_saturn() { "" } else { "icon-disable" };
+                                        can_hit.push_str(&format!(r#"<img title="Mr Saturn" class="spritesheet-mr-saturn {}" src="{}" />"#, enable_mr_saturn, assets.spritesheet_png));
+
+                                        let enable_stage_non_wall_ceiling_floor = if hit.can_hit_stage_non_wall_ceiling_floor() { "" } else { "icon-disable" };
+                                        can_hit.push_str(&format!(r#"<img title="Stage hurtboxes not including walls, ceilings and floors." class="spritesheet-stage-non-wall-ceiling-floor {}" src="{}" />"#, enable_stage_non_wall_ceiling_floor, assets.spritesheet_png));
+
+                                        let enable_wall_ceiling_floor = if hit.can_hit_wall_ceiling_floor() { "" } else { "icon-disable" };
+                                        can_hit.push_str(&format!(r#"<img title="Walls, Ceilings and Floors" class="spritesheet-wall-ceiling-floor {}" src="{}" />"#, enable_wall_ceiling_floor, assets.spritesheet_png));
+
+                                        let enable_link_bomb = if hit.can_hit_link_bomb() { "" } else { "icon-disable" };
+                                        can_hit.push_str(&format!(r#"<img title="Toon Link and Link's Bombs" class="spritesheet-link-bomb {}" src="{}" />"#, enable_link_bomb, assets.spritesheet_png));
+
+                                        let enable_bobomb = if hit.can_hit_bobomb() { "" } else { "icon-disable" };
+                                        can_hit.push_str(&format!(r#"<img title="Bob-ombs" class="spritesheet-bobomb {}" src="{}" />"#, enable_bobomb, assets.spritesheet_png));
+
+                                        row.push(can_hit); // TODO: Use icons, elegantly combine different hit bits, split hit air/ground
+                                    }
+                                    CollisionBoxValues::Grab(grab) => {
+                                        row.push(String::from("Grab"));
+                                        row.push(format!("set action: {}", grab.set_action));
+                                        row.push(String::new());
+                                        row.push(String::new());
+                                        row.push(String::new());
+                                        row.push(String::new());
+                                        row.push(String::new());
+                                        row.push(String::new());
+                                        row.push(String::new());
+
+                                        let mut can_hit = String::new();
+
+                                        let enable_fighter_ground = if grab.target.grounded() { "" } else { "icon-disable" };
+                                        let enable_fighter_air    = if grab.target.aerial()   { "" } else { "icon-disable" };
+                                        can_hit.push_str(&format!(r#"<img title="Fighter on the ground" class="spritesheet-fighter-ground {}" src="{}" />"#, enable_fighter_air, assets.spritesheet_png));
+                                        can_hit.push_str(&format!(r#"<img title="Fighter in the air" class="spritesheet-fighter-air {}" src="{}" />"#, enable_fighter_ground, assets.spritesheet_png));
+
+                                        row.push(can_hit); // TODO: Use icons, elegantly combine different hit bits, split hit air/ground
+                                    }
                                 }
                                 rows.push(row);
                             }
 
-                            hitbox_tables.push(HitBoxTable { frames, header, rows });
+                            if rows.len() > 0 {
+                                hitbox_tables.push(HitBoxTable { frames, header, rows });
+                            }
                         }
                     }
 

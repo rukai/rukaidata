@@ -52,6 +52,38 @@ pre {
     color: rgb(255, 255, 255);
 }
 
+.hitbox-table td, .hitbox-table th {
+    border-color: #FFFFFF;
+    border: 1px solid;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.hitbox-table td canvas {
+    vertical-align: middle;
+}
+
+.hitbox-table-id-0 {
+    color: #EF6400;
+}
+
+.hitbox-table-id-1 {
+    color: #FF0000;
+}
+
+.hitbox-table-id-2 {
+    color: #FF00FF;
+}
+
+.hitbox-table-id-3 {
+    color: #18d6c9;
+}
+
+.hitbox-table-id-4 {
+    color: #24d618;
+}
+
 .sidebar {
   z-index: 1000;
   padding: 2px;
@@ -89,4 +121,86 @@ pre {
 }
 .current-frame-button {
     background-color: rgb(0, 123, 255)
+}
+
+/* Spritesheet */
+.icon-disable {
+	filter: grayscale(100%) brightness(50%);
+}
+
+.spritesheet-fighter-ground {
+    object-fit: none;
+    object-position: 0 0;
+    width: 32px;
+	height: 32px;
+}
+
+.spritesheet-fighter-air {
+    object-fit: none;
+    object-position: -32px 0px;
+    width: 32px;
+	height: 32px;
+}
+
+.spritesheet-waddle {
+    object-fit: none;
+    object-position: -64px 0px;
+    width: 32px;
+	height: 32px;
+}
+
+.spritesheet-pikmin {
+    object-fit: none;
+    object-position: -96px 0px;
+    width: 32px;
+	height: 32px;
+}
+
+.spritesheet-gyro {
+    object-fit: none;
+    object-position: -128px 0px;
+    width: 32px;
+	height: 32px;
+}
+
+.spritesheet-snake-grenade {
+    object-fit: none;
+    object-position: -160px 0px;
+    width: 32px;
+	height: 32px;
+}
+
+.spritesheet-mr-saturn {
+    object-fit: none;
+    object-position: -192px 0px;
+    width: 32px;
+	height: 32px;
+}
+
+.spritesheet-stage-non-wall-ceiling-floor {
+    object-fit: none;
+    object-position: -224px 0px;
+    width: 32px;
+	height: 32px;
+}
+
+.spritesheet-wall-ceiling-floor {
+    object-fit: none;
+    object-position: -256px 0px;
+    width: 32px;
+	height: 32px;
+}
+
+.spritesheet-link-bomb {
+    object-fit: none;
+    object-position: -288px 0px;
+    width: 32px;
+	height: 32px;
+}
+
+.spritesheet-bobomb {
+    object-fit: none;
+    object-position: -320px 0px;
+    width: 32px;
+	height: 32px;
 }

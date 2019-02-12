@@ -676,6 +676,12 @@ const ANIMATION_FLAGS = {
     UNKNOWN:                   0x80
 };
 
+const hitbox_color0 = 0xEF6400; // orange
+const hitbox_color1 = 0xFF0000; // red
+const hitbox_color2 = 0xFF00FF; // purple
+const hitbox_color3 = 0x18d6c9; // turqoise
+const hitbox_color4 = 0x24d618; // green
+
 class FighterRender {
     constructor(subaction_data, subaction_extent) {
         const render_div = document.getElementById('fighter-render');
@@ -717,8 +723,11 @@ class FighterRender {
 
         this.run = false;
         this.ecb_material = new THREE.MeshBasicMaterial({ color: 0xf15c0a, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
-        this.hitbox_material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5 });
-        this.grabbox_material = new THREE.MeshBasicMaterial({ color: 0xff00ff, transparent: true, opacity: 0.5 });
+        this.hitbox_material0 = new THREE.MeshBasicMaterial({ color: hitbox_color0, transparent: true, opacity: 0.5 });
+        this.hitbox_material1 = new THREE.MeshBasicMaterial({ color: hitbox_color1, transparent: true, opacity: 0.5 });
+        this.hitbox_material2 = new THREE.MeshBasicMaterial({ color: hitbox_color2, transparent: true, opacity: 0.5 });
+        this.hitbox_material3 = new THREE.MeshBasicMaterial({ color: hitbox_color3, transparent: true, opacity: 0.5 });
+        this.hitbox_material4 = new THREE.MeshBasicMaterial({ color: hitbox_color4, transparent: true, opacity: 0.5 });
 
         // Manually call these callbacks to initialize stuff
         this.window_resize();
@@ -939,15 +948,24 @@ class FighterRender {
         // generate hitboxes
         for (let hit_box of frame.hit_boxes) {
             // hit/grab box specific logic
-            var material = this.hitbox_material;
-            if (hit_box.next_values.Grab != null) {
-                material = this.grabbox_material;
+            var material = this.hitbox_material0;
+            if (hit_box.hitbox_index == 1) {
+                material = this.hitbox_material1;
             }
-            else if(hit_box.next_values.Hit != null) {
-                if (!hit_box.next_values.Hit.can_hit_multiplayer_characters) {
-                    // only display hitboxes that are used in regular matches
-                    continue;
-                }
+            if (hit_box.hitbox_index == 2) {
+                material = this.hitbox_material2;
+            }
+            if (hit_box.hitbox_index == 3) {
+                material = this.hitbox_material3;
+            }
+            if (hit_box.hitbox_index == 4) {
+                material = this.hitbox_material4;
+            }
+
+            // only display hitboxes that are used in regular matches
+            const hit_values = hit_box.next_values.Hit;
+            if (hit_values != null && !hit_values.enabled) {
+                continue;
             }
 
             var prev_distance = 0;
@@ -1206,3 +1224,58 @@ class FighterRender {
 }
 
 window.fighter_render = new FighterRender(fighter_subaction_data, fighter_subaction_extent);
+
+const arrow_radius = 20;
+function draw_angle(ctx, x, y, angle_degrees, color) {
+    const angle_radians = angle_degrees / 180 * Math.PI;
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    const head_x = x + Math.cos(angle_radians) * arrow_radius;
+    const head_y = y - Math.sin(angle_radians) * arrow_radius;
+    ctx.lineTo(head_x, head_y);
+    ctx.moveTo(head_x + Math.cos(angle_radians + Math.PI + 0.4) * arrow_radius / 2, head_y - Math.sin(angle_radians + Math.PI + 0.4) * arrow_radius / 2);
+    ctx.lineTo(head_x, head_y);
+    ctx.lineTo(head_x + Math.cos(angle_radians + Math.PI - 0.4) * arrow_radius / 2, head_y - Math.sin(angle_radians + Math.PI - 0.4) * arrow_radius / 2);
+    ctx.stroke();
+}
+
+for (var hitbox_angle_render of document.getElementsByClassName('hitbox-angle-render')) {
+    const angle_degrees = hitbox_angle_render.getAttribute("angle");
+    const hitbox_id     = hitbox_angle_render.getAttribute("hitbox-id");
+    var color = "#FFFFFF"
+    if (hitbox_id == "0") {
+        color = "#EF6400";
+    }
+    else if (hitbox_id == "1") {
+        color = "#FF0000";
+    }
+    else if (hitbox_id == "2") {
+        color = "#FF00FF";
+    }
+    else if (hitbox_id == "3") {
+        color = "#18d6c9";
+    }
+    else if (hitbox_id == "4") {
+        color = "#24d618";
+    }
+    const ctx = hitbox_angle_render.getContext("2d");
+
+    if (angle_degrees == 361) {
+        hitbox_angle_render.width = arrow_radius * 4;
+        hitbox_angle_render.height = arrow_radius * 2;
+        draw_angle(ctx, arrow_radius, arrow_radius, 0, color);
+        draw_angle(ctx, arrow_radius*3, arrow_radius, 44, color);
+    }
+    else {
+        hitbox_angle_render.width = arrow_radius * 2;
+        hitbox_angle_render.height = arrow_radius * 2;
+        draw_angle(ctx, arrow_radius, arrow_radius, angle_degrees, color);
+    }
+}

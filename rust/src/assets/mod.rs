@@ -19,6 +19,18 @@ impl AssetPaths {
             path
         };
 
+        let spritesheet_png = {
+            let contents = include_bytes!("spritesheet.png");
+
+            let mut hasher = Sha256::default();
+            hasher.write_all(contents).unwrap();
+            let hash: String = hasher.result().iter().map(|x| format!("{:x}", x)).collect();
+
+            let path = format!("/assets_static/{}.png", hash);
+            File::create(format!("../root/{}", path)).unwrap().write_all(contents).unwrap();
+            path
+        };
+
         let favicon_png = {
             let contents = include_bytes!("favicon.png");
 
@@ -47,13 +59,14 @@ impl AssetPaths {
             path
         };
 
-        AssetPaths { favicon_png, style_css, subaction_render_js }
+        AssetPaths { favicon_png, spritesheet_png, style_css, subaction_render_js }
     }
 }
 
 #[derive(Serialize)]
 pub struct AssetPaths {
     pub favicon_png:         String,
+    pub spritesheet_png:     String,
     pub style_css:           String,
     pub subaction_render_js: String,
 }
