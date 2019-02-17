@@ -211,7 +211,11 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                 let mut hitbox_tables = vec!();
                 let mut last_change_frame = None;
                 for i in 0..subaction.frames.len() {
-                    let prev_frame = subaction.frames.get(i - 1);
+                    let prev_frame = if i == 0 {
+                        None
+                    } else {
+                        Some(&subaction.frames[i - 1])
+                    };
                     let frame = &subaction.frames[i];
 
                     // get the values of the previous and next hitboxes

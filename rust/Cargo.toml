@@ -7,7 +7,7 @@ description = "Uses brawllib_rs to display frame data of characters"
 repository = "https://github.com/rukai/brawl-frame-data-web"
 
 [dependencies]
-brawllib_rs = "0.7"
+brawllib_rs = "0.8"
 getopts = "0.2"
 serde_derive = "1"
 serde = "1"
@@ -21,3 +21,4 @@ sha2 = "0.8"
 
 [profile.release]
 debug-assertions = true
+overflow-checks = true
