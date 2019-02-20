@@ -82,12 +82,14 @@ impl BrawlMod {
                     };
                     for fighter in fighters {
                         let lower_fighter_name = fighter.cased_name.to_lowercase();
+
                         // Filter unmodified fighters from mods, so that deleted fighters from mods don't show up as brawl fighters
                         let unmodified_fighter_in_mod = match fighter.mod_type {
                             ModType::NotMod         => true,
                             ModType::ModFromBase    => false,
                             ModType::ModFromScratch => false,
                         } && is_mod;
+
                         if (cli.fighter_names.len() == 0 || cli.fighter_names.iter().any(|x| x == &lower_fighter_name)) && lower_fighter_name != "poketrainer" && !unmodified_fighter_in_mod {
                             let fighter = HighLevelFighter::new(&fighter);
 

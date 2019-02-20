@@ -949,16 +949,16 @@ class FighterRender {
         for (let hit_box of frame.hit_boxes) {
             // hit/grab box specific logic
             var material = this.hitbox_material0;
-            if (hit_box.hitbox_index == 1) {
+            if (hit_box.hitbox_id == 1) {
                 material = this.hitbox_material1;
             }
-            if (hit_box.hitbox_index == 2) {
+            if (hit_box.hitbox_id == 2) {
                 material = this.hitbox_material2;
             }
-            if (hit_box.hitbox_index == 3) {
+            if (hit_box.hitbox_id == 3) {
                 material = this.hitbox_material3;
             }
-            if (hit_box.hitbox_index == 4) {
+            if (hit_box.hitbox_id == 4) {
                 material = this.hitbox_material4;
             }
 

@@ -51,7 +51,7 @@
             {{/with}}
             <table>
                 {{#each attributes}}
-                <tr><td>{{name}}:</td></td><td>{{value}}</td></tr>
+                <tr><td>{{{name}}}:</td></td><td>{{value}}</td></tr>
                 {{/each}}
             </table>
 
@@ -71,7 +71,7 @@
                     </thead>
                     <tbody>
                         {{#each rows}}
-                        <tr class="hitbox-table-id-{{this.0}}"> <!-- this.0 is the hitbox ID -->
+                        <tr class="hitbox-table-id-{{this.1}}"> <!-- this.1 is the hitbox ID -->
                             {{#each this}}
                             <td>{{{this}}}</td>
                             {{/each}}

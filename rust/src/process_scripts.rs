@@ -1,4 +1,4 @@
-use brawllib_rs::script_ast::{EventAst, ForLoop, Iterations, IfStatement, Expression, UnaryExpression, BinaryExpression};
+use brawllib_rs::script_ast::{EventAst, ForLoop, Iterations, IfStatement, Expression, UnaryExpression, BinaryExpression, ChangeAction};
 
 use crate::brawl_data::{BrawlMod, BrawlFighter};
 
@@ -8,7 +8,7 @@ pub fn process_events(events: &[EventAst], brawl_mod: &BrawlMod, fighter: &Brawl
     for event in events {
         match event {
             EventAst::Nop => { }
-            EventAst::ChangeAction { action, test } => {
+            EventAst::ChangeAction (ChangeAction { action, test }) => {
                 if let Some(action) = fighter.fighter.actions.get(*action as usize) {
                     result.push_str(&format!("<li>ChangeAction {{ action: <a href='/{}/{}/actions/{}.html'>{}</a>, requirement: ({}) }}</li>",
                         brawl_mod.name, fighter.fighter.name, action.name, action.name, process_expression(test)));
