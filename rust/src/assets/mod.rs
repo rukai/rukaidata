@@ -1,10 +1,13 @@
 use std::fs::File;
+use std::fs;
 use std::io::Write;
 
 use sha2::{Sha256, Digest};
 
 impl AssetPaths {
     pub fn new() -> AssetPaths {
+        fs::create_dir_all("../root/assets_static").unwrap();
+
         let style_css = {
             let contents = include_str!("style.css");
 

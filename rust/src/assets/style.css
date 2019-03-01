@@ -131,76 +131,76 @@ pre {
 .spritesheet-fighter-ground {
     object-fit: none;
     object-position: 0 0;
-    width: 32px;
-	height: 32px;
+    width: 40px;
+	height: 40px;
 }
 
 .spritesheet-fighter-air {
     object-fit: none;
-    object-position: -32px 0px;
-    width: 32px;
-	height: 32px;
+    object-position: -40px 0px;
+    width: 40px;
+	height: 40px;
 }
 
 .spritesheet-waddle {
     object-fit: none;
-    object-position: -64px 0px;
-    width: 32px;
-	height: 32px;
+    object-position: -80px 0px;
+    width: 40px;
+	height: 40px;
 }
 
 .spritesheet-pikmin {
     object-fit: none;
-    object-position: -96px 0px;
-    width: 32px;
-	height: 32px;
+    object-position: -120px 0px;
+    width: 40px;
+	height: 40px;
 }
 
 .spritesheet-gyro {
     object-fit: none;
-    object-position: -128px 0px;
-    width: 32px;
-	height: 32px;
+    object-position: -160px 0px;
+    width: 40px;
+	height: 40px;
 }
 
 .spritesheet-snake-grenade {
     object-fit: none;
-    object-position: -160px 0px;
-    width: 32px;
-	height: 32px;
+    object-position: -200px 0px;
+    width: 40px;
+	height: 40px;
 }
 
 .spritesheet-mr-saturn {
     object-fit: none;
-    object-position: -192px 0px;
-    width: 32px;
-	height: 32px;
+    object-position: -240px 0px;
+    width: 40px;
+	height: 40px;
 }
 
 .spritesheet-stage-non-wall-ceiling-floor {
     object-fit: none;
-    object-position: -224px 0px;
-    width: 32px;
-	height: 32px;
+    object-position: -280px 0px;
+    width: 40px;
+	height: 40px;
 }
 
 .spritesheet-wall-ceiling-floor {
     object-fit: none;
-    object-position: -256px 0px;
-    width: 32px;
-	height: 32px;
+    object-position: -320px 0px;
+    width: 40px;
+	height: 40px;
 }
 
 .spritesheet-link-bomb {
     object-fit: none;
-    object-position: -288px 0px;
-    width: 32px;
-	height: 32px;
+    object-position: -360px 0px;
+    width: 40px;
+	height: 40px;
 }
 
 .spritesheet-bobomb {
     object-fit: none;
-    object-position: -320px 0px;
-    width: 32px;
-	height: 32px;
+    object-position: -400px 0px;
+    width: 40px;
+	height: 40px;
 }
