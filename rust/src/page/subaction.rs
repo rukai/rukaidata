@@ -483,7 +483,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                         row.push(String::from("0"));
                                         row.push(hitbox.hitbox_id.to_string());
                                         row.push(String::from("Grab"));
-                                        row.push(format!("set action: {}", grab.set_action));
+                                        row.push(format!("set action: 0x{:x}", grab.set_action));
                                         row.push(String::new());
                                         row.push(String::new());
                                         row.push(String::new());

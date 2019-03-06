@@ -1,9 +1,11 @@
-use std::fs;
-use std::fs::DirEntry;
 use std::collections::HashMap;
+use std::fs::DirEntry;
+use std::fs;
 
 use brawllib_rs::fighter::{Fighter, ModType};
-use brawllib_rs::high_level_fighter::HighLevelFighter;
+use brawllib_rs::high_level_fighter::{HighLevelFighter, HighLevelAction};
+use brawllib_rs::high_level_fighter_common::HighLevelFighterCommon;
+use brawllib_rs::script_ast::ScriptAst;
 
 use crate::page::NavLink;
 use crate::cli::CLIResults;
@@ -13,13 +15,15 @@ pub struct BrawlMods {
 }
 
 pub struct BrawlMod {
-    pub name:        String,
-    pub fighters:    Vec<BrawlFighter>,
+    pub name:                 String,
+    pub fighters:             Vec<BrawlFighter>,
+    pub fighter_common:       HighLevelFighterCommon,
+    pub script_lookup_common: HashMap<i32, ScriptInfo>,
 }
 
 pub struct BrawlFighter {
-    pub fighter: HighLevelFighter,
-    pub script_lookup: HashMap<u32, ScriptInfo>,
+    pub fighter:       HighLevelFighter,
+    pub script_lookup: HashMap<i32, ScriptInfo>,
 }
 
 pub struct ScriptInfo {
@@ -63,6 +67,30 @@ impl BrawlMod {
             let mut path = data.path();
             path.push("fighter");
 
+            let fighter_common = HighLevelFighterCommon::new("../data/Brawl/fighter/Fighter.pac");
+            let mut script_lookup_common = HashMap::new();
+            for script in &fighter_common.scripts_section {
+                let name = script.name.clone();
+                let address = format!("/{}/common/scripts/{}.html", mod_name, name);
+                assert!(script_lookup_common.insert(script.script.offset, ScriptInfo { name, address }).is_none());
+            }
+
+            for action in &fighter_common.actions {
+                let name = action.script_entry.offset.to_string();
+                let address = format!("/{}/common/actions/{}.html#script-entry", mod_name, name);
+                script_lookup_common.insert(action.script_entry.offset, ScriptInfo { name, address });
+
+                let name = action.script_exit.offset.to_string();
+                let address = format!("/{}/common/actions/{}.html#script-exit", mod_name, name);
+                script_lookup_common.insert(action.script_exit.offset, ScriptInfo { name, address });
+            }
+
+            for script in &fighter_common.scripts_fragment {
+                let name = script.offset.to_string();
+                let address = format!("/{}/common/scripts/{}.html", mod_name, name);
+                script_lookup_common.insert(script.offset, ScriptInfo { name, address });
+            }
+
             let mut brawl_fighters = vec!();
             match fs::read_dir(path) {
                 Ok(fighter_dir) => {
@@ -80,6 +108,7 @@ impl BrawlMod {
                             return None;
                         }
                     };
+
                     for fighter in fighters {
                         let lower_fighter_name = fighter.cased_name.to_lowercase();
 
@@ -128,20 +157,11 @@ impl BrawlMod {
                             for script in &fighter.scripts_fragment_fighter {
                                 let name = script.offset.to_string();
                                 let address = format!("/{}/{}/scripts/{}.html", mod_name, fighter.name, name);
-                                script_lookup.insert(script.offset, ScriptInfo { name, address });
-                                //assert!(script_lookup.insert(script.offset, ScriptInfo { name, address }).is_none()); // TODO: Collides with the COMMON action entry/exit scripts. Need to research if common has its own namespace?? How are collisions resolved??
-                            }
-
-                            for script in &fighter.scripts_fragment_common {
-                                let name = script.offset.to_string();
-                                let address = format!("/{}/{}/scripts/{}.html", mod_name, fighter.name, name);
-                                script_lookup.insert(script.offset, ScriptInfo { name, address });
-                                //assert!(script_lookup.insert(script.offset, ScriptInfo { name, address }).is_none()); // TODO
+                                assert!(script_lookup.insert(script.offset, ScriptInfo { name, address }).is_none());
                             }
 
                             brawl_fighters.push(BrawlFighter { fighter, script_lookup });
                         }
-
                     }
                 }
                 Err(_) => {
@@ -155,6 +175,8 @@ impl BrawlMod {
             Some(BrawlMod {
                 name:     mod_name,
                 fighters: brawl_fighters,
+                script_lookup_common,
+                fighter_common,
             })
         } else {
             None
@@ -170,6 +192,11 @@ impl BrawlMod {
                 current: current_fighter == &fighter.fighter.name,
             });
         }
+        links.push(NavLink {
+            name:    "Common Fighter".into(),
+            link:    format!("/{}/common", self.name, ),
+            current: current_fighter == "common"
+        });
         links
     }
 
@@ -338,19 +365,19 @@ impl BrawlMod {
         SubactionLinks { attacks_aerial, attacks_jab, attacks_tilt, attacks_smash, attacks_dash, grabs, specials, knockdowns, trips, ledge_options, dodges, wall_ceiling_tech, glide, crawl, footstool, movements, finals, taunts, stun, sleep, swim, item, item_throw, none, misc, has_glide, has_crawl }
     }
 
-    pub fn gen_script_fragment_common_links(&self, fighter: &HighLevelFighter, current_script: u32) -> Vec<NavLink> {
+    pub fn gen_script_fragment_common_links(&self, scripts: &[ScriptAst], current_script: i32) -> Vec<NavLink> {
         let mut links = vec!();
-        for script in &fighter.scripts_fragment_common {
+        for script in scripts {
             links.push(NavLink {
                 name:    script.offset.to_string(),
-                link:    format!("/{}/{}/scripts/{}.html", self.name, fighter.name, script.offset),
+                link:    format!("/{}/common/scripts/{}.html", self.name, script.offset),
                 current: current_script == script.offset,
             });
         }
         links
     }
 
-    pub fn gen_script_fragment_fighter_links(&self, fighter: &HighLevelFighter, current_script: u32) -> Vec<NavLink> {
+    pub fn gen_script_fragment_fighter_links(&self, fighter: &HighLevelFighter, current_script: i32) -> Vec<NavLink> {
         let mut links = vec!();
         for script in &fighter.scripts_fragment_fighter {
             links.push(NavLink {
@@ -362,12 +389,12 @@ impl BrawlMod {
         links
     }
 
-    pub fn gen_action_links(&self, fighter: &HighLevelFighter, current_action: &str) -> Vec<NavLink> {
+    pub fn gen_action_links(&self, fighter_name: String, actions: &[HighLevelAction], current_action: &str) -> Vec<NavLink> {
         let mut links = vec!();
-        for action in &fighter.actions {
+        for action in actions {
             links.push(NavLink {
                 name:    action.name.clone(),
-                link:    format!("/{}/{}/actions/{}.html", self.name, fighter.name, action.name),
+                link:    format!("/{}/{}/actions/{}.html", self.name, fighter_name, action.name),
                 current: current_action == action.name,
             });
         }

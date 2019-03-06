@@ -18,7 +18,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                 title:                         format!("{} - {} - Subroutines", brawl_mod.name, fighter.name),
                 fighter_links:                 brawl_mod.gen_fighter_links(&fighter.name),
                 script_fragment_fighter_links: brawl_mod.gen_script_fragment_fighter_links(fighter, 0),
-                script_fragment_common_links:  brawl_mod.gen_script_fragment_common_links(fighter, 0),
+                script_fragment_common_links:  brawl_mod.gen_script_fragment_common_links(&brawl_mod.fighter_common.scripts_fragment, 0),
                 assets,
             };
 
@@ -27,6 +27,21 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
             let file = File::create(path).unwrap();
             handlebars.render_to_write("scripts", &page, file).unwrap();
         });
+
+        // common fighter
+        let page = ScriptsPage {
+            mod_links:                     &mod_links,
+            title:                         format!("{} - Common Fighter - Subroutines", brawl_mod.name),
+            fighter_links:                 brawl_mod.gen_fighter_links("common"),
+            script_fragment_fighter_links: vec!(),
+            script_fragment_common_links:  brawl_mod.gen_script_fragment_common_links(&brawl_mod.fighter_common.scripts_fragment, 0),
+            assets,
+        };
+
+        fs::create_dir_all(format!("../root/{}/common/scripts", brawl_mod.name)).unwrap();
+        let path = format!("../root/{}/common/scripts/index.html", brawl_mod.name);
+        let file = File::create(path).unwrap();
+        handlebars.render_to_write("scripts", &page, file).unwrap();
     }
 }
 

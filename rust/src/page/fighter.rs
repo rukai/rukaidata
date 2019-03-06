@@ -25,6 +25,19 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
             let file = File::create(path).unwrap();
             handlebars.render_to_write("fighter", &page, file).unwrap();
         });
+
+        // common fighter
+        let page = FighterPage {
+            mod_links:     &mod_links,
+            title:         format!("{} - Common Fighter", brawl_mod.name),
+            fighter_links: brawl_mod.gen_fighter_links("common"),
+            assets,
+        };
+
+        fs::create_dir_all(format!("../root/{}/common", brawl_mod.name)).unwrap();
+        let path = format!("../root/{}/common/index.html", brawl_mod.name);
+        let file = File::create(path).unwrap();
+        handlebars.render_to_write("fighter_common", &page, file).unwrap();
     }
 }
 
