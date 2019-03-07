@@ -17,11 +17,6 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                 current: false,
             });
         }
-        fighter_links.push(NavLink {
-            name:    "Common Fighter".into(),
-            link:    format!("/{}/common", brawl_mod.name),
-            current: false,
-        });
 
         let page = ModPage {
             mod_links:     brawl_mods.gen_mod_links(brawl_mod.name.clone()),

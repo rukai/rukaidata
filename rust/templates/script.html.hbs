@@ -44,6 +44,17 @@
                 {{/if}}
                 {{/each}}
             </ul>
+
+            <h2>Section</h2>
+            <ul class="nav nav-pills flex-column">
+                {{#each script_section_links}}
+                {{#if current}}
+                <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
+                {{else}}
+                <li><a class="nav-link" href="{{link}}">{{name}}</a></li>
+                {{/if}}
+                {{/each}}
+            </ul>
         </nav>
     </div>
 </div>

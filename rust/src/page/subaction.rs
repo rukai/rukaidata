@@ -27,10 +27,10 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                 //
                 // So instead I just dump the scripts one by one, linking to other pages for external function calls
                 // Then one day I can come and add script running via wasm.
-                let script_main  = process_scripts::process_events(&subaction.scripts.script_main.block.events, brawl_mod, fighter);
-                let script_gfx   = process_scripts::process_events(&subaction.scripts.script_gfx.block.events, brawl_mod, fighter);
-                let script_sfx   = process_scripts::process_events(&subaction.scripts.script_sfx.block.events, brawl_mod, fighter);
-                let script_other = process_scripts::process_events(&subaction.scripts.script_other.block.events, brawl_mod, fighter);
+                let script_main  = process_scripts::process_events(&subaction.scripts.script_main.block.events, false, brawl_mod, fighter);
+                let script_gfx   = process_scripts::process_events(&subaction.scripts.script_gfx.block.events, false, brawl_mod, fighter);
+                let script_sfx   = process_scripts::process_events(&subaction.scripts.script_sfx.block.events, false, brawl_mod, fighter);
+                let script_other = process_scripts::process_events(&subaction.scripts.script_other.block.events, false, brawl_mod, fighter);
 
                 let mut frame_buttons = vec!();
                 for (mut index, frame) in subaction.frames.iter().enumerate() {
@@ -54,7 +54,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                         if auto_cancel.len() != 0 {
                             auto_cancel.push_str(", ");
                         }
-                        auto_cancel.push_str(&format!("{}-{}", last_frame_change + 1, index + 1));
+                        auto_cancel.push_str(&format!("{}-{}", last_frame_change + 1, index));
                     }
                     if landing_lag_prev != frame.landing_lag {
                         last_frame_change = index;

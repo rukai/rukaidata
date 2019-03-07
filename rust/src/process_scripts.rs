@@ -2,8 +2,13 @@ use brawllib_rs::script_ast::{EventAst, ForLoop, Iterations, IfStatement, Expres
 
 use crate::brawl_data::{BrawlMod, BrawlFighter};
 
-pub fn process_events(events: &[EventAst], brawl_mod: &BrawlMod, fighter: &BrawlFighter) -> String {
-    let script_lookup = &fighter.script_lookup;
+pub fn process_events(events: &[EventAst], common: bool, brawl_mod: &BrawlMod, fighter: &BrawlFighter) -> String {
+    let script_lookup = if common {
+        &fighter.script_lookup_common
+    } else {
+        &fighter.script_lookup
+    };
+
     let mut result = String::from("<ol>");
     for event in events {
         match event {
@@ -58,42 +63,54 @@ pub fn process_events(events: &[EventAst], brawl_mod: &BrawlMod, fighter: &Brawl
                     Iterations::Finite (i) => i.to_string(),
                     Iterations::Infinite => "Infinite".to_string(),
                 };
-                result.push_str(&format!("<li>loop {} times: {}</li>", iterations, &process_events(&block.events, brawl_mod, fighter)));
+                result.push_str(&format!("<li>loop {} times: {}</li>", iterations, &process_events(&block.events, common, brawl_mod, fighter)));
             }
             EventAst::IfStatement ( IfStatement { test, then_branch, else_branch } ) => {
-                result.push_str(&format!("<li>if ({}) {} </li>", process_expression(test), &process_events(&then_branch.events, brawl_mod, fighter)));
+                result.push_str(&format!("<li>if ({}) {} </li>", process_expression(test), &process_events(&then_branch.events, common, brawl_mod, fighter)));
 
                 if let Some(else_branch) = else_branch {
                     result.push_str("<li>else");
-                    result.push_str(&process_events(&else_branch.events, brawl_mod, fighter));
+                    result.push_str(&process_events(&else_branch.events, common, brawl_mod, fighter));
                     result.push_str("</li>");
                 }
             }
             EventAst::Goto (offset) => {
                 if let Some(script_info) = script_lookup.get(&offset.offset) {
-                    result.push_str(&format!("<li>Goto(<a href='{}'>{} {}</a>)</li>", script_info.address, script_info.name, offset.origin));
+                    result.push_str(&format!("<li>Goto(<a href='{}'>{}</a>)</li>", script_info.address, script_info.name));
                 } else {
-                    result.push_str(&format!("<li>{:?}</li>", event));
-                    error!("Failed to lookup script for goto destination");
+                    if let Some(script) = fighter.fighter.scripts_section.iter().find(|x| x.callers.contains(&offset.origin)) {
+                        result.push_str(&format!("<li>Goto(<a href='help'>External: {}</a>)</li>", script.name));
+                    } else {
+                        result.push_str(&format!("<li>Subroutine(Offset {{ offset: 0x{:x}, origin: 0x{:x} }})</li>", offset.offset, offset.origin));
+                        error!("Failed to lookup script for goto destination");
+                    }
                 }
             }
             EventAst::Subroutine (offset) => {
                 if let Some(script_info) = script_lookup.get(&offset.offset) {
-                    result.push_str(&format!("<li>Subroutine(<a href='{}'>{} {}</a>)</li>", script_info.address, script_info.name, offset.origin));
+                    result.push_str(&format!("<li>Subroutine(<a href='{}'>{}</a>)</li>", script_info.address, script_info.name));
                 } else {
-                    result.push_str(&format!("<li>{:?}</li>", event));
-                    error!("Failed to lookup script for goto destination");
+                    if let Some(script) = fighter.fighter.scripts_section.iter().find(|x| x.callers.contains(&offset.origin)) {
+                        result.push_str(&format!("<li>Subroutine(<a href='/{}/{}/scripts_common/{}.html'>External: {}</a>)</li>", brawl_mod.name, fighter.fighter.name, script.name, script.name));
+                    } else {
+                        result.push_str(&format!("<li>Goto(Offset {{ offset: 0x{:x}, origin: 0x{:x} }})</li>", offset.offset, offset.origin));
+                        error!("Failed to lookup script for goto destination");
+                    }
                 }
             }
             EventAst::CallEveryFrame { thread_id, offset } => {
                 if let Some(script_info) = script_lookup.get(&offset.offset) {
                     result.push_str(&format!("<li>CallEveryFrame {{ thread_id: {}, script: <a href='{}'>{}</a> }}</li>", thread_id, script_info.address, script_info.name));
                 } else {
-                    result.push_str(&format!("<li>{:?}</li>", event));
-                    error!("Failed to lookup script for CallEveryFrame destination");
+                    if let Some(script) = fighter.fighter.scripts_section.iter().find(|x| x.callers.contains(&offset.origin)) {
+                        result.push_str(&format!("<li>Subroutine(<a href='/{}/{}/scripts_common/{}.html'>External: {}</a>)</li>", brawl_mod.name, fighter.fighter.name, script.name, script.name));
+                    } else {
+                        result.push_str(&format!("<li>{:x?}</li>", event));
+                        error!("Failed to lookup script for CallEveryFrame destination");
+                    }
                 }
             }
-            EventAst::Unknown (event) => result.push_str(&format!("<li>UnknownEvent {{ namespace: 0x{:x}, code: 0x{:x}, unk1: 0x{:x}, argments: {:?} }}</li>", event.namespace, event.code, event.unk1, event.arguments)),
+            EventAst::Unknown (event) => result.push_str(&format!("<li>UnknownEvent {{ namespace: 0x{:x}, code: 0x{:x}, unk1: 0x{:x}, arguments: {:?} }}</li>", event.namespace, event.code, event.unk1, event.arguments)),
             _ => result.push_str(&format!("<li>{:?}</li>", event)),
         }
     }
@@ -113,60 +130,4 @@ fn process_expression(expr: &Expression) -> String {
         Expression::Value (value) => format!("value({})", value),
         Expression::Scalar (scalar) => format!("scalar({})", scalar),
     }
-}
-
-// TODO: DELET THIS
-use std::collections::HashMap;
-use crate::brawl_data::ScriptInfo;
-pub fn process_events_common(events: &[EventAst], brawl_mod: &BrawlMod, script_lookup: &HashMap<i32, ScriptInfo>) -> String {
-    let mut result = String::from("<ol>");
-    for event in events {
-        match event {
-            EventAst::Nop => { }
-            EventAst::ForLoop ( ForLoop { iterations, block } ) => {
-                let iterations = match iterations {
-                    Iterations::Finite (i) => i.to_string(),
-                    Iterations::Infinite => "Infinite".to_string(),
-                };
-                result.push_str(&format!("<li>loop {} times: {}</li>", iterations, &process_events_common(&block.events, brawl_mod, script_lookup)));
-            }
-            EventAst::IfStatement ( IfStatement { test, then_branch, else_branch } ) => {
-                result.push_str(&format!("<li>if ({}) {} </li>", process_expression(test), &process_events_common(&then_branch.events, brawl_mod, script_lookup)));
-
-                if let Some(else_branch) = else_branch {
-                    result.push_str("<li>else");
-                    result.push_str(&process_events_common(&else_branch.events, brawl_mod, script_lookup));
-                    result.push_str("</li>");
-                }
-            }
-            EventAst::Goto (offset) => {
-                if let Some(script_info) = script_lookup.get(&offset.offset) {
-                    result.push_str(&format!("<li>Goto(<a href='{}'>{} {}</a>)</li>", script_info.address, script_info.name, offset.origin));
-                } else {
-                    result.push_str(&format!("<li>{:?}</li>", event));
-                    error!("Failed to lookup script for goto destination");
-                }
-            }
-            EventAst::Subroutine (offset) => {
-                if let Some(script_info) = script_lookup.get(&offset.offset) {
-                    result.push_str(&format!("<li>Subroutine(<a href='{}'>{} {}</a>)</li>", script_info.address, script_info.name, offset.origin));
-                } else {
-                    result.push_str(&format!("<li>{:?}</li>", event));
-                    error!("Failed to lookup script for goto destination");
-                }
-            }
-            EventAst::CallEveryFrame { thread_id, offset } => {
-                if let Some(script_info) = script_lookup.get(&offset.offset) {
-                    result.push_str(&format!("<li>CallEveryFrame {{ thread_id: {}, script: <a href='{}'>{}</a> }}</li>", thread_id, script_info.address, script_info.name));
-                } else {
-                    result.push_str(&format!("<li>{:?}</li>", event));
-                    error!("Failed to lookup script for CallEveryFrame destination");
-                }
-            }
-            EventAst::Unknown (event) => result.push_str(&format!("<li>UnknownEvent {{ namespace: 0x{:x}, code: 0x{:x}, unk1: 0x{:x}, argments: {:?} }}</li>", event.namespace, event.code, event.unk1, event.arguments)),
-            _ => result.push_str(&format!("<li>{:?}</li>", event)),
-        }
-    }
-    result.push_str("</ol>");
-    result
 }
