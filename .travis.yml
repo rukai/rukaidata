@@ -9,6 +9,11 @@ script:
   - cargo test --release
   - cargo build
   - cargo build --release
+  - cd ../discord_bot
+  - cargo test
+  - cargo test --release
+  - cargo build
+  - cargo build --release
 
 branches:
   only:
