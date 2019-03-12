@@ -100,29 +100,29 @@ impl BrawlMod {
                             for action in &fighter.actions {
                                 if action.common {
                                     if action.script_entry.offset != 0 {
-                                        let name = action.script_entry.offset.to_string();
-                                        let address = format!("/{}/{}/actions/{}.html#script-entry", mod_name, fighter.name, name);
+                                        let name = format!("{} Entry 0x{:x}", action.name, action.script_entry.offset);
+                                        let address = format!("/{}/{}/actions/{}.html#script-entry", mod_name, fighter.name, action.name);
                                         // These sorts of scripts may be from the same offset, as multiple actions refer to the same script.
                                         // It shouldnt matter too much as the scripts are going to be identical anyway.
                                         script_lookup_common.insert(action.script_entry.offset, ScriptInfo { name, address });
                                     }
 
                                     if action.script_exit.offset != 0 {
-                                        let name = action.script_exit.offset.to_string();
-                                        let address = format!("/{}/{}/actions/{}.html#script-exit", mod_name, fighter.name, name);
+                                        let name = format!("{} Exit 0x{:x}", action.name, action.script_exit.offset);
+                                        let address = format!("/{}/{}/actions/{}.html#script-exit", mod_name, fighter.name, action.name);
                                         script_lookup_common.insert(action.script_exit.offset, ScriptInfo { name, address });
                                     }
                                 }
                                 else {
                                     if action.script_entry.offset != 0 {
-                                        let name = action.script_entry.offset.to_string();
-                                        let address = format!("/{}/{}/actions/{}.html#script-entry", mod_name, fighter.name, name);
+                                        let name = format!("{} Entry 0x{:x}", action.name, action.script_entry.offset);
+                                        let address = format!("/{}/{}/actions/{}.html#script-entry", mod_name, fighter.name, action.name);
                                         script_lookup.insert(action.script_entry.offset, ScriptInfo { name, address });
                                     }
 
                                     if action.script_exit.offset != 0 {
-                                        let name = action.script_exit.offset.to_string();
-                                        let address = format!("/{}/{}/actions/{}.html#script-exit", mod_name, fighter.name, name);
+                                        let name = format!("{} Exit 0x{:x}", action.name, action.script_exit.offset);
+                                        let address = format!("/{}/{}/actions/{}.html#script-exit", mod_name, fighter.name, action.name);
                                         script_lookup.insert(action.script_exit.offset, ScriptInfo { name, address });
                                     }
                                 }
@@ -131,19 +131,19 @@ impl BrawlMod {
                             for subaction in &fighter.subactions {
                                 let scripts = &subaction.scripts;
 
-                                let name = format!("{} Main", subaction.name);
+                                let name = format!("{} Main 0x{:x}", subaction.name, scripts.script_main.offset);
                                 let address = format!("/{}/{}/subactions/{}.html#script-main", mod_name, fighter.name, subaction.name);
                                 script_lookup.insert(scripts.script_main.offset, ScriptInfo { name, address });
 
-                                let name = format!("{} GFX", subaction.name);
+                                let name = format!("{} GFX 0x{:x}", subaction.name, scripts.script_gfx.offset);
                                 let address = format!("/{}/{}/subactions/{}.html#script-gfx", mod_name, fighter.name, subaction.name);
                                 script_lookup.insert(scripts.script_gfx.offset, ScriptInfo { name, address });
 
-                                let name = format!("{} SFX", subaction.name);
+                                let name = format!("{} SFX 0x{:x}", subaction.name, scripts.script_sfx.offset);
                                 let address = format!("/{}/{}/subactions/{}.html#script-sfx", mod_name, fighter.name, subaction.name);
                                 script_lookup.insert(scripts.script_sfx.offset, ScriptInfo { name, address });
 
-                                let name = format!("{} Other", subaction.name);
+                                let name = format!("{} Other 0x{:x}", subaction.name, scripts.script_other.offset);
                                 let address = format!("/{}/{}/subactions/{}.html#script-other", mod_name, fighter.name, subaction.name);
                                 script_lookup.insert(scripts.script_other.offset, ScriptInfo { name, address });
                             }
