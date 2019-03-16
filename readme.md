@@ -5,10 +5,10 @@ Uses [brawllib_rs](https://github.com/rukai/brawllib_rs) to display frame data o
 ## To run
 
 1.  Install stable rust via https://rustup.rs/
-3.  Right click brawl in dolphin game list -> Properties -> Filesystem -> Disc -> Partition 1 -> right click fighter -> Extract Files... -> select the directory data/Brawl/fighter
-4.  Copy any mod fighter directories to the directories data/MODNAMEHERE/fighter **(optional)**
-5.  Open a terminal and `cd` to the directory this readme is in.
-6.  Run the command: `cd rust`
-6.  Run the command: `cargo run --release`
-7.  Compiled and generated files are put in the `root` directory
-8.  Run a webserver on the `root` directory e.g. Use the `serve.py` script.
+2.  Right click brawl in dolphin game list -> Properties -> Filesystem -> Disc -> Partition 1 -> right click fighter -> Extract Files... -> select the directory data/Brawl/fighter
+3.  Copy any mod fighter directories to the directories data/MODNAMEHERE/fighter **(optional)**
+4.  Open a terminal and `cd` to the directory this readme is in.
+5.  Run the command: `cd rust`
+6.  Run the command: `cargo run --release` This generates the website into the `root` directory.
+7.  Run a webserver on the `root` directory e.g. Install python, make sure to add python to your PATH, there should be a tickbox for this in the installer, otherwise you can lookup online how to do it manually. Then run `serve.sh` for linux/mac or `serve.bat` for windows.
+8.  Navigate to http://localhost:8000 in your webbrowser.
