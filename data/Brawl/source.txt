@@ -1,0 +1,1 @@
+right click brawl in dolphin game list -> Properties -> Filesystem -> Disc -> right click Partition 1 -> Extract Files... -> select this folder

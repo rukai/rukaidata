@@ -1,4 +1,4 @@
-use brawllib_rs::script_ast::{EventAst, ForLoop, Iterations, IfStatement, Expression, UnaryExpression, BinaryExpression, ChangeAction};
+use brawllib_rs::script_ast::{EventAst, ForLoop, Iterations, IfStatement, Expression, UnaryExpression, BinaryExpression, Interrupt};
 use brawllib_rs::script_ast::variable_ast::{
     VariableAst,
     InternalConstantInt,
@@ -9,6 +9,7 @@ use brawllib_rs::script_ast::variable_ast::{
     RandomAccessFloat,
     RandomAccessBool,
 };
+use brawllib_rs::script::Argument;
 
 use crate::brawl_data::{BrawlMod, BrawlFighter};
 
@@ -22,34 +23,20 @@ pub fn process_events(events: &[EventAst], common: bool, brawl_mod: &BrawlMod, f
     let mut result = String::from("<ol>");
     for event in events {
         match event {
-            EventAst::Nop => { }
-            EventAst::ChangeAction (ChangeAction { action, test }) => {
+            EventAst::Nop => { } // exclude nops
+            EventAst::CreateInterrupt (Interrupt { interrupt_id, action, test }) => {
                 if let Some(action) = fighter.fighter.actions.get(*action as usize) {
-                    result.push_str(&format!("<li>ChangeAction {{ action: <a href='/{}/{}/actions/{}.html'>{}</a>, requirement: ({}) }}</li>",
-                        brawl_mod.name, fighter.fighter.name, action.name, action.name, process_expression(test)));
+                    result.push_str(&format!("<li>CreateInterrupt {{ interrupt_id: {:?}, action: <a href='/{}/{}/actions/{}.html'>{}</a>, requirement: ({}) }}</li>",
+                        interrupt_id, brawl_mod.name, fighter.fighter.name, action.name, action.name, process_expression(test)));
                 } else {
                     result.push_str(&format!("<li>{:?}</li>", event));
-                    error!("Failed to lookup action for ChangeAction");
+                    error!("Failed to lookup action for CreateInterrupt");
                 }
             }
-            EventAst::ChangeActionStatus { status_id, action, requirement, flip } => {
-                if let Some(action) = fighter.fighter.actions.get(*action as usize) {
-                    let test = if *flip {
-                        Expression::Not(Box::new(Expression::Nullary(requirement.clone())))
-
-                    } else {
-                        Expression::Nullary(requirement.clone())
-                    };
-
-                    result.push_str(
-                        &format!("<li>ChangeActionStatus {{ status_id: {}, action: <a href='/{}/{}/actions/{}.html'>{}</a>, requirement: ({}), }}</li>",
-                        status_id, brawl_mod.name, fighter.fighter.name, action.name, action.name, process_expression(&test))
-                    );
-                } else {
-                    result.push_str(&format!("<li>{:?}</li>", event));
-                    error!("Failed to lookup action for ChangeAction");
-                }
-            }
+            EventAst::PreviousInterruptAddRequirement { test } =>
+                result.push_str(&format!("<li>PreviousInterruptAddRequirement({})</li>", process_expression(test))),
+            EventAst::InterruptAddRequirement { interrupt_type, interrupt_id, test } =>
+                result.push_str(&format!("<li>InterruptAddRequirement {{ interrupt_type: {:?}, interrupt_id: {}, test: {} }}</li>", interrupt_type, interrupt_id, process_expression(test))),
             EventAst::ChangeSubaction (subaction) => {
                 if let Some(subaction) = fighter.fighter.subactions.get(*subaction as usize) {
                     result.push_str(&format!("<li>ChangeSubaction(<a href='/{}/{}/subactions/{}.html'>{}</a>)</li>",
@@ -76,7 +63,7 @@ pub fn process_events(events: &[EventAst], common: bool, brawl_mod: &BrawlMod, f
                 result.push_str(&format!("<li>loop {} times: {}</li>", iterations, &process_events(&block.events, common, brawl_mod, fighter)));
             }
             EventAst::IfStatement ( IfStatement { test, then_branch, else_branch } ) => {
-                result.push_str(&format!("<li>if ({}) {} </li>", process_expression(test), &process_events(&then_branch.events, common, brawl_mod, fighter)));
+                result.push_str(&format!("<li>if ({}) {}</li>", process_expression(test), &process_events(&then_branch.events, common, brawl_mod, fighter)));
 
                 if let Some(else_branch) = else_branch {
                     result.push_str("<li>else");
@@ -84,6 +71,10 @@ pub fn process_events(events: &[EventAst], common: bool, brawl_mod: &BrawlMod, f
                     result.push_str("</li>");
                 }
             }
+            EventAst::IfStatementAnd (test) =>
+                result.push_str(&format!("<li>IfStatementAnd ({})</li>", process_expression(test))),
+            EventAst::IfStatementOr (test) =>
+                result.push_str(&format!("<li>IfStatementOr ({})</li>", process_expression(test))),
             EventAst::Goto (offset) => {
                 if let Some(script_info) = script_lookup.get(&offset.offset) {
                     result.push_str(&format!("<li>Goto(<a href='{}'>{}</a>)</li>", script_info.address, script_info.name));
@@ -147,7 +138,14 @@ pub fn process_events(events: &[EventAst], common: bool, brawl_mod: &BrawlMod, f
                 process_expression(&Expression::Variable(throw.unk2.clone())),
                 process_expression(&Expression::Variable(throw.unk3.clone())),
             )),
-            EventAst::Unknown (event) => result.push_str(&format!("<li>UnknownEvent {{ namespace: 0x{:x}, code: 0x{:x}, unk1: 0x{:x}, arguments: {:?} }}</li>", event.namespace, event.code, event.unk1, event.arguments)),
+            EventAst::Unknown (event) => {
+                let args: Vec<String> = event.arguments.iter().map(|arg| match arg {
+                    Argument::Unknown (ty, value) => format!("Unknown {{ ty: 0x{:x}, value: 0x{:x} }}", ty, value),
+                    _ => format!("{:?}", arg),
+                }).collect();
+                let args = args.join(", ");
+                result.push_str(&format!("<li>UnknownEvent {{ namespace: 0x{:x}, code: 0x{:x}, unk1: 0x{:x}, arguments: [{}] }}</li>", event.namespace, event.code, event.unk1, args));
+            }
             _ => result.push_str(&format!("<li>{:?}</li>", event)),
         }
     }
@@ -161,7 +159,7 @@ fn process_expression(expr: &Expression) -> String {
         Expression::Unary (UnaryExpression { requirement, value })
             => format!("{:?} {}", requirement, process_expression(value)),
         Expression::Binary (BinaryExpression { left, operator, right })
-            => format!("{} {:?} {}", process_expression(left), operator, process_expression(right)),
+            => format!("({} {:?} {})", process_expression(left), operator, process_expression(right)),
         Expression::Not (expr) => format!("not({})", process_expression(expr)),
         Expression::Variable (variable) =>
             // TODO: This handler needs to be also called by stuff like IntVariableSet

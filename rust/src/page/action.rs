@@ -23,11 +23,11 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     current: other_name == &fighter.fighter.name,
                 });
             }
-            fighter.fighter.actions.par_iter().for_each(|action| {
+            fighter.fighter.actions.par_iter().enumerate().for_each(|(index, action)| {
                 let page = ActionPage {
                     assets,
                     mod_links:     &mod_links,
-                    title:         format!("{} - {} - Action - {}", brawl_mod.name, fighter.fighter.name, action.name),
+                    title:         format!("{} - {} - Action - {} 0x{:x}", brawl_mod.name, fighter.fighter.name, action.name, index),
                     action_links:  brawl_mod.gen_action_links(&fighter.fighter, &action.name),
                     script_entry:  process_scripts::process_events(&action.script_entry.block.events, action.common, brawl_mod, &fighter),
                     script_exit:   process_scripts::process_events(&action.script_exit.block.events, action.common, brawl_mod, &fighter),
