@@ -307,6 +307,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             }
 
                             // TODO: determine what optional columns to use
+                            let use_wdsk = hitboxes.iter().any(|x| x.weight_knockback != 0);
                             let use_hitlag_mult = hitboxes.iter().any(|x| x.hitlag_mult != 1.0);
                             let use_di_mult = hitboxes.iter().any(|x| x.di_mult != 1.0);
                             let use_shield_damage = hitboxes.iter().any(|x| x.shield_damage != 0);
@@ -325,6 +326,9 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             header.push(r#"<abbr title="Hitboxes in different sets can rehit the same enemy across multiple frames. i.e. a multi-hit move. Hitboxes in different sets can also hit in the same frame, the damage is the total of all hit hitboxes however the knockback and angle is taken from the hitbox with the most knockback.">Set</abbr>"#);
                             header.push(r#"<abbr title="Lower hitbox IDs take priority over higher ones. i.e. if hitbox 0 and 1 are both hit, hitbox 0 is used">ID</abbr>"#);
                             header.push(r#"<abbr title="Damage">Dmg</abbr>"#);
+                            if use_wdsk {
+                                header.push(r#"<abbr title="Weight Dependent Set Knockback. When this value is not 0, an entirely different formula is used to calculate knockback. In this formula hitbox damage and current % are ignored.">WDSK</abbr>"#);
+                            }
                             header.push(r#"<abbr title="Base knockback">BKB</abbr>"#);
                             header.push(r#"<abbr title="Knockback growth">KBG</abbr>"#);
                             header.push("Angle");
@@ -385,6 +389,9 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                         row.push(hit.set_id.to_string());
                                         row.push(hitbox.hitbox_id.to_string());
                                         row.push(hit.damage.to_string());
+                                        if hit.weight_knockback != 0 {
+                                            row.push(hit.weight_knockback.to_string());
+                                        }
                                         row.push(hit.bkb.to_string());
                                         row.push(hit.kbg.to_string());
                                         let angle_name = match hit.trajectory {
