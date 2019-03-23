@@ -3,6 +3,8 @@ name = "rukaidata_bot"
 version = "0.1.0"
 authors = ["Rukai <rubickent@gmail.com>"]
 edition = "2018"
+description = "Discord bot to provide rukaidata links"
+repository = "https://github.com/rukai/rukaidata"
 
 [dependencies]
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "v0.6.x" }

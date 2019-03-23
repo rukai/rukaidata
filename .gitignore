@@ -1,7 +1,6 @@
 /data/
 !/data/Brawl/source.txt
-/rust/target
-/discord_bot/target
+/target
 /root
 
 **/*.rs.bk

@@ -4,12 +4,6 @@ rust:
 
 script:
   - export RUST_BACKTRACE=1
-  - cd rust
-  - cargo test
-  - cargo test --release
-  - cargo build
-  - cargo build --release
-  - cd ../discord_bot
   - cargo test
   - cargo test --release
   - cargo build

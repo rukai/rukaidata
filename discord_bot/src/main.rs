@@ -24,7 +24,7 @@ impl EventHandler for Handler {
                     };
 
                     // Rather than actually checking sequences of tokens, I just check the first word of a characters name,
-                    // I can get away with this because there aren't any really any collisions.
+                    // I can get away with this because there aren't really any collisions.
                     let mut character = None;
                     for token in &tokens {
                         character = match token.as_ref() {
