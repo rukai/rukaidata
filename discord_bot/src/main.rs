@@ -145,6 +145,19 @@ impl EventHandler for Handler {
                     if tokens.contains(&"sidetilt")                            { subaction = Some("AttackS3S") }
                     if tokens.contains(&"stilt")                               { subaction = Some("AttackS3S") }
 
+                    // crawl attack
+                    if (tokens.contains(&"crawl") && tokens.contains(&"attack")) ||
+                       (tokens.contains(&"crawl") && tokens.contains(&"tilt"))   ||
+                        tokens.contains(&"ctilt") {
+                        match character {
+                            Some("Lucario") => subaction = Some("AttackSquat"),
+                            Some("Squirtle") => subaction = Some("AttackSquat"),
+                            Some("Snake") => subaction = Some("AttackLwShank"),
+                            Some("Samus") => subaction = Some("SpecialSDash"),
+                            _ => { }
+                        }
+                    }
+
                     // Smashes
                     if tokens.contains(&"up")      && tokens.contains(&"smash") { subaction = Some("AttackHi4") }
                     if tokens.contains(&"upsmash")                              { subaction = Some("AttackHi4") }
