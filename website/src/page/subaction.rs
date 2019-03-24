@@ -76,6 +76,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                 let mut start_intangible = None;
                 let mut start_partial_intangible = None;
                 let mut start_partial_invincible = None;
+                let mut reverse_direction = String::new();
                 for (i, frame) in subaction.frames.iter().enumerate() {
                     let all_invincible = frame.hurt_boxes.iter().all(|x| x.state.is_invincible());
                     let any_invincible = frame.hurt_boxes.iter().any(|x| x.state.is_invincible());
@@ -132,6 +133,13 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             }
                             partial_intangible.push_str(&format!("{}-{}", start + 1, i));
                         }
+                    }
+
+                    if frame.reverse_direction {
+                        if reverse_direction.len() > 0 {
+                            reverse_direction.push_str(", ");
+                        }
+                        reverse_direction.push_str(&format!("{}", i + 1));
                     }
                 }
 
@@ -212,6 +220,13 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                         value: partial_intangible.clone()
                     });
                 }
+                if reverse_direction.len() > 0 {
+                    attributes.push(Attribute {
+                        name: r#"<abbr title="Frames where the character turns to face the oppposite direction.">Direction Reverse Frames</abbr>"#.into(),
+                        value: reverse_direction.clone()
+                    });
+                }
+
 
                 let mut hitboxes_active = String::new();
                 let mut start_hitboxes_active = None;
@@ -554,6 +569,9 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                 }
                 if partial_invincible.len() > 0 {
                     twitter_description.push_str(&format!("\nPartially Invincible: {}", partial_invincible));
+                }
+                if reverse_direction.len() > 0 {
+                    twitter_description.push_str(&format!("\nDirection Reverse Frames: {}", reverse_direction));
                 }
 
                 // generate fighter links
