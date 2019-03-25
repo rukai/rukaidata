@@ -33,6 +33,7 @@ pub fn brawl(token: &str) -> Option<&str> {
         "jigglypuff"      => Some("Jigglypuff"),
         "jiggly"          => Some("Jigglypuff"),
         "jiggs"           => Some("Jigglypuff"),
+        "puff"            => Some("Jigglypuff"),
         "kingdedede"      => Some("King%20Dedede"),
         "king"            => Some("King%20Dedede"),
         "dedede"          => Some("King%20Dedede"),

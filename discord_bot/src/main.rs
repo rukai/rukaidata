@@ -35,7 +35,7 @@ impl EventHandler for Handler {
                             "Brawl"  => characters::brawl(token),
                             "PM3.6"  => characters::brawl(token).or_else(|| characters::pm(token)),
                             "P+"     => characters::brawl(token).or_else(|| characters::pm(token)),
-                            "LXP2.1" => characters::brawl(token).or_else(|| characters::pm(token)).or_else(|| characters::lxp(token)),
+                            "LXP2.1" => characters::lxp(token),
                             _ => unreachable!(),
                         };
 
@@ -116,6 +116,50 @@ impl EventHandler for Handler {
                     if tokens.contains(&"neutral") && tokens.contains(&"air") { subaction = Some("AttackAirN") }
                     if tokens.contains(&"neutralair")                         { subaction = Some("AttackAirN") }
                     if tokens.contains(&"nair")                               { subaction = Some("AttackAirN") }
+
+                    // specials
+                    if tokens.contains(&"up")      && tokens.contains(&"special") { subaction = Some("SpecialHi") }
+                    if tokens.contains(&"up")      && tokens.contains(&"b")       { subaction = Some("SpecialHi") }
+                    if tokens.contains(&"upspecial")                              { subaction = Some("SpecialHi") }
+                    if tokens.contains(&"upb")                                    { subaction = Some("SpecialHi") }
+                    if tokens.contains(&"down")    && tokens.contains(&"special") { subaction = Some("SpecialLw") }
+                    if tokens.contains(&"down")    && tokens.contains(&"b")       { subaction = Some("SpecialLw") }
+                    if tokens.contains(&"downspecial")                            { subaction = Some("SpecialLw") }
+                    if tokens.contains(&"downb")                                  { subaction = Some("SpecialLw") }
+                    if tokens.contains(&"neutral") && tokens.contains(&"special") { subaction = Some("SpecialN") }
+                    if tokens.contains(&"neutral") && tokens.contains(&"b")       { subaction = Some("SpecialN") }
+                    if tokens.contains(&"neutralspecial")                         { subaction = Some("SpecialN") }
+                    if tokens.contains(&"neutralb")                               { subaction = Some("SpecialN") }
+                    if tokens.contains(&"forward") && tokens.contains(&"special") { subaction = Some("SpecialS") }
+                    if tokens.contains(&"forward") && tokens.contains(&"b")       { subaction = Some("SpecialS") }
+                    if tokens.contains(&"forwardspecial")                         { subaction = Some("SpecialS") }
+                    if tokens.contains(&"forwardb")                               { subaction = Some("SpecialS") }
+                    if tokens.contains(&"side")    && tokens.contains(&"special") { subaction = Some("SpecialS") }
+                    if tokens.contains(&"side")    && tokens.contains(&"b")       { subaction = Some("SpecialS") }
+                    if tokens.contains(&"sidespecial")                            { subaction = Some("SpecialS") }
+                    if tokens.contains(&"sideb")                                  { subaction = Some("SpecialS") }
+
+                    // specials air
+                    if tokens.contains(&"air") && tokens.contains(&"up")      && tokens.contains(&"special") { subaction = Some("SpecialAirHi") }
+                    if tokens.contains(&"air") && tokens.contains(&"up")      && tokens.contains(&"b")       { subaction = Some("SpecialAirHi") }
+                    if tokens.contains(&"air") && tokens.contains(&"upspecial")                              { subaction = Some("SpecialAirHi") }
+                    if tokens.contains(&"air") && tokens.contains(&"upb")                                    { subaction = Some("SpecialAirHi") }
+                    if tokens.contains(&"air") && tokens.contains(&"down")    && tokens.contains(&"special") { subaction = Some("SpecialAirLw") }
+                    if tokens.contains(&"air") && tokens.contains(&"down")    && tokens.contains(&"b")       { subaction = Some("SpecialAirLw") }
+                    if tokens.contains(&"air") && tokens.contains(&"downspecial")                            { subaction = Some("SpecialAirLw") }
+                    if tokens.contains(&"air") && tokens.contains(&"downb")                                  { subaction = Some("SpecialAirLw") }
+                    if tokens.contains(&"air") && tokens.contains(&"neutral") && tokens.contains(&"special") { subaction = Some("SpecialAirN") }
+                    if tokens.contains(&"air") && tokens.contains(&"neutral") && tokens.contains(&"b")       { subaction = Some("SpecialAirN") }
+                    if tokens.contains(&"air") && tokens.contains(&"neutralspecial")                         { subaction = Some("SpecialAirN") }
+                    if tokens.contains(&"air") && tokens.contains(&"neutralb")                               { subaction = Some("SpecialAirN") }
+                    if tokens.contains(&"air") && tokens.contains(&"forward") && tokens.contains(&"special") { subaction = Some("SpecialAirS") }
+                    if tokens.contains(&"air") && tokens.contains(&"forward") && tokens.contains(&"b")       { subaction = Some("SpecialAirS") }
+                    if tokens.contains(&"air") && tokens.contains(&"forwardspecial")                         { subaction = Some("SpecialAirS") }
+                    if tokens.contains(&"air") && tokens.contains(&"forwardb")                               { subaction = Some("SpecialAirS") }
+                    if tokens.contains(&"air") && tokens.contains(&"side")    && tokens.contains(&"special") { subaction = Some("SpecialAirS") }
+                    if tokens.contains(&"air") && tokens.contains(&"side")    && tokens.contains(&"b")       { subaction = Some("SpecialAirS") }
+                    if tokens.contains(&"air") && tokens.contains(&"sidespecial")                            { subaction = Some("SpecialAirS") }
+                    if tokens.contains(&"air") && tokens.contains(&"sideb")                                  { subaction = Some("SpecialAirS") }
 
                     let message = match (character, subaction) {
                         (Some(character), Some(subaction)) => format!("https://rukaidata.com/{}/{}/subactions/{}.html", mod_path, character, subaction),
