@@ -1,3 +1,5 @@
+pub mod characters;
+
 use std::env;
 
 use serenity::model::channel::Message;
@@ -14,12 +16,14 @@ impl EventHandler for Handler {
             let tokens: Vec<_> = lower.split_whitespace().collect();
 
             if let Some(command) = tokens.get(0) {
-                if *command == ".pmdata" || *command == ".pm3.6data" || *command == ".lxpdata" || *command == ".lxp2.0data" {
+                if *command == ".brawldata" || *command == ".pmdata" || *command == ".pm3.6data" || *command == ".p+data" || *command == ".lxpdata" || *command == ".lxp2.1data" {
                     let mod_path = match command.as_ref() {
+                        ".brawldata" => "Brawl",
                         ".pmdata" => "PM3.6",
                         ".pm3.6data" => "PM3.6",
-                        ".lxpdata" => "LXP2.0",
-                        ".lxp2.0data" => "LXP2.0",
+                        ".p+data" => "P+",
+                        ".lxpdata" => "LXP2.1",
+                        ".lxp2.1data" => "LXP2.1",
                         _ => unreachable!(),
                     };
 
@@ -27,87 +31,14 @@ impl EventHandler for Handler {
                     // I can get away with this because there aren't really any collisions.
                     let mut character = None;
                     for token in &tokens {
-                        character = match token.as_ref() {
-                            "bowser"          => Some("Bowser"),
-                            "captain"         => Some("Captain%20Falcon"),
-                            "captainfalcon"   => Some("Captain%20Falcon"),
-                            "charizard"       => Some("Charizard"),
-                            "diddy"           => Some("Diddy%20Kong"),
-                            "diddykong"       => Some("Diddy%20Kong"),
-                            "donkey"          => Some("Donkey%20Kong"),
-                            "donkeykong"      => Some("Donkey%20Kong"),
-                            "dk"              => Some("Donkey%20Kong"),
-                            "falco"           => Some("Falco"),
-                            "fox"             => Some("Fox"),
-                            "game"            => Some("Game%20&%20Watch"),
-                            "game&watch"      => Some("Game%20&%20Watch"),
-                            "gameandwatch"    => Some("Game%20&%20Watch"),
-                            "g&w"             => Some("Game%20&%20Watch"),
-                            "gaw"             => Some("Game%20&%20Watch"),
-                            "ganondorf"       => Some("Ganondorf"),
-                            "ganon"           => Some("Ganondorf"),
-                            "dorf"            => Some("Ganondorf"),
-                            "giga bowser"     => Some("Giga%20Bowser"),
-                            "gigabowser"      => Some("Giga%20Bowser"),
-                            "gb"              => Some("Giga%20Bowser"),
-                            "iceclimbers"     => Some("Ice%20Climbers"),
-                            "iceclimber"      => Some("Ice%20Climbers"),
-                            "ice"             => Some("Ice%20Climbers"),
-                            "ic"              => Some("Ice%20Climbers"),
-                            "ics"             => Some("Ice%20Climbers"),
-                            "ike"             => Some("Ike"),
-                            "ivysaur"         => Some("Ivysaur"),
-                            "ivy"             => Some("Ivysaur"),
-                            "jigglypuff"      => Some("Jigglypuff"),
-                            "jiggly"          => Some("Jigglypuff"),
-                            "jiggs"           => Some("Jigglypuff"),
-                            "kingdedede"      => Some("King%20Dedede"),
-                            "king"            => Some("King%20Dedede"),
-                            "dedede"          => Some("King%20Dedede"),
-                            "d3"              => Some("King%20Dedede"),
-                            "ddd"             => Some("King%20Dedede"),
-                            "kd"              => Some("King%20Dedede"),
-                            "kirby"           => Some("Kirby"),
-                            "link"            => Some("Link"),
-                            "lucario"         => Some("Lucario"),
-                            "lucas"           => Some("Lucas"),
-                            "luigi"           => Some("Luigi"),
-                            "mario"           => Some("Mario"),
-                            "marth"           => Some("Marth"),
-                            "meta"            => Some("Meta%20Knight"),
-                            "metaknight"      => Some("Meta%20Knight"),
-                            "mk"              => Some("Meta%20Knight"),
-                            "mewtwo"          => Some("Mewtwo"),
-                            "m2"              => Some("Mewtwo"),
-                            "ness"            => Some("Ness"),
-                            "olimar"          => Some("Olimar"),
-                            "peach"           => Some("Peach"),
-                            "pikachu"         => Some("Pikachu"),
-                            "pit"             => Some("Pit"),
-                            "rob"             => Some("R.O.B"),
-                            "r.o.b"           => Some("R.O.B"),
-                            "roy"             => Some("Roy"),
-                            "samus"           => Some("Samus"),
-                            "sheik"           => Some("Sheik"),
-                            "solid"           => Some("Snake"),
-                            "solidsnake"      => Some("Snake"),
-                            "snake"           => Some("Snake"),
-                            "sonic"           => Some("Sonic"),
-                            "squirtle"        => Some("Squirtle"),
-                            "toon"            => Some("Toon%20Link"),
-                            "toonlink"        => Some("Toon%20Link"),
-                            "tl"              => Some("Toon%20Link"),
-                            "wario"           => Some("Wario"),
-                            "wario-man"       => Some("Wario-Man"),
-                            "warioman"        => Some("Wario-Man"),
-                            "wolf"            => Some("Wolf"),
-                            "yoshi"           => Some("Yoshi"),
-                            "zelda"           => Some("Zelda"),
-                            "zero"            => Some("Zero Suit Samus"),
-                            "zerosuitsamus"   => Some("Zero Suit Samus"),
-                            "zss"             => Some("Zero Suit Samus"),
-                            _                 => None,
+                        character = match mod_path {
+                            "Brawl"  => characters::brawl(token),
+                            "PM3.6"  => characters::brawl(token).or_else(|| characters::pm(token)),
+                            "P+"     => characters::brawl(token).or_else(|| characters::pm(token)),
+                            "LXP2.1" => characters::brawl(token).or_else(|| characters::pm(token)).or_else(|| characters::lxp(token)),
+                            _ => unreachable!(),
                         };
+
                         if character.is_some() {
                             break;
                         }
