@@ -609,7 +609,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     script_sfx,
                     script_other,
                     frame_buttons,
-                    twitter_image: String::from("/assets_static/meta-banner-disable.gif"),
+                    twitter_image: format!("/{}/{}/subactions/{}.gif", brawl_mod.name, fighter_name, subaction.name),
                     twitter_description,
                 };
 
