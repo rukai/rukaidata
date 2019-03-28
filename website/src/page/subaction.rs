@@ -4,7 +4,7 @@ use std::fs;
 use handlebars::Handlebars;
 use rayon::prelude::*;
 use brawllib_rs::high_level_fighter::CollisionBoxValues;
-use brawllib_rs::script_ast::AngleFlip;
+use brawllib_rs::script_ast::{AngleFlip, HitBoxEffect};
 
 use crate::brawl_data::{BrawlMods, SubactionLinks};
 use crate::page::NavLink;
@@ -286,6 +286,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
 
                 // generate hitbox tables
                 let mut hitbox_tables = vec!();
+                let mut twitter_hitboxes = String::new();
                 let mut last_change_frame = None;
                 for i in 0..subaction.frames.len() {
                     let prev_frame = if i == 0 {
@@ -323,6 +324,12 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
 
                             // TODO: determine what optional columns to use
                             let use_wdsk = hitboxes.iter().any(|x| x.weight_knockback != 0);
+                            let use_angle_flipping = hitboxes.iter().any(|x| match x.angle_flipping {
+                                AngleFlip::AwayFromAttacker => false,
+                                _ => true,
+                            });
+                            let use_clang = hitboxes.iter().any(|x| !x.clang);
+                            let use_direct = hitboxes.iter().any(|x| !x.direct);
                             let use_hitlag_mult = hitboxes.iter().any(|x| x.hitlag_mult != 1.0);
                             let use_di_mult = hitboxes.iter().any(|x| x.di_mult != 1.0);
                             let use_shield_damage = hitboxes.iter().any(|x| x.shield_damage != 0);
@@ -335,6 +342,30 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             let use_ignore_invincibility = hitboxes.iter().any(|x| x.ignore_invincibility);
                             let use_freeze_frame_disable = hitboxes.iter().any(|x| x.freeze_frame_disable);
                             let use_flinchless = hitboxes.iter().any(|x| x.flinchless);
+                            let twitter_use_effect = hitboxes.iter().any(|x| match x.effect {
+                                HitBoxEffect::Normal      => false,
+                                HitBoxEffect::None        => false,
+                                HitBoxEffect::Slash       => false,
+                                HitBoxEffect::Coin        => false,
+                                HitBoxEffect::Unknown (_) => false,
+                                HitBoxEffect::Electric    => true,
+                                HitBoxEffect::Freezing    => true,
+                                HitBoxEffect::Flame       => true,
+                                HitBoxEffect::Reverse     => true,
+                                HitBoxEffect::Trip        => true,
+                                HitBoxEffect::Sleep       => true,
+                                HitBoxEffect::Bury        => true,
+                                HitBoxEffect::Stun        => true,
+                                HitBoxEffect::Flower      => true,
+                                HitBoxEffect::Grass       => true,
+                                HitBoxEffect::Water       => true,
+                                HitBoxEffect::Darkness    => true,
+                                HitBoxEffect::Paralyze    => true,
+                                HitBoxEffect::Aura        => true,
+                                HitBoxEffect::Plunge      => true,
+                                HitBoxEffect::Down        => true,
+                                HitBoxEffect::Flinchless  => true,
+                            });
 
                             last_change_frame = Some(i);
                             let mut header = vec!();
@@ -347,11 +378,17 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             header.push(r#"<abbr title="Base knockback">BKB</abbr>"#);
                             header.push(r#"<abbr title="Knockback growth">KBG</abbr>"#);
                             header.push("Angle");
-                            header.push("Angle Flip");
                             header.push("Effect");
-                            header.push("Clang");
-                            header.push("Direct");
                             header.push("Sound");
+                            if use_angle_flipping {
+                                header.push("Angle Flip");
+                            }
+                            if use_clang {
+                                header.push("Clang");
+                            }
+                            if use_direct {
+                                header.push("Direct");
+                            }
                             if use_hitlag_mult {
                                 header.push("Hitlag Mult");
                             }
@@ -390,6 +427,30 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             }
                             header.push("Targets");
 
+                            // store twitter string values here
+                            let mut damage = String::new();
+                            let mut wdsk = String::new();
+                            let mut bkb = String::new();
+                            let mut kbg = String::new();
+                            let mut angle = String::new();
+                            let mut angle_flipping = String::new();
+                            let mut effect = String::new();
+                            let mut clang = String::new();
+                            let mut direct = String::new();
+                            let mut hitlag_mult = String::new();
+                            let mut di_mult = String::new();
+                            let mut shield_damage = String::new();
+                            let mut tripping_rate = String::new();
+                            let mut rehit_rate = String::new();
+                            let mut can_be_shielded = String::new();
+                            let mut can_be_reflected = String::new();
+                            let mut can_be_absorbed = String::new();
+                            let mut remain_grabbed = String::new();
+                            let mut ignore_invincibility = String::new();
+                            let mut freeze_frame_disable = String::new();
+                            let mut flinchless = String::new();
+                            let mut has_grab = false;
+
                             let mut rows = vec!();
                             for hitbox in prev_frame.map(|x| &x.hit_boxes).unwrap_or(&frame.hit_boxes) {
                                 let mut row = vec!();
@@ -401,10 +462,11 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                             continue;
                                         }
 
+                                        // generate the hitbox table structs for the webpage
                                         row.push(hit.set_id.to_string());
                                         row.push(hitbox.hitbox_id.to_string());
                                         row.push(hit.damage.to_string());
-                                        if hit.weight_knockback != 0 {
+                                        if use_wdsk {
                                             row.push(hit.weight_knockback.to_string());
                                         }
                                         row.push(hit.bkb.to_string());
@@ -417,17 +479,23 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                             a   => a.to_string(),
                                         };
                                         row.push(format!(r#"<canvas class="hitbox-angle-render" width="0" height="0" hitbox-id="{}" angle="{}"></canvas>{}"#, hitbox.hitbox_id, hit.trajectory, angle_name));
-                                        match hit.angle_flipping {
-                                            AngleFlip::AwayFromAttacker => row.push(String::from(r#"<abbr title="Reverse Hittable: If the victim is behind the attacker the angle is flipped.">RH</abbr>"#)),
-                                            AngleFlip::AttackerDir => row.push(String::from(r#"<abbr title="Forwards: The launch angle is flipped if the attacker is facing left">F</abbr>"#)),
-                                            AngleFlip::AttackerDirReverse => row.push(String::from(r#"<abbr title="Backwards: The launch angle is flipped if the attacker is facing right">B</abbr>"#)),
-                                            AngleFlip::FaceZaxis => row.push(String::from(r#"<abbr title="tooltiptext">Face Z Axis: A buggy unused angle flip, makes the victim face the screen and other weird stuff">FZA</abbr>"#)),
-                                            AngleFlip::Unknown (_) => row.push(format!("{:?}", hit.angle_flipping)),
-                                        }
                                         row.push(format!("{:?}", hit.effect));
-                                        row.push(hit.clang.to_string());
-                                        row.push(hit.direct.to_string());
                                         row.push(format!("{:?}", hit.sound));
+                                        if use_angle_flipping {
+                                            match hit.angle_flipping {
+                                                AngleFlip::AwayFromAttacker => row.push(String::from(r#"<abbr title="Reverse Hittable: If the victim is behind the attacker the angle is flipped.">RH</abbr>"#)),
+                                                AngleFlip::AttackerDir => row.push(String::from(r#"<abbr title="Forwards: The launch angle is flipped if the attacker is facing left">F</abbr>"#)),
+                                                AngleFlip::AttackerDirReverse => row.push(String::from(r#"<abbr title="Backwards: The launch angle is flipped if the attacker is facing right">B</abbr>"#)),
+                                                AngleFlip::FaceZaxis => row.push(String::from(r#"<abbr title="tooltiptext">Face Z Axis: A buggy unused angle flip, makes the victim face the screen and other weird stuff">FZA</abbr>"#)),
+                                                AngleFlip::Unknown (_) => row.push(format!("{:?}", hit.angle_flipping)),
+                                            }
+                                        }
+                                        if use_clang {
+                                            row.push(hit.clang.to_string());
+                                        }
+                                        if use_direct {
+                                            row.push(hit.direct.to_string());
+                                        }
                                         if use_hitlag_mult {
                                             row.push(hit.hitlag_mult.to_string());
                                         }
@@ -499,16 +567,107 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                         let enable_bobomb = if hit.can_hit_bobomb() { "" } else { "icon-disable" };
                                         can_hit.push_str(&format!(r#"<img title="Bob-ombs" class="spritesheet-bobomb {}" src="{}" />"#, enable_bobomb, assets.spritesheet_png));
 
-                                        row.push(can_hit); // TODO: Use icons, elegantly combine different hit bits, split hit air/ground
+                                        row.push(can_hit);
+
+
+                                        // generate the hitbox string for the twitter description
+                                        if damage.len() > 0 {
+                                            damage.push_str(",");
+                                        }
+                                        if wdsk.len() > 0 {
+                                            wdsk.push_str(",");
+                                        }
+                                        if bkb.len() > 0 {
+                                            bkb.push_str(",");
+                                        }
+                                        if kbg.len() > 0 {
+                                            kbg.push_str(",");
+                                        }
+                                        if angle.len() > 0 {
+                                            angle.push_str(",");
+                                        }
+                                        if angle_flipping.len() > 0 {
+                                            angle_flipping.push_str(",");
+                                        }
+                                        if effect.len() > 0 {
+                                            effect.push_str(",");
+                                        }
+                                        if clang.len() > 0 {
+                                            clang.push_str(",");
+                                        }
+                                        if direct.len() > 0 {
+                                            direct.push_str(",");
+                                        }
+                                        if hitlag_mult.len() > 0 {
+                                            hitlag_mult.push_str(",");
+                                        }
+                                        if di_mult.len() > 0 {
+                                            di_mult.push_str(",");
+                                        }
+                                        if shield_damage.len() > 0 {
+                                            shield_damage.push_str(",");
+                                        }
+                                        if tripping_rate.len() > 0 {
+                                            tripping_rate.push_str(",");
+                                        }
+                                        if rehit_rate.len() > 0 {
+                                            rehit_rate.push_str(",");
+                                        }
+                                        if can_be_shielded.len() > 0 {
+                                            can_be_shielded.push_str(",");
+                                        }
+                                        if can_be_reflected.len() > 0 {
+                                            can_be_reflected.push_str(",");
+                                        }
+                                        if can_be_absorbed.len() > 0 {
+                                            can_be_absorbed.push_str(",");
+                                        }
+                                        if remain_grabbed.len() > 0 {
+                                            remain_grabbed.push_str(",");
+                                        }
+                                        if ignore_invincibility.len() > 0 {
+                                            ignore_invincibility.push_str(",");
+                                        }
+                                        if freeze_frame_disable.len() > 0 {
+                                            freeze_frame_disable.push_str(",");
+                                        }
+                                        if flinchless.len() > 0 {
+                                            flinchless.push_str(",");
+                                        }
+
+                                        damage.push_str(&hit.damage.to_string());
+                                        wdsk.push_str(&hit.weight_knockback.to_string());
+                                        bkb.push_str(&hit.bkb.to_string());
+                                        kbg.push_str(&hit.kbg.to_string());
+                                        angle.push_str(&hit.trajectory.to_string());
+                                        angle_flipping.push_str(&match hit.angle_flipping {
+                                            AngleFlip::AwayFromAttacker => "RH".into(),
+                                            AngleFlip::AttackerDir => "F".into(),
+                                            AngleFlip::AttackerDirReverse => "B".into(),
+                                            AngleFlip::FaceZaxis => "FZA".into(),
+                                            AngleFlip::Unknown (_) => format!("{:?}", hit.angle_flipping),
+                                        });
+                                        effect.push_str(&format!("{:?}", hit.effect));
+                                        clang.push_str(if hit.clang { "y" } else { "n" });
+                                        direct.push_str(if hit.direct { "y" } else { "n" });
+                                        hitlag_mult.push_str(&hit.hitlag_mult.to_string());
+                                        di_mult.push_str(&hit.di_mult.to_string());
+                                        shield_damage.push_str(&hit.shield_damage.to_string());
+                                        tripping_rate.push_str(&hit.tripping_rate.to_string());
+                                        rehit_rate.push_str(&hit.rehit_rate.to_string());
+                                        can_be_shielded.push_str(if hit.can_be_shielded { "y" } else { "n" });
+                                        can_be_reflected.push_str(if hit.can_be_reflected { "y" } else { "n" });
+                                        can_be_absorbed.push_str(if hit.can_be_absorbed { "y" } else { "n" });
+                                        remain_grabbed.push_str(if hit.remain_grabbed { "y" } else { "n" });
+                                        ignore_invincibility.push_str(if hit.ignore_invincibility { "y" } else { "n" });
+                                        freeze_frame_disable.push_str(if hit.freeze_frame_disable { "y" } else { "n" });
+                                        flinchless.push_str(if hit.flinchless { "y" } else { "n" });
                                     }
                                     CollisionBoxValues::Grab(grab) => {
                                         row.push(String::from("0"));
                                         row.push(hitbox.hitbox_id.to_string());
                                         row.push(String::from("Grab"));
                                         row.push(format!("set action: 0x{:x}", grab.set_action));
-                                        row.push(String::new());
-                                        row.push(String::new());
-                                        row.push(String::new());
                                         row.push(String::new());
                                         row.push(String::new());
                                         row.push(String::new());
@@ -521,13 +680,74 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                         can_hit.push_str(&format!(r#"<img title="Fighter on the ground" class="spritesheet-fighter-ground {}" src="{}" />"#, enable_fighter_air, assets.spritesheet_png));
                                         can_hit.push_str(&format!(r#"<img title="Fighter in the air" class="spritesheet-fighter-air {}" src="{}" />"#, enable_fighter_ground, assets.spritesheet_png));
 
-                                        row.push(can_hit); // TODO: Use icons, elegantly combine different hit bits, split hit air/ground
+                                        row.push(can_hit);
+                                        has_grab = true;
                                     }
                                 }
                                 rows.push(row);
                             }
 
                             if rows.len() > 0 {
+                                twitter_hitboxes.push_str(&format!("\n\n{}", frames));
+                                twitter_hitboxes.push_str(&format!("\nDamage: {}", damage));
+                                if use_wdsk {
+                                    twitter_hitboxes.push_str(&format!("\nWDSK: {}", wdsk));
+                                }
+                                twitter_hitboxes.push_str(&format!("\nBKB: {}", bkb));
+                                twitter_hitboxes.push_str(&format!("\nKBG: {}", kbg));
+                                twitter_hitboxes.push_str(&format!("\nAngle: {}", angle));
+                                if use_angle_flipping {
+                                    twitter_hitboxes.push_str(&format!("\nAngle Flip: {}", angle_flipping));
+                                }
+                                if twitter_use_effect {
+                                    twitter_hitboxes.push_str(&format!("\nEffect: {}", effect));
+                                }
+                                if use_clang {
+                                    twitter_hitboxes.push_str(&format!("\nClang: {}", clang));
+                                }
+                                if use_direct {
+                                    twitter_hitboxes.push_str(&format!("\nDirect: {}", direct));
+                                }
+                                if use_hitlag_mult {
+                                    twitter_hitboxes.push_str(&format!("\nHitlag Mult: {}", hitlag_mult));
+                                }
+                                if use_di_mult {
+                                    twitter_hitboxes.push_str(&format!("\nDI Mult: {}", di_mult));
+                                }
+                                if use_shield_damage {
+                                    twitter_hitboxes.push_str(&format!("\nShield Damage: {}", shield_damage));
+                                }
+                                if use_tripping_rate {
+                                    twitter_hitboxes.push_str(&format!("\nTripping Rate: {}", tripping_rate));
+                                }
+                                if use_rehit_rate {
+                                    twitter_hitboxes.push_str(&format!("\nRehit Rate: {}", rehit_rate));
+                                }
+                                if use_can_be_shielded {
+                                    twitter_hitboxes.push_str(&format!("\nCan Be Shielded: {}", can_be_shielded));
+                                }
+                                if use_can_be_reflected {
+                                    twitter_hitboxes.push_str(&format!("\nCan Be Reflected: {}", can_be_reflected));
+                                }
+                                if use_can_be_absorbed {
+                                    twitter_hitboxes.push_str(&format!("\nCan Be Absorbed: {}", can_be_absorbed));
+                                }
+                                if use_remain_grabbed {
+                                    twitter_hitboxes.push_str(&format!("\nRemain Grabbed: {}", remain_grabbed));
+                                }
+                                if use_ignore_invincibility {
+                                    twitter_hitboxes.push_str(&format!("\nIgnore Invincibility: {}", ignore_invincibility));
+                                }
+                                if use_freeze_frame_disable {
+                                    twitter_hitboxes.push_str(&format!("\nDisable Freeze Frame: {}", freeze_frame_disable));
+                                }
+                                if use_flinchless {
+                                    twitter_hitboxes.push_str(&format!("\nFlinchless: {}", flinchless));
+                                }
+                                if has_grab {
+                                    twitter_hitboxes.push_str("\nHas Grabbox");
+                                }
+
                                 hitbox_tables.push(HitBoxTable { frames, header, rows });
                             }
                         }
@@ -545,7 +765,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                 }
 
                 // Despite being a twitter description, this is designed for use on discord instead of twitter.
-                // We make use of the 78 lines that discord displays.
+                // We make use of the 78 lines or 276 characters that discord displays.
                 // Ignoring that twitter only displays the first 3 lines.
                 //
                 // We can't reuse the `attributes` vec as we have different values here e.g. frame count and no subaction index
@@ -573,6 +793,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                 if reverse_direction.len() > 0 {
                     twitter_description.push_str(&format!("\nDirection Reverse Frames: {}", reverse_direction));
                 }
+
+                twitter_description.push_str(&twitter_hitboxes);
 
                 // generate fighter links
                 let mut fighter_links = vec!();
