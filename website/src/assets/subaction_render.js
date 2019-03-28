@@ -723,11 +723,6 @@ class FighterRender {
 
         this.run = false;
         this.ecb_material = new THREE.MeshBasicMaterial({ color: 0xf15c0a, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
-        this.hitbox_material0 = new THREE.MeshBasicMaterial({ color: hitbox_color0, transparent: true, opacity: 0.5 });
-        this.hitbox_material1 = new THREE.MeshBasicMaterial({ color: hitbox_color1, transparent: true, opacity: 0.5 });
-        this.hitbox_material2 = new THREE.MeshBasicMaterial({ color: hitbox_color2, transparent: true, opacity: 0.5 });
-        this.hitbox_material3 = new THREE.MeshBasicMaterial({ color: hitbox_color3, transparent: true, opacity: 0.5 });
-        this.hitbox_material4 = new THREE.MeshBasicMaterial({ color: hitbox_color4, transparent: true, opacity: 0.5 });
 
         // Manually call these callbacks to initialize stuff
         this.window_resize();
@@ -809,14 +804,24 @@ class FighterRender {
 
     wireframe_toggle() {
         if (this.wireframe_checkbox.checked) {
-            this.hurtbox_normal_material = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, wireframe: true });
-            this.hurtbox_intangible_material = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, wireframe: true });
-            this.hurtbox_invincible_material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, wireframe: true });
+            this.hurtbox_normal_material     = new THREE.MeshBasicMaterial({ color: 0xffff00,      wireframe: true });
+            this.hurtbox_intangible_material = new THREE.MeshBasicMaterial({ color: 0x0000ff,      wireframe: true });
+            this.hurtbox_invincible_material = new THREE.MeshBasicMaterial({ color: 0x00ff00,      wireframe: true });
+            this.hitbox_material0            = new THREE.MeshBasicMaterial({ color: hitbox_color0, wireframe: true });
+            this.hitbox_material1            = new THREE.MeshBasicMaterial({ color: hitbox_color1, wireframe: true });
+            this.hitbox_material2            = new THREE.MeshBasicMaterial({ color: hitbox_color2, wireframe: true });
+            this.hitbox_material3            = new THREE.MeshBasicMaterial({ color: hitbox_color3, wireframe: true });
+            this.hitbox_material4            = new THREE.MeshBasicMaterial({ color: hitbox_color4, wireframe: true });
         }
         else {
-            this.hurtbox_normal_material = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.4 });
-            this.hurtbox_intangible_material = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.4 });
-            this.hurtbox_invincible_material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4 });
+            this.hurtbox_normal_material     = new THREE.MeshBasicMaterial({ color: 0xffff00,      transparent: true, opacity: 0.4 });
+            this.hurtbox_intangible_material = new THREE.MeshBasicMaterial({ color: 0x0000ff,      transparent: true, opacity: 0.4 });
+            this.hurtbox_invincible_material = new THREE.MeshBasicMaterial({ color: 0x00ff00,      transparent: true, opacity: 0.4 });
+            this.hitbox_material0            = new THREE.MeshBasicMaterial({ color: hitbox_color0, transparent: true, opacity: 0.5 });
+            this.hitbox_material1            = new THREE.MeshBasicMaterial({ color: hitbox_color1, transparent: true, opacity: 0.5 });
+            this.hitbox_material2            = new THREE.MeshBasicMaterial({ color: hitbox_color2, transparent: true, opacity: 0.5 });
+            this.hitbox_material3            = new THREE.MeshBasicMaterial({ color: hitbox_color3, transparent: true, opacity: 0.5 });
+            this.hitbox_material4            = new THREE.MeshBasicMaterial({ color: hitbox_color4, transparent: true, opacity: 0.5 });
         }
         this.setup_frame();
         this.set_bool_in_url("wireframe", this.wireframe_checkbox.checked);
@@ -978,8 +983,15 @@ class FighterRender {
 
             const vertices = [];
             const indices = [];
-            const widthSegments = 23;
-            const heightSegments = 17;
+            var widthSegments = 23;
+            var heightSegments = 17;
+
+            // Make the wireframes less busy in wireframe mode
+            if (this.wireframe_checkbox.checked) {
+                widthSegments = 11;
+                heightSegments = 7;
+            }
+
             const grid = []
             var index_offset = 0;
             // modified UV sphere generation from:
@@ -1071,8 +1083,15 @@ class FighterRender {
 
             var index_offset = 0;
 
-            const widthSegments = 23; // needs to be odd, so we have a middle segment
-            const heightSegments = 17; // needs to be odd, so we have a middle segment
+            var widthSegments = 23; // needs to be odd, so we have a middle segment
+            var heightSegments = 17; // needs to be odd, so we have a middle segment
+
+            // Make the wireframes less busy in wireframe mode
+            if (this.wireframe_checkbox.checked) {
+                widthSegments = 11;
+                heightSegments = 7;
+            }
+
             const grid = []
             // modified UV sphere generation from:
             // https://github.com/mrdoob/THREE.js/blob/4ca3860851d0cd33535afe801a1aa856da277f3a/src/geometries/SphereGeometry.js
