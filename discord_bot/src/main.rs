@@ -16,7 +16,8 @@ impl EventHandler for Handler {
             let tokens: Vec<_> = lower.split_whitespace().collect();
 
             if let Some(command) = tokens.get(0) {
-                if *command == ".brawldata" || *command == ".pmdata" || *command == ".pm3.6data" || *command == ".p+data" || *command == ".lxpdata" || *command == ".lxp2.1data" {
+                // || *command == ".pmdata" // Need to get gifs working first
+                if *command == ".brawldata" || *command == ".pm3.6data" || *command == ".p+data" || *command == ".lxpdata" || *command == ".lxp2.1data" {
                     let mod_path = match command.as_ref() {
                         ".brawldata" => "Brawl",
                         ".pmdata" => "PM3.6",
@@ -48,6 +49,15 @@ impl EventHandler for Handler {
                     // TODO: Manually handle character specific stuff such as jabs, glides, etc
                     let mut subaction = None;
 
+                    // common movement
+                    if tokens.contains(&"dash")                              { subaction = Some("Dash") }
+                    if tokens.contains(&"run")                               { subaction = Some("Run") }
+                    if tokens.contains(&"teeter")                            { subaction = Some("OttottoWait") }
+                    if tokens.contains(&"crouch")                            { subaction = Some("SquatWait") }
+                    if tokens.contains(&"idle")                              { subaction = Some("Wait1") }
+                    if tokens.contains(&"jump") && tokens.contains(&"squat") { subaction = Some("JumpSquat") }
+                    if tokens.contains(&"jumpsquat")                         { subaction = Some("JumpSquat") }
+
                     // jabs
                     if tokens.contains(&"jab") { subaction = Some("Attack11") }
 
@@ -61,6 +71,21 @@ impl EventHandler for Handler {
                     if tokens.contains(&"dashgrab")                          { subaction = Some("CatchDash") }
                     if tokens.contains(&"turn") && tokens.contains(&"grab")  { subaction = Some("CatchTurn") }
                     if tokens.contains(&"turngrab")                          { subaction = Some("CatchTurn") }
+                    if tokens.contains(&"pummel")                            { subaction = Some("CatchAttack") }
+
+                    //throws
+                    if tokens.contains(&"up")      && tokens.contains(&"throw") { subaction = Some("ThrowHi") }
+                    if tokens.contains(&"upthrow")                              { subaction = Some("ThrowHi") }
+                    if tokens.contains(&"uthrow")                               { subaction = Some("ThrowHi") }
+                    if tokens.contains(&"down")    && tokens.contains(&"throw") { subaction = Some("ThrowLw") }
+                    if tokens.contains(&"downthrow")                            { subaction = Some("ThrowLw") }
+                    if tokens.contains(&"dthrow")                               { subaction = Some("ThrowLw") }
+                    if tokens.contains(&"back")    && tokens.contains(&"throw") { subaction = Some("ThrowB") }
+                    if tokens.contains(&"backthrow")                            { subaction = Some("ThrowB") }
+                    if tokens.contains(&"bthrow")                               { subaction = Some("ThrowB") }
+                    if tokens.contains(&"forward") && tokens.contains(&"throw") { subaction = Some("ThrowF") }
+                    if tokens.contains(&"forwardthrow")                         { subaction = Some("ThrowF") }
+                    if tokens.contains(&"fthrow")                               { subaction = Some("ThrowF") }
 
                     // tilts
                     if tokens.contains(&"up")      && tokens.contains(&"tilt") { subaction = Some("AttackHi3") }
@@ -75,6 +100,45 @@ impl EventHandler for Handler {
                     if tokens.contains(&"side")    && tokens.contains(&"tilt") { subaction = Some("AttackS3S") }
                     if tokens.contains(&"sidetilt")                            { subaction = Some("AttackS3S") }
                     if tokens.contains(&"stilt")                               { subaction = Some("AttackS3S") }
+
+                    // ledge getup
+                    let ledge = tokens.contains(&"ledge") || tokens.contains(&"edge") || tokens.contains(&"cliff");
+                    if ledge && tokens.contains(&"attack") && tokens.contains(&"slow")  { subaction = Some("CliffAttackSlow") }
+                    if ledge && tokens.contains(&"attack") && tokens.contains(&"quick") { subaction = Some("CliffAttackQuick") }
+                    if ledge && tokens.contains(&"roll")   && tokens.contains(&"slow")  { subaction = Some("CliffEscapeSlow") }
+                    if ledge && tokens.contains(&"roll")   && tokens.contains(&"quick") { subaction = Some("CliffEscapeQuick") }
+                    if ledge && tokens.contains(&"getup")  && tokens.contains(&"slow")  { subaction = Some("CliffClimbSlow") }
+                    if ledge && tokens.contains(&"getup")  && tokens.contains(&"quick") { subaction = Some("CliffClimbQuick") }
+
+                    // getup
+                    let facedown = tokens.contains(&"facedown") || tokens.contains(&"down") || tokens.contains(&"d");
+                    if tokens.contains(&"getup") && tokens.contains(&"attack")             { subaction = Some("DownAttackU") }
+                    if tokens.contains(&"getup") && tokens.contains(&"attack") && facedown { subaction = Some("DownAttackD") }
+                    if tokens.contains(&"getup") && tokens.contains(&"stand")              { subaction = Some("DownStandU") }
+                    if tokens.contains(&"getup") && tokens.contains(&"stand")  && facedown { subaction = Some("DownStandD") }
+
+                    // trip
+                    if tokens.contains(&"trip") && tokens.contains(&"attack") { subaction = Some("DownAttackU") }
+                    if tokens.contains(&"trip") && tokens.contains(&"stand")  { subaction = Some("DownStandU") }
+
+                    // escape
+                    if tokens.contains(&"spotdodge")                                { subaction = Some("EscapeN") }
+                    if tokens.contains(&"spot")    && tokens.contains(&"dodge")     { subaction = Some("EscapeN") }
+                    if tokens.contains(&"airdodge")                                 { subaction = Some("EscapeAir") }
+                    if tokens.contains(&"air")     && tokens.contains(&"dodge")     { subaction = Some("EscapeAir") }
+                    if tokens.contains(&"roll")    && tokens.contains(&"forward")   { subaction = Some("EscapeF") }
+                    if tokens.contains(&"roll")    && tokens.contains(&"forwards")  { subaction = Some("EscapeF") }
+                    if tokens.contains(&"roll")    && tokens.contains(&"backward")  { subaction = Some("EscapeB") }
+                    if tokens.contains(&"roll")    && tokens.contains(&"backwards") { subaction = Some("EscapeB") }
+                    if tokens.contains(&"roll")    && tokens.contains(&"back")      { subaction = Some("EscapeB") }
+
+                    // yeet
+                    if tokens.contains(&"yeet") {
+                        match character {
+                            Some("Ness") => subaction = Some("ThrowB"),
+                            _ => { }
+                        }
+                    }
 
                     // crawl attack
                     if (tokens.contains(&"crawl") && tokens.contains(&"attack")) ||
@@ -110,6 +174,7 @@ impl EventHandler for Handler {
                     if tokens.contains(&"forward") && tokens.contains(&"air") { subaction = Some("AttackAirF") }
                     if tokens.contains(&"forwardair")                         { subaction = Some("AttackAirF") }
                     if tokens.contains(&"fair")                               { subaction = Some("AttackAirF") }
+                    if tokens.contains(&"unfair")                             { subaction = Some("AttackAirF") }
                     if tokens.contains(&"back")    && tokens.contains(&"air") { subaction = Some("AttackAirB") }
                     if tokens.contains(&"backair")                            { subaction = Some("AttackAirB") }
                     if tokens.contains(&"bair")                               { subaction = Some("AttackAirB") }
