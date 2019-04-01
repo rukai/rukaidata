@@ -1,10 +1,12 @@
 use std::fs::File;
 use std::fs;
+use std::io::Write;
 
 use handlebars::Handlebars;
 use rayon::prelude::*;
 use brawllib_rs::high_level_fighter::CollisionBoxValues;
 use brawllib_rs::script_ast::{AngleFlip, HitBoxEffect};
+use brawllib_rs::renderer;
 
 use crate::brawl_data::{BrawlMods, SubactionLinks};
 use crate::page::NavLink;
@@ -815,6 +817,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                 let mut subaction_extent = subaction.hurt_box_extent();
                 subaction_extent.extend(&subaction.hit_box_extent());
 
+                let twitter_image = format!("/{}/{}/subactions/{}.gif", brawl_mod.name, fighter_name, subaction.name);
+
                 let page = SubactionPage {
                     assets,
                     fighter_link:     format!("/{}/{}", brawl_mod.name, fighter_name),
@@ -831,14 +835,23 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     script_sfx,
                     script_other,
                     frame_buttons,
-                    twitter_image: format!("/{}/{}/subactions/{}.gif", brawl_mod.name, fighter_name, subaction.name),
+                    twitter_image: twitter_image.clone(),
                     twitter_description,
                 };
 
                 fs::create_dir_all(format!("../root/{}/{}/subactions", brawl_mod.name, fighter_name)).unwrap();
-                let path = format!("../root/{}/{}/subactions/{}.html", brawl_mod.name, fighter_name, subaction.name);
-                let file = File::create(path).unwrap();
-                handlebars.render_to_write("subaction", &page, file).unwrap();
+                {
+                    let path = format!("../root/{}/{}/subactions/{}.html", brawl_mod.name, fighter_name, subaction.name);
+                    let file = File::create(path).unwrap();
+                    handlebars.render_to_write("subaction", &page, file).unwrap();
+                }
+
+                if subaction.name == "AttackAirF" && false {
+                    let gif = renderer::render_gif(&fighter.fighter, index);
+                    let path = format!("../root{}", twitter_image);
+                    let mut file = File::create(path).unwrap();
+                    file.write_all(&gif).unwrap();
+                }
                 info!("{} {} {}", brawl_mod.name, fighter_name, subaction.name);
             });
         }
