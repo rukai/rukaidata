@@ -47,95 +47,95 @@ impl EventHandler for Handler {
 
                     // TODO: This should be made a vector to contain all the subactions related to the action. (multiple jabs, smash attack startup/attack)
                     // TODO: Manually handle character specific stuff such as jabs, glides, etc
-                    let mut subaction = None;
+                    let mut subactions = vec!();
 
                     // common movement
-                    if tokens.contains(&"dash")                              { subaction = Some("Dash") }
-                    if tokens.contains(&"run")                               { subaction = Some("Run") }
-                    if tokens.contains(&"teeter")                            { subaction = Some("OttottoWait") }
-                    if tokens.contains(&"crouch")                            { subaction = Some("SquatWait") }
-                    if tokens.contains(&"idle")                              { subaction = Some("Wait1") }
-                    if tokens.contains(&"jump") && tokens.contains(&"squat") { subaction = Some("JumpSquat") }
-                    if tokens.contains(&"jumpsquat")                         { subaction = Some("JumpSquat") }
+                    if tokens.contains(&"dash")                              { subactions = vec!("Dash") }
+                    if tokens.contains(&"run")                               { subactions = vec!("Run") }
+                    if tokens.contains(&"teeter")                            { subactions = vec!("OttottoWait") }
+                    if tokens.contains(&"crouch")                            { subactions = vec!("SquatWait") }
+                    if tokens.contains(&"idle")                              { subactions = vec!("Wait1") }
+                    if tokens.contains(&"jump") && tokens.contains(&"squat") { subactions = vec!("JumpSquat") }
+                    if tokens.contains(&"jumpsquat")                         { subactions = vec!("JumpSquat") }
 
                     // jabs
-                    if tokens.contains(&"jab") { subaction = Some("Attack11") }
+                    if tokens.contains(&"jab") { subactions = vec!("Attack11") }
 
                     // dash attack
-                    if tokens.contains(&"dash") && tokens.contains(&"attack") { subaction = Some("AttackDash") }
-                    if tokens.contains(&"dashattack")                         { subaction = Some("AttackDash") }
+                    if tokens.contains(&"dash") && tokens.contains(&"attack") { subactions = vec!("AttackDash") }
+                    if tokens.contains(&"dashattack")                         { subactions = vec!("AttackDash") }
 
                     // grabs
-                    if tokens.contains(&"grab")                              { subaction = Some("Catch") }
-                    if tokens.contains(&"dash") && tokens.contains(&"grab")  { subaction = Some("CatchDash") }
-                    if tokens.contains(&"dashgrab")                          { subaction = Some("CatchDash") }
-                    if tokens.contains(&"turn") && tokens.contains(&"grab")  { subaction = Some("CatchTurn") }
-                    if tokens.contains(&"turngrab")                          { subaction = Some("CatchTurn") }
-                    if tokens.contains(&"pummel")                            { subaction = Some("CatchAttack") }
+                    if tokens.contains(&"grab")                              { subactions = vec!("Catch") }
+                    if tokens.contains(&"dash") && tokens.contains(&"grab")  { subactions = vec!("CatchDash") }
+                    if tokens.contains(&"dashgrab")                          { subactions = vec!("CatchDash") }
+                    if tokens.contains(&"turn") && tokens.contains(&"grab")  { subactions = vec!("CatchTurn") }
+                    if tokens.contains(&"turngrab")                          { subactions = vec!("CatchTurn") }
+                    if tokens.contains(&"pummel")                            { subactions = vec!("CatchAttack") }
 
                     //throws
-                    if tokens.contains(&"up")      && tokens.contains(&"throw") { subaction = Some("ThrowHi") }
-                    if tokens.contains(&"upthrow")                              { subaction = Some("ThrowHi") }
-                    if tokens.contains(&"uthrow")                               { subaction = Some("ThrowHi") }
-                    if tokens.contains(&"down")    && tokens.contains(&"throw") { subaction = Some("ThrowLw") }
-                    if tokens.contains(&"downthrow")                            { subaction = Some("ThrowLw") }
-                    if tokens.contains(&"dthrow")                               { subaction = Some("ThrowLw") }
-                    if tokens.contains(&"back")    && tokens.contains(&"throw") { subaction = Some("ThrowB") }
-                    if tokens.contains(&"backthrow")                            { subaction = Some("ThrowB") }
-                    if tokens.contains(&"bthrow")                               { subaction = Some("ThrowB") }
-                    if tokens.contains(&"forward") && tokens.contains(&"throw") { subaction = Some("ThrowF") }
-                    if tokens.contains(&"forwardthrow")                         { subaction = Some("ThrowF") }
-                    if tokens.contains(&"fthrow")                               { subaction = Some("ThrowF") }
+                    if tokens.contains(&"up")      && tokens.contains(&"throw") { subactions = vec!("ThrowHi") }
+                    if tokens.contains(&"upthrow")                              { subactions = vec!("ThrowHi") }
+                    if tokens.contains(&"uthrow")                               { subactions = vec!("ThrowHi") }
+                    if tokens.contains(&"down")    && tokens.contains(&"throw") { subactions = vec!("ThrowLw") }
+                    if tokens.contains(&"downthrow")                            { subactions = vec!("ThrowLw") }
+                    if tokens.contains(&"dthrow")                               { subactions = vec!("ThrowLw") }
+                    if tokens.contains(&"back")    && tokens.contains(&"throw") { subactions = vec!("ThrowB") }
+                    if tokens.contains(&"backthrow")                            { subactions = vec!("ThrowB") }
+                    if tokens.contains(&"bthrow")                               { subactions = vec!("ThrowB") }
+                    if tokens.contains(&"forward") && tokens.contains(&"throw") { subactions = vec!("ThrowF") }
+                    if tokens.contains(&"forwardthrow")                         { subactions = vec!("ThrowF") }
+                    if tokens.contains(&"fthrow")                               { subactions = vec!("ThrowF") }
 
                     // tilts
-                    if tokens.contains(&"up")      && tokens.contains(&"tilt") { subaction = Some("AttackHi3") }
-                    if tokens.contains(&"uptilt")                              { subaction = Some("AttackHi3") }
-                    if tokens.contains(&"utilt")                               { subaction = Some("AttackHi3") }
-                    if tokens.contains(&"down")    && tokens.contains(&"tilt") { subaction = Some("AttackLw3") }
-                    if tokens.contains(&"downtilt")                            { subaction = Some("AttackLw3") }
-                    if tokens.contains(&"dtilt")                               { subaction = Some("AttackLw3") }
-                    if tokens.contains(&"forward") && tokens.contains(&"tilt") { subaction = Some("AttackS3S") }
-                    if tokens.contains(&"forwardtilt")                         { subaction = Some("AttackS3S") }
-                    if tokens.contains(&"ftilt")                               { subaction = Some("AttackS3S") }
-                    if tokens.contains(&"side")    && tokens.contains(&"tilt") { subaction = Some("AttackS3S") }
-                    if tokens.contains(&"sidetilt")                            { subaction = Some("AttackS3S") }
-                    if tokens.contains(&"stilt")                               { subaction = Some("AttackS3S") }
+                    if tokens.contains(&"up")      && tokens.contains(&"tilt") { subactions = vec!("AttackHi3") }
+                    if tokens.contains(&"uptilt")                              { subactions = vec!("AttackHi3") }
+                    if tokens.contains(&"utilt")                               { subactions = vec!("AttackHi3") }
+                    if tokens.contains(&"down")    && tokens.contains(&"tilt") { subactions = vec!("AttackLw3") }
+                    if tokens.contains(&"downtilt")                            { subactions = vec!("AttackLw3") }
+                    if tokens.contains(&"dtilt")                               { subactions = vec!("AttackLw3") }
+                    if tokens.contains(&"forward") && tokens.contains(&"tilt") { subactions = vec!("AttackS3S") }
+                    if tokens.contains(&"forwardtilt")                         { subactions = vec!("AttackS3S") }
+                    if tokens.contains(&"ftilt")                               { subactions = vec!("AttackS3S") }
+                    if tokens.contains(&"side")    && tokens.contains(&"tilt") { subactions = vec!("AttackS3S") }
+                    if tokens.contains(&"sidetilt")                            { subactions = vec!("AttackS3S") }
+                    if tokens.contains(&"stilt")                               { subactions = vec!("AttackS3S") }
 
                     // ledge getup
                     let ledge = tokens.contains(&"ledge") || tokens.contains(&"edge") || tokens.contains(&"cliff");
-                    if ledge && tokens.contains(&"attack") && tokens.contains(&"slow")  { subaction = Some("CliffAttackSlow") }
-                    if ledge && tokens.contains(&"attack") && tokens.contains(&"quick") { subaction = Some("CliffAttackQuick") }
-                    if ledge && tokens.contains(&"roll")   && tokens.contains(&"slow")  { subaction = Some("CliffEscapeSlow") }
-                    if ledge && tokens.contains(&"roll")   && tokens.contains(&"quick") { subaction = Some("CliffEscapeQuick") }
-                    if ledge && tokens.contains(&"getup")  && tokens.contains(&"slow")  { subaction = Some("CliffClimbSlow") }
-                    if ledge && tokens.contains(&"getup")  && tokens.contains(&"quick") { subaction = Some("CliffClimbQuick") }
+                    if ledge && tokens.contains(&"attack") && tokens.contains(&"slow")  { subactions = vec!("CliffAttackSlow") }
+                    if ledge && tokens.contains(&"attack") && tokens.contains(&"quick") { subactions = vec!("CliffAttackQuick") }
+                    if ledge && tokens.contains(&"roll")   && tokens.contains(&"slow")  { subactions = vec!("CliffEscapeSlow") }
+                    if ledge && tokens.contains(&"roll")   && tokens.contains(&"quick") { subactions = vec!("CliffEscapeQuick") }
+                    if ledge && tokens.contains(&"getup")  && tokens.contains(&"slow")  { subactions = vec!("CliffClimbSlow") }
+                    if ledge && tokens.contains(&"getup")  && tokens.contains(&"quick") { subactions = vec!("CliffClimbQuick") }
 
                     // getup
                     let facedown = tokens.contains(&"facedown") || tokens.contains(&"down") || tokens.contains(&"d");
-                    if tokens.contains(&"getup") && tokens.contains(&"attack")             { subaction = Some("DownAttackU") }
-                    if tokens.contains(&"getup") && tokens.contains(&"attack") && facedown { subaction = Some("DownAttackD") }
-                    if tokens.contains(&"getup") && tokens.contains(&"stand")              { subaction = Some("DownStandU") }
-                    if tokens.contains(&"getup") && tokens.contains(&"stand")  && facedown { subaction = Some("DownStandD") }
+                    if tokens.contains(&"getup") && tokens.contains(&"attack")             { subactions = vec!("DownAttackU") }
+                    if tokens.contains(&"getup") && tokens.contains(&"attack") && facedown { subactions = vec!("DownAttackD") }
+                    if tokens.contains(&"getup") && tokens.contains(&"stand")              { subactions = vec!("DownStandU") }
+                    if tokens.contains(&"getup") && tokens.contains(&"stand")  && facedown { subactions = vec!("DownStandD") }
 
                     // trip
-                    if tokens.contains(&"trip") && tokens.contains(&"attack") { subaction = Some("DownAttackU") }
-                    if tokens.contains(&"trip") && tokens.contains(&"stand")  { subaction = Some("DownStandU") }
+                    if tokens.contains(&"trip") && tokens.contains(&"attack") { subactions = vec!("DownAttackU") }
+                    if tokens.contains(&"trip") && tokens.contains(&"stand")  { subactions = vec!("DownStandU") }
 
                     // escape
-                    if tokens.contains(&"spotdodge")                                { subaction = Some("EscapeN") }
-                    if tokens.contains(&"spot")    && tokens.contains(&"dodge")     { subaction = Some("EscapeN") }
-                    if tokens.contains(&"airdodge")                                 { subaction = Some("EscapeAir") }
-                    if tokens.contains(&"air")     && tokens.contains(&"dodge")     { subaction = Some("EscapeAir") }
-                    if tokens.contains(&"roll")    && tokens.contains(&"forward")   { subaction = Some("EscapeF") }
-                    if tokens.contains(&"roll")    && tokens.contains(&"forwards")  { subaction = Some("EscapeF") }
-                    if tokens.contains(&"roll")    && tokens.contains(&"backward")  { subaction = Some("EscapeB") }
-                    if tokens.contains(&"roll")    && tokens.contains(&"backwards") { subaction = Some("EscapeB") }
-                    if tokens.contains(&"roll")    && tokens.contains(&"back")      { subaction = Some("EscapeB") }
+                    if tokens.contains(&"spotdodge")                                { subactions = vec!("EscapeN") }
+                    if tokens.contains(&"spot")    && tokens.contains(&"dodge")     { subactions = vec!("EscapeN") }
+                    if tokens.contains(&"airdodge")                                 { subactions = vec!("EscapeAir") }
+                    if tokens.contains(&"air")     && tokens.contains(&"dodge")     { subactions = vec!("EscapeAir") }
+                    if tokens.contains(&"roll")    && tokens.contains(&"forward")   { subactions = vec!("EscapeF") }
+                    if tokens.contains(&"roll")    && tokens.contains(&"forwards")  { subactions = vec!("EscapeF") }
+                    if tokens.contains(&"roll")    && tokens.contains(&"backward")  { subactions = vec!("EscapeB") }
+                    if tokens.contains(&"roll")    && tokens.contains(&"backwards") { subactions = vec!("EscapeB") }
+                    if tokens.contains(&"roll")    && tokens.contains(&"back")      { subactions = vec!("EscapeB") }
 
                     // yeet
                     if tokens.contains(&"yeet") {
                         match character {
-                            Some("Ness") => subaction = Some("ThrowB"),
+                            Some("Ness") => subactions = vec!("ThrowB"),
                             _ => { }
                         }
                     }
@@ -145,92 +145,110 @@ impl EventHandler for Handler {
                        (tokens.contains(&"crawl") && tokens.contains(&"tilt"))   ||
                         tokens.contains(&"ctilt") {
                         match character {
-                            Some("Lucario") => subaction = Some("AttackSquat"),
-                            Some("Squirtle") => subaction = Some("AttackSquat"),
-                            Some("Snake") => subaction = Some("AttackLwShank"),
-                            Some("Samus") => subaction = Some("SpecialSDash"),
+                            Some("Lucario")  => subactions = vec!("AttackSquat"),
+                            Some("Squirtle") => subactions = vec!("AttackSquat"),
+                            Some("Snake")    => subactions = vec!("AttackLwShank"),
+                            Some("Samus")    => subactions = vec!("SpecialSDash"),
                             _ => { }
                         }
                     }
 
                     // Smashes
-                    if tokens.contains(&"up")      && tokens.contains(&"smash") { subaction = Some("AttackHi4") }
-                    if tokens.contains(&"upsmash")                              { subaction = Some("AttackHi4") }
-                    if tokens.contains(&"usmash")                               { subaction = Some("AttackHi4") }
-                    if tokens.contains(&"down")    && tokens.contains(&"smash") { subaction = Some("AttackLw4") }
-                    if tokens.contains(&"downsmash")                            { subaction = Some("AttackLw4") }
-                    if tokens.contains(&"dsmash")                               { subaction = Some("AttackLw4") }
-                    if tokens.contains(&"forward") && tokens.contains(&"smash") { subaction = Some("AttackS4S") }
-                    if tokens.contains(&"forwardsmash")                         { subaction = Some("AttackS4S") }
-                    if tokens.contains(&"fsmash")                               { subaction = Some("AttackS4S") }
+                    if tokens.contains(&"up")      && tokens.contains(&"smash") { subactions = vec!("AttackHi4Start", "AttackHi4") }
+                    if tokens.contains(&"upsmash")                              { subactions = vec!("AttackHi4Start", "AttackHi4") }
+                    if tokens.contains(&"usmash")                               { subactions = vec!("AttackHi4Start", "AttackHi4") }
+                    if tokens.contains(&"down")    && tokens.contains(&"smash") { subactions = vec!("AttackLw4Start", "AttackLw4") }
+                    if tokens.contains(&"downsmash")                            { subactions = vec!("AttackLw4Start", "AttackLw4") }
+                    if tokens.contains(&"dsmash")                               { subactions = vec!("AttackLw4Start", "AttackLw4") }
+                    if tokens.contains(&"forward") && tokens.contains(&"smash") { subactions = vec!("AttackS4Start", "AttackS4S") }
+                    if tokens.contains(&"forwardsmash")                         { subactions = vec!("AttackS4Start", "AttackS4S") }
+                    if tokens.contains(&"fsmash")                               { subactions = vec!("AttackS4Start", "AttackS4S") }
 
                     // aerials
-                    if tokens.contains(&"up")      && tokens.contains(&"air") { subaction = Some("AttackAirHi") }
-                    if tokens.contains(&"upair")                              { subaction = Some("AttackAirHi") }
-                    if tokens.contains(&"uair")                               { subaction = Some("AttackAirHi") }
-                    if tokens.contains(&"down")    && tokens.contains(&"air") { subaction = Some("AttackAirLw") }
-                    if tokens.contains(&"downair")                            { subaction = Some("AttackAirLw") }
-                    if tokens.contains(&"dair")                               { subaction = Some("AttackAirLw") }
-                    if tokens.contains(&"forward") && tokens.contains(&"air") { subaction = Some("AttackAirF") }
-                    if tokens.contains(&"forwardair")                         { subaction = Some("AttackAirF") }
-                    if tokens.contains(&"fair")                               { subaction = Some("AttackAirF") }
-                    if tokens.contains(&"unfair")                             { subaction = Some("AttackAirF") }
-                    if tokens.contains(&"back")    && tokens.contains(&"air") { subaction = Some("AttackAirB") }
-                    if tokens.contains(&"backair")                            { subaction = Some("AttackAirB") }
-                    if tokens.contains(&"bair")                               { subaction = Some("AttackAirB") }
-                    if tokens.contains(&"neutral") && tokens.contains(&"air") { subaction = Some("AttackAirN") }
-                    if tokens.contains(&"neutralair")                         { subaction = Some("AttackAirN") }
-                    if tokens.contains(&"nair")                               { subaction = Some("AttackAirN") }
+                    if tokens.contains(&"up")      && tokens.contains(&"air") { subactions = vec!("AttackAirHi") }
+                    if tokens.contains(&"upair")                              { subactions = vec!("AttackAirHi") }
+                    if tokens.contains(&"uair")                               { subactions = vec!("AttackAirHi") }
+                    if tokens.contains(&"down")    && tokens.contains(&"air") { subactions = vec!("AttackAirLw") }
+                    if tokens.contains(&"downair")                            { subactions = vec!("AttackAirLw") }
+                    if tokens.contains(&"dair")                               { subactions = vec!("AttackAirLw") }
+                    if tokens.contains(&"forward") && tokens.contains(&"air") { subactions = vec!("AttackAirF") }
+                    if tokens.contains(&"forwardair")                         { subactions = vec!("AttackAirF") }
+                    if tokens.contains(&"fair")                               { subactions = vec!("AttackAirF") }
+                    if tokens.contains(&"unfair")                             { subactions = vec!("AttackAirF") }
+                    if tokens.contains(&"back")    && tokens.contains(&"air") { subactions = vec!("AttackAirB") }
+                    if tokens.contains(&"backair")                            { subactions = vec!("AttackAirB") }
+                    if tokens.contains(&"bair")                               { subactions = vec!("AttackAirB") }
+                    if tokens.contains(&"neutral") && tokens.contains(&"air") { subactions = vec!("AttackAirN") }
+                    if tokens.contains(&"neutralair")                         { subactions = vec!("AttackAirN") }
+                    if tokens.contains(&"nair")                               { subactions = vec!("AttackAirN") }
 
                     // specials
-                    if tokens.contains(&"up")      && tokens.contains(&"special") { subaction = Some("SpecialHi") }
-                    if tokens.contains(&"up")      && tokens.contains(&"b")       { subaction = Some("SpecialHi") }
-                    if tokens.contains(&"upspecial")                              { subaction = Some("SpecialHi") }
-                    if tokens.contains(&"upb")                                    { subaction = Some("SpecialHi") }
-                    if tokens.contains(&"down")    && tokens.contains(&"special") { subaction = Some("SpecialLw") }
-                    if tokens.contains(&"down")    && tokens.contains(&"b")       { subaction = Some("SpecialLw") }
-                    if tokens.contains(&"downspecial")                            { subaction = Some("SpecialLw") }
-                    if tokens.contains(&"downb")                                  { subaction = Some("SpecialLw") }
-                    if tokens.contains(&"neutral") && tokens.contains(&"special") { subaction = Some("SpecialN") }
-                    if tokens.contains(&"neutral") && tokens.contains(&"b")       { subaction = Some("SpecialN") }
-                    if tokens.contains(&"neutralspecial")                         { subaction = Some("SpecialN") }
-                    if tokens.contains(&"neutralb")                               { subaction = Some("SpecialN") }
-                    if tokens.contains(&"forward") && tokens.contains(&"special") { subaction = Some("SpecialS") }
-                    if tokens.contains(&"forward") && tokens.contains(&"b")       { subaction = Some("SpecialS") }
-                    if tokens.contains(&"forwardspecial")                         { subaction = Some("SpecialS") }
-                    if tokens.contains(&"forwardb")                               { subaction = Some("SpecialS") }
-                    if tokens.contains(&"side")    && tokens.contains(&"special") { subaction = Some("SpecialS") }
-                    if tokens.contains(&"side")    && tokens.contains(&"b")       { subaction = Some("SpecialS") }
-                    if tokens.contains(&"sidespecial")                            { subaction = Some("SpecialS") }
-                    if tokens.contains(&"sideb")                                  { subaction = Some("SpecialS") }
+                    if tokens.contains(&"up")      && tokens.contains(&"special") { subactions = vec!("SpecialHi") }
+                    if tokens.contains(&"up")      && tokens.contains(&"b")       { subactions = vec!("SpecialHi") }
+                    if tokens.contains(&"upspecial")                              { subactions = vec!("SpecialHi") }
+                    if tokens.contains(&"upb")                                    { subactions = vec!("SpecialHi") }
+                    if tokens.contains(&"down")    && tokens.contains(&"special") { subactions = vec!("SpecialLw") }
+                    if tokens.contains(&"down")    && tokens.contains(&"b")       { subactions = vec!("SpecialLw") }
+                    if tokens.contains(&"downspecial")                            { subactions = vec!("SpecialLw") }
+                    if tokens.contains(&"downb")                                  { subactions = vec!("SpecialLw") }
+                    if tokens.contains(&"neutral") && tokens.contains(&"special") { subactions = vec!("SpecialN") }
+                    if tokens.contains(&"neutral") && tokens.contains(&"b")       { subactions = vec!("SpecialN") }
+                    if tokens.contains(&"neutralspecial")                         { subactions = vec!("SpecialN") }
+                    if tokens.contains(&"neutralb")                               { subactions = vec!("SpecialN") }
+                    if tokens.contains(&"forward") && tokens.contains(&"special") { subactions = vec!("SpecialS") }
+                    if tokens.contains(&"forward") && tokens.contains(&"b")       { subactions = vec!("SpecialS") }
+                    if tokens.contains(&"forwardspecial")                         { subactions = vec!("SpecialS") }
+                    if tokens.contains(&"forwardb")                               { subactions = vec!("SpecialS") }
+                    if tokens.contains(&"side")    && tokens.contains(&"special") { subactions = vec!("SpecialS") }
+                    if tokens.contains(&"side")    && tokens.contains(&"b")       { subactions = vec!("SpecialS") }
+                    if tokens.contains(&"sidespecial")                            { subactions = vec!("SpecialS") }
+                    if tokens.contains(&"sideb")                                  { subactions = vec!("SpecialS") }
 
                     // specials air
-                    if tokens.contains(&"air") && tokens.contains(&"up")      && tokens.contains(&"special") { subaction = Some("SpecialAirHi") }
-                    if tokens.contains(&"air") && tokens.contains(&"up")      && tokens.contains(&"b")       { subaction = Some("SpecialAirHi") }
-                    if tokens.contains(&"air") && tokens.contains(&"upspecial")                              { subaction = Some("SpecialAirHi") }
-                    if tokens.contains(&"air") && tokens.contains(&"upb")                                    { subaction = Some("SpecialAirHi") }
-                    if tokens.contains(&"air") && tokens.contains(&"down")    && tokens.contains(&"special") { subaction = Some("SpecialAirLw") }
-                    if tokens.contains(&"air") && tokens.contains(&"down")    && tokens.contains(&"b")       { subaction = Some("SpecialAirLw") }
-                    if tokens.contains(&"air") && tokens.contains(&"downspecial")                            { subaction = Some("SpecialAirLw") }
-                    if tokens.contains(&"air") && tokens.contains(&"downb")                                  { subaction = Some("SpecialAirLw") }
-                    if tokens.contains(&"air") && tokens.contains(&"neutral") && tokens.contains(&"special") { subaction = Some("SpecialAirN") }
-                    if tokens.contains(&"air") && tokens.contains(&"neutral") && tokens.contains(&"b")       { subaction = Some("SpecialAirN") }
-                    if tokens.contains(&"air") && tokens.contains(&"neutralspecial")                         { subaction = Some("SpecialAirN") }
-                    if tokens.contains(&"air") && tokens.contains(&"neutralb")                               { subaction = Some("SpecialAirN") }
-                    if tokens.contains(&"air") && tokens.contains(&"forward") && tokens.contains(&"special") { subaction = Some("SpecialAirS") }
-                    if tokens.contains(&"air") && tokens.contains(&"forward") && tokens.contains(&"b")       { subaction = Some("SpecialAirS") }
-                    if tokens.contains(&"air") && tokens.contains(&"forwardspecial")                         { subaction = Some("SpecialAirS") }
-                    if tokens.contains(&"air") && tokens.contains(&"forwardb")                               { subaction = Some("SpecialAirS") }
-                    if tokens.contains(&"air") && tokens.contains(&"side")    && tokens.contains(&"special") { subaction = Some("SpecialAirS") }
-                    if tokens.contains(&"air") && tokens.contains(&"side")    && tokens.contains(&"b")       { subaction = Some("SpecialAirS") }
-                    if tokens.contains(&"air") && tokens.contains(&"sidespecial")                            { subaction = Some("SpecialAirS") }
-                    if tokens.contains(&"air") && tokens.contains(&"sideb")                                  { subaction = Some("SpecialAirS") }
+                    if tokens.contains(&"air") && tokens.contains(&"up")      && tokens.contains(&"special") { subactions = vec!("SpecialAirHi") }
+                    if tokens.contains(&"air") && tokens.contains(&"up")      && tokens.contains(&"b")       { subactions = vec!("SpecialAirHi") }
+                    if tokens.contains(&"air") && tokens.contains(&"upspecial")                              { subactions = vec!("SpecialAirHi") }
+                    if tokens.contains(&"air") && tokens.contains(&"upb")                                    { subactions = vec!("SpecialAirHi") }
+                    if tokens.contains(&"air") && tokens.contains(&"down")    && tokens.contains(&"special") { subactions = vec!("SpecialAirLw") }
+                    if tokens.contains(&"air") && tokens.contains(&"down")    && tokens.contains(&"b")       { subactions = vec!("SpecialAirLw") }
+                    if tokens.contains(&"air") && tokens.contains(&"downspecial")                            { subactions = vec!("SpecialAirLw") }
+                    if tokens.contains(&"air") && tokens.contains(&"downb")                                  { subactions = vec!("SpecialAirLw") }
+                    if tokens.contains(&"air") && tokens.contains(&"neutral") && tokens.contains(&"special") { subactions = vec!("SpecialAirN") }
+                    if tokens.contains(&"air") && tokens.contains(&"neutral") && tokens.contains(&"b")       { subactions = vec!("SpecialAirN") }
+                    if tokens.contains(&"air") && tokens.contains(&"neutralspecial")                         { subactions = vec!("SpecialAirN") }
+                    if tokens.contains(&"air") && tokens.contains(&"neutralb")                               { subactions = vec!("SpecialAirN") }
+                    if tokens.contains(&"air") && tokens.contains(&"forward") && tokens.contains(&"special") { subactions = vec!("SpecialAirS") }
+                    if tokens.contains(&"air") && tokens.contains(&"forward") && tokens.contains(&"b")       { subactions = vec!("SpecialAirS") }
+                    if tokens.contains(&"air") && tokens.contains(&"forwardspecial")                         { subactions = vec!("SpecialAirS") }
+                    if tokens.contains(&"air") && tokens.contains(&"forwardb")                               { subactions = vec!("SpecialAirS") }
+                    if tokens.contains(&"air") && tokens.contains(&"side")    && tokens.contains(&"special") { subactions = vec!("SpecialAirS") }
+                    if tokens.contains(&"air") && tokens.contains(&"side")    && tokens.contains(&"b")       { subactions = vec!("SpecialAirS") }
+                    if tokens.contains(&"air") && tokens.contains(&"sidespecial")                            { subactions = vec!("SpecialAirS") }
+                    if tokens.contains(&"air") && tokens.contains(&"sideb")                                  { subactions = vec!("SpecialAirS") }
 
-                    let message = match (character, subaction) {
-                        (Some(character), Some(subaction)) => format!("https://rukaidata.com/{}/{}/subactions/{}.html", mod_path, character, subaction),
-                        (Some(character), None)            => format!("https://rukaidata.com/{}/{}", mod_path, character),
-                        (None,            Some(_))         => format!("Need to specify a character."),
-                        (None, None)                       => format!("https://rukaidata.com/{}", mod_path),
+                    // taunts
+                    if tokens.contains(&"up")   && tokens.contains(&"taunt") { subactions = vec!("AppealHi") }
+                    if tokens.contains(&"down") && tokens.contains(&"taunt") { subactions = vec!("AppealLw") }
+                    if tokens.contains(&"side") && tokens.contains(&"taunt") { subactions = vec!("AppealS") }
+                    if tokens.contains(&"lose")                              { subactions = vec!("Lose") }
+                    if tokens.contains(&"1")    && tokens.contains(&"win")   { subactions = vec!("Win1") }
+                    if tokens.contains(&"2")    && tokens.contains(&"win")   { subactions = vec!("Win2") }
+                    if tokens.contains(&"3")    && tokens.contains(&"win")   { subactions = vec!("Win3") }
+
+                    let message = match (character, subactions.is_empty()) {
+                        (Some(character), false) => {
+                            let mut message = String::new();
+                            for subaction in subactions {
+                                if message.len() != 0 {
+                                    message.push_str("\n");
+                                }
+                                message.push_str(&format!("https://rukaidata.com/{}/{}/subactions/{}.html", mod_path, character, subaction));
+                            }
+                            message
+                        }
+                        (Some(character), true ) => format!("https://rukaidata.com/{}/{}", mod_path, character),
+                        (None,            false) => format!("Need to specify a character."),
+                        (None,            true ) => format!("https://rukaidata.com/{}", mod_path),
                     };
 
                     send(&ctx, &msg.channel_id, &message);
