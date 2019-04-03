@@ -16,15 +16,15 @@ impl EventHandler for Handler {
             let tokens: Vec<_> = lower.split_whitespace().collect();
 
             if let Some(command) = tokens.get(0) {
-                // || *command == ".pmdata" // Need to get gifs working first
-                if *command == ".brawldata" || *command == ".pm3.6data" || *command == ".p+data" || *command == ".lxpdata" || *command == ".lxp2.1data" {
-                    let mod_path = match command.as_ref() {
-                        ".brawldata" => "Brawl",
-                        ".pmdata" => "PM3.6",
-                        ".pm3.6data" => "PM3.6",
-                        ".p+data" => "P+",
-                        ".lxpdata" => "LXP2.1",
-                        ".lxp2.1data" => "LXP2.1",
+                if *command == ".brawldata" || *command == ".pm3.6data" || *command == ".p+data" || *command == ".lxpdata" || *command == ".lxp2.1data"
+                || *command == "!brawldata" || *command == "!pm3.6data" || *command == "!p+data" || *command == "!lxpdata" || *command == "!lxp2.1data" || *command == "!pmdata" {
+                    let mod_path = match command[1..].as_ref() {
+                        "brawldata" => "Brawl",
+                        "pmdata" => "PM3.6",
+                        "pm3.6data" => "PM3.6",
+                        "p+data" => "P+",
+                        "lxpdata" => "LXP2.1",
+                        "lxp2.1data" => "LXP2.1",
                         _ => unreachable!(),
                     };
 
