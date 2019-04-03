@@ -14,8 +14,10 @@ pub fn brawl(token: &str) -> Option<&str> {
         "game"            => Some("Game%20&%20Watch"),
         "game&watch"      => Some("Game%20&%20Watch"),
         "gameandwatch"    => Some("Game%20&%20Watch"),
+        "gamewatch"       => Some("Game%20&%20Watch"),
         "g&w"             => Some("Game%20&%20Watch"),
         "gaw"             => Some("Game%20&%20Watch"),
+        "gw"              => Some("Game%20&%20Watch"),
         "ganondorf"       => Some("Ganondorf"),
         "ganon"           => Some("Ganondorf"),
         "dorf"            => Some("Ganondorf"),
@@ -66,6 +68,7 @@ pub fn brawl(token: &str) -> Option<&str> {
         "squirtle"        => Some("Squirtle"),
         "toon"            => Some("Toon%20Link"),
         "toonlink"        => Some("Toon%20Link"),
+        "tink"            => Some("Toon%20Link"),
         "tl"              => Some("Toon%20Link"),
         "wario"           => Some("Wario"),
         "wario-man"       => Some("Wario-Man"),
@@ -83,6 +86,7 @@ pub fn brawl(token: &str) -> Option<&str> {
 pub fn pm(token: &str) -> Option<&str> {
     match token.as_ref() {
         "mewtwo" => Some("Mewtwo"),
+        "mew2"   => Some("Mewtwo"),
         "m2"     => Some("Mewtwo"),
         "roy"    => Some("Roy"),
         _        => None,
@@ -93,6 +97,9 @@ pub fn lxp(token: &str) -> Option<&str> {
     match token.as_ref() {
         "doctor"        => Some("DoctorMario"),
         "doctormario"   => Some("DoctorMario"),
+        "doc"           => Some("DoctorMario"),
+        "dr"            => Some("DoctorMario"),
+        "drmario"       => Some("DoctorMario"),
         "dm"            => Some("DoctorMario"),
         "mage"          => Some("Ganon-Mage"),
         "mageganon"     => Some("Ganon-Mage"),
@@ -115,6 +122,7 @@ pub fn lxp(token: &str) -> Option<&str> {
         "yl"            => Some("YoungLink"),
         "young"         => Some("YoungLink"),
         "younglink"     => Some("YoungLink"),
+        "yink"          => Some("YoungLink"),
         _               => None,
     }
 }
