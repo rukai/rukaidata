@@ -333,7 +333,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             let use_clang = hitboxes.iter().any(|x| !x.clang);
                             let use_direct = hitboxes.iter().any(|x| !x.direct);
                             let use_hitlag_mult = hitboxes.iter().any(|x| x.hitlag_mult != 1.0);
-                            let use_di_mult = hitboxes.iter().any(|x| x.di_mult != 1.0);
+                            let use_sdi_mult = hitboxes.iter().any(|x| x.sdi_mult != 1.0);
                             let use_shield_damage = hitboxes.iter().any(|x| x.shield_damage != 0);
                             let use_tripping_rate = hitboxes.iter().any(|x| x.tripping_rate != 0.0);
                             let use_rehit_rate = hitboxes.iter().any(|x| x.rehit_rate != 0);
@@ -394,8 +394,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             if use_hitlag_mult {
                                 header.push("Hitlag Mult");
                             }
-                            if use_di_mult {
-                                header.push("DI Mult");
+                            if use_sdi_mult {
+                                header.push("SDI Mult");
                             }
                             if use_shield_damage {
                                 header.push(r#"<abbr title="Shield Damage">Shield Dmg</abbr>"#);
@@ -440,7 +440,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             let mut clang = String::new();
                             let mut direct = String::new();
                             let mut hitlag_mult = String::new();
-                            let mut di_mult = String::new();
+                            let mut sdi_mult = String::new();
                             let mut shield_damage = String::new();
                             let mut tripping_rate = String::new();
                             let mut rehit_rate = String::new();
@@ -501,8 +501,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                         if use_hitlag_mult {
                                             row.push(hit.hitlag_mult.to_string());
                                         }
-                                        if use_di_mult {
-                                            row.push(hit.di_mult.to_string());
+                                        if use_sdi_mult {
+                                            row.push(hit.sdi_mult.to_string());
                                         }
                                         if use_shield_damage {
                                             row.push(hit.shield_damage.to_string());
@@ -603,8 +603,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                         if hitlag_mult.len() > 0 {
                                             hitlag_mult.push_str(",");
                                         }
-                                        if di_mult.len() > 0 {
-                                            di_mult.push_str(",");
+                                        if sdi_mult.len() > 0 {
+                                            sdi_mult.push_str(",");
                                         }
                                         if shield_damage.len() > 0 {
                                             shield_damage.push_str(",");
@@ -653,7 +653,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                         clang.push_str(if hit.clang { "y" } else { "n" });
                                         direct.push_str(if hit.direct { "y" } else { "n" });
                                         hitlag_mult.push_str(&hit.hitlag_mult.to_string());
-                                        di_mult.push_str(&hit.di_mult.to_string());
+                                        sdi_mult.push_str(&hit.sdi_mult.to_string());
                                         shield_damage.push_str(&hit.shield_damage.to_string());
                                         tripping_rate.push_str(&hit.tripping_rate.to_string());
                                         rehit_rate.push_str(&hit.rehit_rate.to_string());
@@ -713,8 +713,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                 if use_hitlag_mult {
                                     twitter_hitboxes.push_str(&format!("\nHitlag Mult: {}", hitlag_mult));
                                 }
-                                if use_di_mult {
-                                    twitter_hitboxes.push_str(&format!("\nDI Mult: {}", di_mult));
+                                if use_sdi_mult {
+                                    twitter_hitboxes.push_str(&format!("\nSDI Mult: {}", sdi_mult));
                                 }
                                 if use_shield_damage {
                                     twitter_hitboxes.push_str(&format!("\nShield Damage: {}", shield_damage));
