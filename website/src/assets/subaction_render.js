@@ -696,12 +696,14 @@ class FighterRender {
         this.fov = 40.0;
 
         this.scene = new THREE.Scene();
+        this.scene_overlay = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(this.fov, 1, 1, 1000); // The values here dont really matter, the camera gets overwritten in the later call to this.window_resize()
         this.controls = new OrbitControls(this.camera, render_div);
         this.controls.update();
 
         this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         this.renderer.setClearColor(0xFFFFFF, 0);
+        this.renderer.autoClear = false;
         render_div.appendChild(this.renderer.domElement);
 
         window.addEventListener('resize', () => this.window_resize(), false);
@@ -722,7 +724,9 @@ class FighterRender {
         this.perspective_checkbox.checked = this.get_bool_from_url("perspective");
 
         this.run = false;
-        this.ecb_material = new THREE.MeshBasicMaterial({ color: 0xf15c0a, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+        this.ecb_material        = new THREE.MeshBasicMaterial({ color: 0xf15c0a, transparent: false, side: THREE.DoubleSide });
+        this.transn_material     = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: false, side: THREE.DoubleSide });
+        this.transn_max_material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: false, side: THREE.DoubleSide }); // Used when the lower ecb point is capped by the transN y position
 
         // Manually call these callbacks to initialize stuff
         this.window_resize();
@@ -917,6 +921,11 @@ class FighterRender {
             this.scene.remove(child);
             child.geometry.dispose();
         }
+        while (this.scene_overlay.children.length) {
+            const child = this.scene_overlay.children[0];
+            this.scene_overlay.remove(child);
+            child.geometry.dispose();
+        }
 
         const transform_translation_frame = new THREE.Matrix4();
         transform_translation_frame.makeTranslation(
@@ -928,26 +937,47 @@ class FighterRender {
         // generate ecb
         if (this.ecb_checkbox.checked) {
             const mid_y = (frame.ecb.top + frame.ecb.bottom) / 2.0;
-            const vertices = [
-                0, frame.ecb.top,    0,
-                0, mid_y,            frame.ecb.left,
-                0, mid_y,            frame.ecb.right,
-                0, frame.ecb.bottom, 0,
-            ];
 
-            const indices = [
-                0, 1, 2,
-                1, 2, 3,
-            ];
+            // referenced bones
+            {
+                const vertices = [
+                    0, frame.ecb.top,    0,
+                    0, mid_y,            frame.ecb.left,
+                    0, mid_y,            frame.ecb.right,
+                    0, frame.ecb.bottom, 0,
+                ];
 
-            const geometry = new THREE.BufferGeometry();
-            geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
-            geometry.setIndex(indices);
+                const indices = [
+                    0, 1, 2,
+                    1, 2, 3,
+                ];
 
-            const mesh = new THREE.Mesh(geometry, this.ecb_material);
-            mesh.position.z = frame.x_pos;
-            mesh.position.y = frame.y_pos;
-            this.scene.add(mesh);
+                const geometry = new THREE.BufferGeometry();
+                geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+                geometry.setIndex(indices);
+
+                const mesh = new THREE.Mesh(geometry, this.ecb_material);
+                mesh.position.z = frame.x_pos;
+                mesh.position.y = frame.y_pos;
+                mesh.renderOrder = 6;
+                this.scene_overlay.add(mesh);
+            }
+
+            // transN
+            {
+                const geometry = new THREE.CircleGeometry(0.3, 20);
+
+                var material = this.transn_material;
+                if (frame.ecb.transn_y == frame.ecb.bottom) {
+                    material = this.transn_max_material;
+                }
+                var mesh = new THREE.Mesh(geometry, material);
+                mesh.position.z = frame.x_pos + frame.ecb.transn_x;
+                mesh.position.y = frame.y_pos + frame.ecb.transn_y;
+                mesh.rotateY(Math.PI/2);
+                mesh.renderOrder = 5;
+                this.scene_overlay.add(mesh);
+            }
         }
 
         // generate hitboxes
@@ -1210,8 +1240,10 @@ class FighterRender {
                 this.frame_index = 0;
             }
         }
-
+        this.renderer.clear();
         this.renderer.render(this.scene, this.camera);
+        this.renderer.clearDepth();
+        this.renderer.render(this.scene_overlay, this.camera);
         requestAnimationFrame(() => this.animate());
     }
 
