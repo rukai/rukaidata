@@ -18,6 +18,7 @@ pub fn brawl(token: &str) -> Option<&str> {
         "g&w"             => Some("Game%20&%20Watch"),
         "gaw"             => Some("Game%20&%20Watch"),
         "gw"              => Some("Game%20&%20Watch"),
+        "gnw"             => Some("Game%20&%20Watch"),
         "ganondorf"       => Some("Ganondorf"),
         "ganon"           => Some("Ganondorf"),
         "dorf"            => Some("Ganondorf"),

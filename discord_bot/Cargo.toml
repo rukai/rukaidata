@@ -8,3 +8,4 @@ repository = "https://github.com/rukai/rukaidata"
 
 [dependencies]
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "v0.6.x" }
+chrono = "0.4"

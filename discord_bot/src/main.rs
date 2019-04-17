@@ -2,6 +2,7 @@ pub mod characters;
 
 use std::env;
 
+use chrono::Utc;
 use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
 use serenity::model::id::ChannelId;
@@ -238,7 +239,7 @@ impl EventHandler for Handler {
                     let message = match (character, subactions.is_empty()) {
                         (Some(character), false) => {
                             let mut message = String::new();
-                            for subaction in subactions {
+                            for subaction in &subactions {
                                 if message.len() != 0 {
                                     message.push_str("\n");
                                 }
@@ -252,6 +253,20 @@ impl EventHandler for Handler {
                     };
 
                     send(&ctx, &msg.channel_id, &message);
+
+                    print!("{} - ", Utc::now().format("%F %T"));
+                    if character.is_none() && subactions.len() > 0 {
+                        print!("X - ");
+                    }
+                    else {
+                        print!("  - ");
+                    }
+                    if let Some(guild) = msg.guild_id {
+                        if let Ok(guild) = guild.to_partial_guild(&ctx) {
+                            print!("{} - ", guild.name);
+                        }
+                    }
+                    println!("\"{}\"", msg.content);
                 }
 
                 if *command == ".rattening" {
