@@ -723,6 +723,8 @@ class FighterRender {
         this.perspective_checkbox = document.getElementById('perspective-checkbox');
         this.perspective_checkbox.checked = this.get_bool_from_url("perspective");
 
+        this.camera_distance_textbox = document.getElementById('camera-distance-textbox');
+
         this.run = false;
         this.ecb_material        = new THREE.MeshBasicMaterial({ color: 0xf15c0a, transparent: false, side: THREE.DoubleSide });
         this.transn_material     = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: false, side: THREE.DoubleSide });
@@ -755,15 +757,17 @@ class FighterRender {
         );
         const fov_rad = this.fov * Math.PI / 180.0;
         // The new value will be used on next call to face_left() or face_right()
-        this.camera_distance = radius / Math.tan(fov_rad / 2.0);
+        var camera_distance = radius / Math.tan(fov_rad / 2.0);
 
         // This logic probably only works because this.pixel_width >= this.pixel_height is always true
         if (this.extent_aspect > this.aspect) {
-            this.camera_distance /= this.aspect;
+            camera_distance /= this.aspect;
         }
         else if (this.extent_width > this.extent_height) {
-            this.camera_distance /= this.extent_aspect;
+            camera_distance /= this.extent_aspect;
         }
+
+        this.set_camera_distance(camera_distance)
 
         this.recreate_camera();
         this.controls.update();
@@ -896,6 +900,21 @@ class FighterRender {
         this.frame_index = index - 1;
         this.stop();
         this.setup_frame();
+    }
+
+    set_camera_distance(camera_distance) {
+        this.camera_distance = camera_distance;
+
+        // Camera distance is the variable that has different default values across subactions.
+        // this.camera.zoom also affects the size of the character however it is only a runtime concept, and thus not needed when making comparisons across subactions, so we can ignore it here.
+        this.camera_distance_textbox.value = camera_distance;
+    }
+
+    update_camera_distance() {
+        var new_camera_distance = parseFloat(this.camera_distance_textbox.value);
+        this.camera_distance = Math.abs(new_camera_distance);
+        this.camera.position.x = new_camera_distance;
+        this.controls.update();
     }
 
     face_left() {
@@ -1232,6 +1251,9 @@ class FighterRender {
     }
 
     animate() {
+        // Doesnt seem to be a way to run on field change, so just hijack the animate callback
+        this.update_camera_distance();
+
         if (this.run) {
             // this.frame_index needs to be incremented after this.setup_frame() to avoid skipping the first frame
             this.setup_frame();
@@ -1244,6 +1266,7 @@ class FighterRender {
         this.renderer.render(this.scene, this.camera);
         this.renderer.clearDepth();
         this.renderer.render(this.scene_overlay, this.camera);
+
         requestAnimationFrame(() => this.animate());
     }
 
