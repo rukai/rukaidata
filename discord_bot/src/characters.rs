@@ -3,6 +3,7 @@ pub fn brawl(token: &str) -> Option<&str> {
         "bowser"          => Some("Bowser"),
         "captain"         => Some("Captain%20Falcon"),
         "captainfalcon"   => Some("Captain%20Falcon"),
+        "falcon"          => Some("Captain%20Falcon"),
         "charizard"       => Some("Charizard"),
         "diddy"           => Some("Diddy%20Kong"),
         "diddykong"       => Some("Diddy%20Kong"),
