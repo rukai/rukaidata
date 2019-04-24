@@ -686,12 +686,37 @@ class FighterRender {
     constructor(subaction_data, subaction_extent) {
         const render_div = document.getElementById('fighter-render');
 
+        const extent_up = parseFloat(this.get_from_url("up"));
+        if (!Number.isNaN(extent_up)) {
+            subaction_extent.up = extent_up;
+        }
+        this.set_in_url("up", subaction_extent.up);
+
+        const extent_down = parseFloat(this.get_from_url("down"));
+        if (!Number.isNaN(extent_down)) {
+            subaction_extent.down = extent_down;
+        }
+        this.set_in_url("down", subaction_extent.down);
+
+        const extent_left = parseFloat(this.get_from_url("left"));
+        if (!Number.isNaN(extent_left)) {
+            subaction_extent.left = extent_left;
+        }
+        this.set_in_url("left", subaction_extent.left);
+
+        const extent_right = parseFloat(this.get_from_url("right"));
+        if (!Number.isNaN(extent_right)) {
+            subaction_extent.right = extent_right;
+        }
+        this.set_in_url("right", subaction_extent.right);
+
         this.subaction_data = subaction_data;
         this.subaction_extent = subaction_extent;
-        this.extent_middle_y = (subaction_extent.up + subaction_extent.down) / 2;
+
+        this.extent_middle_y = (subaction_extent.up   + subaction_extent.down) / 2;
         this.extent_middle_z = (subaction_extent.left + subaction_extent.right) / 2;
-        this.extent_height = this.subaction_extent.up   - this.subaction_extent.down;
-        this.extent_width = this.subaction_extent.right - this.subaction_extent.left;
+        this.extent_height = this.subaction_extent.up    - this.subaction_extent.down;
+        this.extent_width  = this.subaction_extent.right - this.subaction_extent.left;
         this.extent_aspect = this.extent_width / this.extent_height;
         this.fov = 40.0;
 
