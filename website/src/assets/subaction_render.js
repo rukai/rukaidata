@@ -749,9 +749,13 @@ class FighterRender {
         this.perspective_checkbox.checked = this.get_bool_from_url("perspective");
 
         this.run = false;
+        this.refresh_ms = 0;
+        this.refresh_ms_count = 0;
+        this.prev_timestamp = 0;
         this.ecb_material        = new THREE.MeshBasicMaterial({ color: 0xf15c0a, transparent: false, side: THREE.DoubleSide });
         this.transn_material     = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: false, side: THREE.DoubleSide });
         this.transn_max_material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: false, side: THREE.DoubleSide }); // Used when the lower ecb point is capped by the transN y position
+        this.ledge_grab_box_material = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
 
         // Manually call these callbacks to initialize stuff
         this.window_resize();
@@ -760,7 +764,7 @@ class FighterRender {
         this.perspective_toggle();
 
         this.setup_frame();
-        this.animate();
+        requestAnimationFrame((timestamp) => this.animate(timestamp));
     }
 
     window_resize() {
@@ -771,8 +775,6 @@ class FighterRender {
             height = 750;
         }
         this.aspect = width / height;
-        this.pixel_height = height;
-        this.pixel_width = width;
 
         var radius = Math.max(
             this.subaction_extent.up    - this.extent_middle_y,
@@ -782,7 +784,7 @@ class FighterRender {
         // The new value will be used on next call to face_left() or face_right()
         this.camera_distance = radius / Math.tan(fov_rad / 2.0);
 
-        // This logic probably only works because this.pixel_width >= this.pixel_height is always true
+        // This logic probably only works because width >= height is always true
         if (this.extent_aspect > this.aspect) {
             this.camera_distance /= this.aspect;
         }
@@ -888,6 +890,7 @@ class FighterRender {
         const button = document.getElementById('run-toggle');
         button.innerHTML = "Stop";
         this.run = true;
+        this.run_extra_time = 0.0;
     }
 
     stop() {
@@ -951,13 +954,6 @@ class FighterRender {
             this.scene_overlay.remove(child);
             child.geometry.dispose();
         }
-
-        const transform_translation_frame = new THREE.Matrix4();
-        transform_translation_frame.makeTranslation(
-            0.0,
-            frame.y_pos,
-            frame.x_pos,
-        );
 
         // generate ecb
         if (this.ecb_checkbox.checked) {
@@ -1110,6 +1106,12 @@ class FighterRender {
         }
 
         // generate hurtboxes
+        const transform_translation_frame = new THREE.Matrix4();
+        transform_translation_frame.makeTranslation(
+            0.0,
+            frame.y_pos,
+            frame.x_pos,
+        );
         for (let hurt_box of frame.hurt_boxes) {
             const bm = hurt_box.bone_matrix;
             const bone_matrix = new THREE.Matrix4();
@@ -1228,9 +1230,9 @@ class FighterRender {
 
             const transform_translation = new THREE.Matrix4();
             transform_translation.makeTranslation(
-                hurt_box.hurt_box.offset.x / (bone_scale.x * radius),
-                hurt_box.hurt_box.offset.y / (bone_scale.y * radius),
-                hurt_box.hurt_box.offset.z / (bone_scale.z * radius)
+                offset.x / (bone_scale.x * radius),
+                offset.y / (bone_scale.y * radius),
+                offset.z / (bone_scale.z * radius)
             );
 
             const transform_scale = new THREE.Matrix4();
@@ -1247,6 +1249,35 @@ class FighterRender {
             this.scene.add(cube);
         }
 
+        // ledge grab box
+        {
+            const box = frame.ledge_grab_box;
+            if (box != null) {
+                const vertices = [
+                    0, box.up,   box.left,
+                    0, box.up,   box.right,
+                    0, box.down, box.left,
+                    0, box.down, box.right,
+                ];
+
+                const indices = [
+                    0, 1, 2,
+                    1, 2, 3,
+                ];
+
+                const geometry = new THREE.BufferGeometry();
+                geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+                geometry.setIndex(indices);
+
+                const mesh = new THREE.Mesh(geometry, this.ledge_grab_box_material);
+                mesh.position.z = frame.x_pos;
+                mesh.position.y = frame.y_pos;
+                mesh.renderOrder = 7;
+                this.scene_overlay.add(mesh);
+            }
+        }
+
+
         // update frame select
         for (var button of document.querySelectorAll('.frame-button')) {
             button.classList.remove('current-frame-button');
@@ -1256,20 +1287,70 @@ class FighterRender {
         }
     }
 
-    animate() {
+    animate(timestamp) {
+        // Before actual animation starts calculate the refresh rate given by requestAnimationFrame
+        const refresh_ms_total = 30;
+        if (this.refresh_ms_count == 0) {
+            // Do nothing, we need to skip the first call so that this.refresh_ms can be initialized
+        }
+        else if (this.refresh_ms_count <= refresh_ms_total) {
+            this.refresh_ms += timestamp - this.previous_timestamp;
+        }
+        else if (this.refresh_ms_count == refresh_ms_total + 1) {
+            this.refresh_ms /= refresh_ms_total;
+            this.refresh_ms_count += 1;
+        }
+
+        // Do not allow the animation to start until this.refresh_ms is calculated
+        if (this.refresh_ms_count <= refresh_ms_total) {
+            this.previous_timestamp = timestamp;
+            this.refresh_ms_count += 1;
+
+            requestAnimationFrame((timestamp) => this.animate(timestamp));
+            return;
+        }
+
+        // The invariants change once this.refresh_ms is calculated and execution is allowed past here.
+
         if (this.run) {
-            // this.frame_index needs to be incremented after this.setup_frame() to avoid skipping the first frame
-            this.setup_frame();
-            this.frame_index += 1;
+            // actual check uses 70 fps as we want to check a bit above 60 as the timers are inaccurate.
+            if (this.refresh_ms < (1000 / 70)) {
+                // fps > 60
+                const time_diff = this.run_extra_time + timestamp - this.previous_timestamp;
+                if (time_diff > 1000 / 60) {
+                    // this.frame_index needs to be incremented after this.setup_frame() to avoid skipping the first frame
+                    this.setup_frame();
+                    this.frame_index += 1;
+                    this.run_extra_time = time_diff - (1000 / 60);
+                }
+                else {
+                    this.run_extra_time = time_diff;
+                }
+            }
+            else {
+                // fps <= 60
+                // Need to special case this or else monitors at 60fps will get out of sync
+                // TODO: I kind of noticed I didnt really need this branch on my machine anymore, however i'm not convinced that I wont need it on other browser/monitor/os combinations
+
+                // this.frame_index needs to be incremented after this.setup_frame() to avoid skipping the first frame
+                this.setup_frame();
+                this.frame_index += 1;
+            }
+
+            // loop animation
             if (this.frame_index >= this.subaction_data.frames.length) {
                 this.frame_index = 0;
             }
         }
+        console.log("frame_index: " + this.frame_index);
+
         this.renderer.clear();
         this.renderer.render(this.scene, this.camera);
         this.renderer.clearDepth();
         this.renderer.render(this.scene_overlay, this.camera);
-        requestAnimationFrame(() => this.animate());
+
+        this.previous_timestamp = timestamp;
+        requestAnimationFrame((timestamp) => this.animate(timestamp));
     }
 
     set_in_url(name, data) {

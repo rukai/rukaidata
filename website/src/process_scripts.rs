@@ -1,4 +1,4 @@
-use brawllib_rs::script_ast::{EventAst, ForLoop, Iterations, IfStatement, Expression, UnaryExpression, BinaryExpression, Interrupt};
+use brawllib_rs::script_ast::{EventAst, ForLoop, Iterations, IfStatement, Expression, UnaryExpression, BinaryExpression, Interrupt, FloatValue};
 use brawllib_rs::script_ast::variable_ast::{
     VariableAst,
     InternalConstantInt,
@@ -111,17 +111,17 @@ pub fn process_events(events: &[EventAst], common: bool, brawl_mod: &BrawlMod, f
                     }
                 }
             }
-            EventAst::IntVariableSet { value, variable } => result.push_str(&format!("<li>IntVariableSet {{ variable: {}, value: {} }}</li>", process_expression(&Expression::Variable(variable.clone())), value)),
-            EventAst::IntVariableAdd { value, variable } => result.push_str(&format!("<li>IntVariableAdd {{ variable: {}, value: {} }}</li>", process_expression(&Expression::Variable(variable.clone())), value)),
+            EventAst::IntVariableSet { value, variable } => result.push_str(&format!("<li>IntVariableSet {{ variable: {}, value: {} }}</li>",           process_expression(&Expression::Variable(variable.clone())), value)),
+            EventAst::IntVariableAdd { value, variable } => result.push_str(&format!("<li>IntVariableAdd {{ variable: {}, value: {} }}</li>",           process_expression(&Expression::Variable(variable.clone())), value)),
             EventAst::IntVariableSubtract { value, variable } => result.push_str(&format!("<li>IntVariableSubtract {{ variable: {}, value: {} }}</li>", process_expression(&Expression::Variable(variable.clone())), value)),
-            EventAst::IntVariableIncrement { variable } => result.push_str(&format!("<li>IntVariableIncrement {{ variable: {} }}</li>", process_expression(&Expression::Variable(variable.clone())))),
-            EventAst::IntVariableDecrement { variable } => result.push_str(&format!("<li>IntVariableDecrement {{ variable: {} }}</li>", process_expression(&Expression::Variable(variable.clone())))),
-            EventAst::FloatVariableSet { value, variable } => result.push_str(&format!("<li>FloatVariableSet {{ variable: {}, value: {} }}</li>", process_expression(&Expression::Variable(variable.clone())), value)),
-            EventAst::FloatVariableAdd { value, variable } => result.push_str(&format!("<li>FloatVariableAdd {{ variable: {}, value: {} }}</li>", process_expression(&Expression::Variable(variable.clone())), value)),
-            EventAst::FloatVariableSubtract { value, variable } => result.push_str(&format!("<li>FloatVariableSubtract {{ variable: {}, value: {} }}</li>", process_expression(&Expression::Variable(variable.clone())), value)),
-            EventAst::FloatVariableMultiply { value, variable } => result.push_str(&format!("<li>FloatVariableMultiply {{ variable: {}, value: {} }}</li>", process_expression(&Expression::Variable(variable.clone())), value)),
-            EventAst::FloatVariableDivide { value, variable } => result.push_str(&format!("<li>FloatVariableDivide {{ variable: {}, value: {} }}</li>", process_expression(&Expression::Variable(variable.clone())), value)),
-            EventAst::BoolVariableSetTrue { variable } => result.push_str(&format!("<li>BoolVariableSetTrue {{ variable: {} }}</li>", process_expression(&Expression::Variable(variable.clone())))),
+            EventAst::IntVariableIncrement { variable } => result.push_str(&format!("<li>IntVariableIncrement {{ variable: {} }}</li>",                 process_expression(&Expression::Variable(variable.clone())))),
+            EventAst::IntVariableDecrement { variable } => result.push_str(&format!("<li>IntVariableDecrement {{ variable: {} }}</li>",                 process_expression(&Expression::Variable(variable.clone())))),
+            EventAst::FloatVariableSet { value, variable } => result.push_str(&format!("<li>FloatVariableSet {{ variable: {}, value: {} }}</li>",           process_expression(&Expression::Variable(variable.clone())), process_float_value(value))),
+            EventAst::FloatVariableAdd { value, variable } => result.push_str(&format!("<li>FloatVariableAdd {{ variable: {}, value: {} }}</li>",           process_expression(&Expression::Variable(variable.clone())), process_float_value(value))),
+            EventAst::FloatVariableSubtract { value, variable } => result.push_str(&format!("<li>FloatVariableSubtract {{ variable: {}, value: {} }}</li>", process_expression(&Expression::Variable(variable.clone())), process_float_value(value))),
+            EventAst::FloatVariableMultiply { value, variable } => result.push_str(&format!("<li>FloatVariableMultiply {{ variable: {}, value: {} }}</li>", process_expression(&Expression::Variable(variable.clone())), process_float_value(value))),
+            EventAst::FloatVariableDivide { value, variable } => result.push_str(&format!("<li>FloatVariableDivide {{ variable: {}, value: {} }}</li>",     process_expression(&Expression::Variable(variable.clone())), process_float_value(value))),
+            EventAst::BoolVariableSetTrue { variable } => result.push_str(&format!("<li>BoolVariableSetTrue {{ variable: {} }}</li>",   process_expression(&Expression::Variable(variable.clone())))),
             EventAst::BoolVariableSetFalse { variable } => result.push_str(&format!("<li>BoolVariableSetFalse {{ variable: {} }}</li>", process_expression(&Expression::Variable(variable.clone())))),
             EventAst::ItemThrow { unk1, unk2, unk3, unk4, unk5 } => result.push_str(&format!("<li>ItemThrow {{ unk1: {}, unk2: {}, unk3: {} unk4: {}, unk5: {} }}</li>",
                 process_expression(&Expression::Variable(unk1.clone())),
@@ -151,6 +151,13 @@ pub fn process_events(events: &[EventAst], common: bool, brawl_mod: &BrawlMod, f
     }
     result.push_str("</ol>");
     result
+}
+
+fn process_float_value(value: &FloatValue) -> String {
+    match value {
+        FloatValue::Constant(constant) => format!("{}", constant),
+        FloatValue::Variable(variable) => process_expression(&Expression::Variable(variable.clone())),
+    }
 }
 
 fn process_expression(expr: &Expression) -> String {

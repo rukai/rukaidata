@@ -256,10 +256,12 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     hitboxes_active.push_str(&format!("{}-{}", start + 1, subaction.frames.len()));
                 }
 
-                attributes.push(Attribute {
-                    name: "Hitboxes active".into(),
-                    value: hitboxes_active.clone(),
-                });
+                if hitboxes_active.len() > 0 {
+                    attributes.push(Attribute {
+                        name: "Hitboxes active".into(),
+                        value: hitboxes_active.clone(),
+                    });
+                }
 
                 for set_id in 0..10 {
                     if subaction.frames.iter().any(|x| x.hitbox_sets_rehit[set_id]) {
@@ -288,6 +290,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
 
                 // generate hitbox tables
                 let mut hitbox_tables = vec!();
+                let mut throw_table = None;
                 let mut twitter_hitboxes = String::new();
                 let mut last_change_frame = None;
                 for i in 0..subaction.frames.len() {
@@ -305,6 +308,42 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                         vec!()
                     };
                     let next_values: Vec<_> = frame.hit_boxes.iter().map(|x| &x.next_values).collect();
+
+                    if let Some(throw) = &frame.throw {
+                        let frames = format!("Frame: {}", i);
+
+                        let use_wdsk = throw.wdsk != 0;
+
+                        let mut header = vec!();
+                        header.push(r#"<abbr title="Damage">Dmg</abbr>"#);
+                        if use_wdsk {
+                            header.push(r#"<abbr title="Weight Dependent Set Knockback. When this value is not 0, an entirely different formula is used to calculate knockback. In this formula hitbox damage and current % are ignored.">WDSK</abbr>"#);
+                        }
+                        header.push(r#"<abbr title="Base knockback">BKB</abbr>"#);
+                        header.push(r#"<abbr title="Knockback growth">KBG</abbr>"#);
+                        header.push("Angle");
+                        header.push("Effect");
+                        header.push("Sound");
+                        header.push("Grab Target");
+                        header.push("Iframes");
+
+                        let mut row = vec!();
+                        row.push(throw.damage.to_string());
+                        if use_wdsk {
+                            row.push(throw.wdsk.to_string());
+                        }
+                        row.push(throw.bkb.to_string());
+                        row.push(throw.kbg.to_string());
+                        row.push(angle_string(throw.trajectory, 0));
+                        row.push(format!("{:?}", throw.effect));
+                        row.push(format!("{:?}", throw.sfx));
+                        row.push(format!("{:?}", throw.grab_target));
+                        row.push(format!("{}", throw.i_frames));
+
+                        let rows = vec!(row);
+
+                        throw_table = Some(HitBoxTable { frames, header, rows });
+                    }
 
                     // start a new table when ((the hitbox values or number of hitboxes change) and there are hitboxes) or it is the last frame
                     // TODO: This comparison ignores hitbox_id, is this acceptable?
@@ -325,7 +364,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             }
 
                             // TODO: determine what optional columns to use
-                            let use_wdsk = hitboxes.iter().any(|x| x.weight_knockback != 0);
+                            let use_wdsk = hitboxes.iter().any(|x| x.wdsk != 0);
                             let use_angle_flipping = hitboxes.iter().any(|x| match x.angle_flipping {
                                 AngleFlip::AwayFromAttacker => false,
                                 _ => true,
@@ -469,18 +508,11 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                         row.push(hitbox.hitbox_id.to_string());
                                         row.push(hit.damage.to_string());
                                         if use_wdsk {
-                                            row.push(hit.weight_knockback.to_string());
+                                            row.push(hit.wdsk.to_string());
                                         }
                                         row.push(hit.bkb.to_string());
                                         row.push(hit.kbg.to_string());
-                                        let angle_name = match hit.trajectory {
-                                            0 => String::from(r#"<abbr title="">0</abbr>"#),
-                                            361 => String::from(r#"<abbr title="Sakurai Angle: When hit in the air angle is 45. When hit on the ground, if knockback < 32 then angle is 0, otherwise angle is 44.">361</abbr>"#),
-                                            363 => String::from(r#"<abbr title="Autolink Angle: Angle is the angle the attacker is travelling on the frame collision occurred.">363</abbr>"#),
-                                            365 => String::from(r#"<abbr title="Speed Dependent Autolink angle: Angle is the angle the attacker is travelling on the frame collision occurred. The knockback of the move is solely determined by the attackers velocity. Higher velocity results in more knockback.">365</abbr>"#),
-                                            a   => a.to_string(),
-                                        };
-                                        row.push(format!(r#"<canvas class="hitbox-angle-render" width="0" height="0" hitbox-id="{}" angle="{}"></canvas>{}"#, hitbox.hitbox_id, hit.trajectory, angle_name));
+                                        row.push(angle_string(hit.trajectory, hitbox.hitbox_id));
                                         row.push(format!("{:?}", hit.effect));
                                         row.push(format!("{:?}", hit.sound));
                                         if use_angle_flipping {
@@ -638,7 +670,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                         }
 
                                         damage.push_str(&hit.damage.to_string());
-                                        wdsk.push_str(&hit.weight_knockback.to_string());
+                                        wdsk.push_str(&hit.wdsk.to_string());
                                         bkb.push_str(&hit.bkb.to_string());
                                         kbg.push_str(&hit.kbg.to_string());
                                         angle.push_str(&hit.trajectory.to_string());
@@ -816,6 +848,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
 
                 let mut subaction_extent = subaction.hurt_box_extent();
                 subaction_extent.extend(&subaction.hit_box_extent());
+                subaction_extent.extend(&subaction.ledge_grab_box_extent());
 
                 let twitter_image = format!("/{}/{}/subactions/{}.gif", brawl_mod.name, fighter_name, subaction.name);
 
@@ -828,6 +861,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     subaction:        serde_json::to_string(&subaction).unwrap(),
                     subaction_extent: serde_json::to_string(&subaction_extent).unwrap(),
                     attributes,
+                    throw_table,
                     hitbox_tables,
                     fighter_links,
                     script_main,
@@ -846,7 +880,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     handlebars.render_to_write("subaction", &page, file).unwrap();
                 }
 
-                if subaction.name == "AttackAirF" && false {
+                if subaction.frames.len() > 0 && subaction.name == "AttackAirF" && false { // wgpu causes deadlocks :/
                     let gif = renderer::render_gif(&fighter.fighter, index);
                     let path = format!("../root{}", twitter_image);
                     let mut file = File::create(path).unwrap();
@@ -858,6 +892,17 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
     }
 }
 
+fn angle_string(angle: i32, id: u8) -> String {
+    let angle_name = match angle {
+        0 => String::from(r#"<abbr title="">0</abbr>"#),
+        361 => String::from(r#"<abbr title="Sakurai Angle: When hit in the air angle is 45. When hit on the ground, if knockback < 32 then angle is 0, otherwise angle is 44.">361</abbr>"#),
+        363 => String::from(r#"<abbr title="Autolink Angle: Angle is the angle the attacker is travelling on the frame collision occurred.">363</abbr>"#),
+        365 => String::from(r#"<abbr title="Speed Dependent Autolink angle: Angle is the angle the attacker is travelling on the frame collision occurred. The knockback of the move is solely determined by the attackers velocity. Higher velocity results in more knockback.">365</abbr>"#),
+        a   => a.to_string(),
+    };
+    format!(r#"<canvas class="hitbox-angle-render" width="0" height="0" hitbox-id="{}" angle="{}"></canvas>{}"#, id, angle, angle_name)
+}
+
 #[derive(Serialize)]
 pub struct SubactionPage<'a> {
     assets:              &'a AssetPaths,
@@ -867,6 +912,7 @@ pub struct SubactionPage<'a> {
     fighter_link:        String,
     title:               String,
     attributes:          Vec<Attribute>,
+    throw_table:         Option<HitBoxTable>,
     hitbox_tables:       Vec<HitBoxTable>,
     subaction:           String,
     subaction_extent:    String,

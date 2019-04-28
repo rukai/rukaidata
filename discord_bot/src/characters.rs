@@ -2,8 +2,9 @@ pub fn brawl(token: &str) -> Option<&str> {
     match token.as_ref() {
         "bowser"          => Some("Bowser"),
         "captain"         => Some("Captain%20Falcon"),
-        "captainfalcon"   => Some("Captain%20Falcon"),
         "falcon"          => Some("Captain%20Falcon"),
+        "captainfalcon"   => Some("Captain%20Falcon"),
+        "cf"              => Some("Captain%20Falcon"),
         "charizard"       => Some("Charizard"),
         "zard"            => Some("Charizard"),
         "diddy"           => Some("Diddy%20Kong"),
@@ -76,6 +77,7 @@ pub fn brawl(token: &str) -> Option<&str> {
         "toon"            => Some("Toon%20Link"),
         "toonlink"        => Some("Toon%20Link"),
         "tink"            => Some("Toon%20Link"),
+        "tlink"           => Some("Toon%20Link"),
         "tl"              => Some("Toon%20Link"),
         "wario"           => Some("Wario"),
         "wario-man"       => Some("Wario-Man"),
@@ -131,6 +133,7 @@ pub fn lxp(token: &str) -> Option<&str> {
         "young"         => Some("YoungLink"),
         "younglink"     => Some("YoungLink"),
         "yink"          => Some("YoungLink"),
+        "ylink"         => Some("YoungLink"),
         _               => None,
     }
 }

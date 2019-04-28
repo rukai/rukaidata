@@ -228,6 +228,9 @@ impl EventHandler for Handler {
                     if tokens.contains(&"air") && tokens.contains(&"sideb")                                  { subactions = vec!("SpecialAirS") }
 
                     // taunts
+                    if tokens.contains(&"utaunt") { subactions = vec!("AppealHi") }
+                    if tokens.contains(&"dtaunt") { subactions = vec!("AppealLw") }
+                    if tokens.contains(&"staunt") { subactions = vec!("AppealS") }
                     if tokens.contains(&"up")   && tokens.contains(&"taunt") { subactions = vec!("AppealHi") }
                     if tokens.contains(&"down") && tokens.contains(&"taunt") { subactions = vec!("AppealLw") }
                     if tokens.contains(&"side") && tokens.contains(&"taunt") { subactions = vec!("AppealS") }
