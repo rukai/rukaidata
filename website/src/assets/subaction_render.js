@@ -749,8 +749,6 @@ class FighterRender {
         this.perspective_checkbox.checked = this.get_bool_from_url("perspective");
 
         this.run = false;
-        this.refresh_ms = 0;
-        this.refresh_ms_count = 0;
         this.prev_timestamp = 0;
         this.ecb_material        = new THREE.MeshBasicMaterial({ color: 0xf15c0a, transparent: false, side: THREE.DoubleSide });
         this.transn_material     = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: false, side: THREE.DoubleSide });
@@ -890,7 +888,7 @@ class FighterRender {
         const button = document.getElementById('run-toggle');
         button.innerHTML = "Stop";
         this.run = true;
-        this.run_extra_time = 0.0;
+        this.run_time = 0.0;
     }
 
     stop() {
@@ -1288,53 +1286,19 @@ class FighterRender {
     }
 
     animate(timestamp) {
-        // Before actual animation starts calculate the refresh rate given by requestAnimationFrame
-        const refresh_ms_total = 30;
-        if (this.refresh_ms_count == 0) {
-            // Do nothing, we need to skip the first call so that this.refresh_ms can be initialized
-        }
-        else if (this.refresh_ms_count <= refresh_ms_total) {
-            this.refresh_ms += timestamp - this.previous_timestamp;
-        }
-        else if (this.refresh_ms_count == refresh_ms_total + 1) {
-            this.refresh_ms /= refresh_ms_total;
-            this.refresh_ms_count += 1;
-        }
-
-        // Do not allow the animation to start until this.refresh_ms is calculated
-        if (this.refresh_ms_count <= refresh_ms_total) {
+        if (this.previous_timestamp == 0) {
             this.previous_timestamp = timestamp;
-            this.refresh_ms_count += 1;
-
             requestAnimationFrame((timestamp) => this.animate(timestamp));
             return;
         }
 
-        // The invariants change once this.refresh_ms is calculated and execution is allowed past here.
-
         if (this.run) {
-            // actual check uses 70 fps as we want to check a bit above 60 as the timers are inaccurate.
-            if (this.refresh_ms < (1000 / 70)) {
-                // fps > 60
-                const time_diff = this.run_extra_time + timestamp - this.previous_timestamp;
-                if (time_diff > 1000 / 60) {
-                    // this.frame_index needs to be incremented after this.setup_frame() to avoid skipping the first frame
-                    this.setup_frame();
-                    this.frame_index += 1;
-                    this.run_extra_time = time_diff - (1000 / 60);
-                }
-                else {
-                    this.run_extra_time = time_diff;
-                }
-            }
-            else {
-                // fps <= 60
-                // Need to special case this or else monitors at 60fps will get out of sync
-                // TODO: I kind of noticed I didnt really need this branch on my machine anymore, however i'm not convinced that I wont need it on other browser/monitor/os combinations
-
+            this.run_time += timestamp - this.previous_timestamp;
+            if (this.run_time > 1000 / 60) {
                 // this.frame_index needs to be incremented after this.setup_frame() to avoid skipping the first frame
                 this.setup_frame();
                 this.frame_index += 1;
+                this.run_time -= 1000 / 60;
             }
 
             // loop animation
@@ -1342,7 +1306,6 @@ class FighterRender {
                 this.frame_index = 0;
             }
         }
-        console.log("frame_index: " + this.frame_index);
 
         this.renderer.clear();
         this.renderer.render(this.scene, this.camera);
