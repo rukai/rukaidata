@@ -56,7 +56,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                         if auto_cancel.len() != 0 {
                             auto_cancel.push_str(", ");
                         }
-                        auto_cancel.push_str(&format!("{}-{}", last_frame_change + 1, index));
+                        auto_cancel.push_str(&range_string(last_frame_change + 1, index));
                     }
                     if landing_lag_prev != frame.landing_lag {
                         last_frame_change = index;
@@ -67,7 +67,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     if auto_cancel.len() != 0 {
                         auto_cancel.push_str(", ");
                     }
-                    auto_cancel.push_str(&format!("{}-{}", last_frame_change + 1, subaction.frames.len()));
+                    auto_cancel.push_str(&range_string(last_frame_change + 1, subaction.frames.len()));
                 }
 
                 let mut invincible = String::new();
@@ -94,7 +94,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             if invincible.len() > 0 {
                                 invincible.push_str(", ");
                             }
-                            invincible.push_str(&format!("{}-{}", start + 1, i));
+                            invincible.push_str(&range_string(start + 1, i));
                         }
                     }
 
@@ -107,7 +107,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             if partial_invincible.len() > 0 {
                                 partial_invincible.push_str(", ");
                             }
-                            partial_invincible.push_str(&format!("{}-{}", start + 1, i));
+                            partial_invincible.push_str(&range_string(start + 1, i));
                         }
                     }
 
@@ -120,7 +120,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             if intangible.len() > 0 {
                                 intangible.push_str(", ");
                             }
-                            intangible.push_str(&format!("{}-{}", start + 1, i));
+                            intangible.push_str(&range_string(start + 1, i));
                         }
                     }
 
@@ -133,7 +133,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             if partial_intangible.len() > 0 {
                                 partial_intangible.push_str(", ");
                             }
-                            partial_intangible.push_str(&format!("{}-{}", start + 1, i));
+                            partial_intangible.push_str(&range_string(start + 1, i));
                         }
                     }
 
@@ -150,25 +150,25 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     if invincible.len() > 0 {
                         invincible.push_str(", ");
                     }
-                    invincible.push_str(&format!("{}-{}", start + 1, subaction.frames.len()));
+                    invincible.push_str(&range_string(start + 1, subaction.frames.len()));
                 }
                 if let Some(start) = start_partial_invincible.take() {
                     if partial_invincible.len() > 0 {
                         partial_invincible.push_str(", ");
                     }
-                    partial_invincible.push_str(&format!("{}-{}", start + 1, subaction.frames.len()));
+                    partial_invincible.push_str(&range_string(start + 1, subaction.frames.len()));
                 }
                 if let Some(start) = start_intangible.take() {
                     if intangible.len() > 0 {
                         intangible.push_str(", ");
                     }
-                    intangible.push_str(&format!("{}-{}", start + 1, subaction.frames.len()));
+                    intangible.push_str(&range_string(start + 1, subaction.frames.len()));
                 }
                 if let Some(start) = start_partial_intangible.take() {
                     if partial_intangible.len() > 0 {
                         partial_intangible.push_str(", ");
                     }
-                    partial_intangible.push_str(&format!("{}-{}", start + 1, subaction.frames.len()));
+                    partial_intangible.push_str(&range_string(start + 1, subaction.frames.len()));
                 }
 
                 let mut attributes = vec!();
@@ -243,7 +243,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             if hitboxes_active.len() > 0 {
                                 hitboxes_active.push_str(", ");
                             }
-                            hitboxes_active.push_str(&format!("{}-{}", start + 1, i));
+                            hitboxes_active.push_str(&range_string(start + 1, i));
                         }
                     }
                 }
@@ -253,7 +253,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     if hitboxes_active.len() > 0 {
                         hitboxes_active.push_str(", ");
                     }
-                    hitboxes_active.push_str(&format!("{}-{}", start + 1, subaction.frames.len()));
+                    hitboxes_active.push_str(&range_string(start + 1, subaction.frames.len()));
                 }
 
                 if hitboxes_active.len() > 0 {
@@ -889,6 +889,14 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                 info!("{} {} {}", brawl_mod.name, fighter_name, subaction.name);
             });
         }
+    }
+}
+
+fn range_string(start: usize, end: usize) -> String {
+    if start == end {
+        format!("{}", start)
+    } else {
+        format!("{}-{}", start, end)
     }
 }
 
