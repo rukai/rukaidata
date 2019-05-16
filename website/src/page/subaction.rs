@@ -1,12 +1,10 @@
 use std::fs::File;
 use std::fs;
-use std::io::Write;
 
 use handlebars::Handlebars;
 use rayon::prelude::*;
 use brawllib_rs::high_level_fighter::CollisionBoxValues;
 use brawllib_rs::script_ast::{AngleFlip, HitBoxEffect};
-use brawllib_rs::renderer;
 
 use crate::brawl_data::{BrawlMods, SubactionLinks};
 use crate::page::NavLink;
@@ -878,13 +876,6 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     let path = format!("../root/{}/{}/subactions/{}.html", brawl_mod.name, fighter_name, subaction.name);
                     let file = File::create(path).unwrap();
                     handlebars.render_to_write("subaction", &page, file).unwrap();
-                }
-
-                if subaction.frames.len() > 0 && subaction.name == "AttackAirF" && false { // wgpu causes deadlocks :/
-                    let gif = renderer::render_gif(&fighter.fighter, index);
-                    let path = format!("../root{}", twitter_image);
-                    let mut file = File::create(path).unwrap();
-                    file.write_all(&gif).unwrap();
                 }
                 info!("{} {} {}", brawl_mod.name, fighter_name, subaction.name);
             });

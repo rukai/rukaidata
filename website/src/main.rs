@@ -9,6 +9,7 @@ pub mod page;
 pub mod brawl_data;
 pub mod process_scripts;
 pub mod assets;
+pub mod gif;
 
 use brawl_data::BrawlMods;
 use assets::AssetPaths;
@@ -37,6 +38,10 @@ fn main() {
             page::script::generate(&handlebars, &brawl_mods, &assets);
             page::scripts::generate(&handlebars, &brawl_mods, &assets);
             page::variables::generate(&handlebars, &brawl_mods, &assets);
+
+            if cli.generate_gifs {
+                gif::generate(&brawl_mods);
+            }
         }
     }
 }
