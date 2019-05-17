@@ -4,7 +4,7 @@ use std::fs;
 use handlebars::Handlebars;
 use rayon::prelude::*;
 use brawllib_rs::high_level_fighter::CollisionBoxValues;
-use brawllib_rs::script_ast::{AngleFlip, HitBoxEffect};
+use brawllib_rs::script_ast::{AngleFlip, HitBoxEffect, GrabTarget};
 
 use crate::brawl_data::{BrawlMods, SubactionLinks};
 use crate::page::NavLink;
@@ -324,6 +324,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                         header.push("Sound");
                         header.push("Grab Target");
                         header.push("Iframes");
+                        header.push(r#"<abbr title="Weight Dependent Throw Speed: When enabled, the frame speed of the subaction is multiplied by 2 - weight / 100. Where weight is that of the victim">WDTS</abbr>"#);
 
                         let mut row = vec!();
                         row.push(throw.damage.to_string());
@@ -337,6 +338,27 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                         row.push(format!("{:?}", throw.sfx));
                         row.push(format!("{:?}", throw.grab_target));
                         row.push(format!("{}", throw.i_frames));
+                        row.push(format!("{}", throw.weight_dependent_speed));
+
+                        twitter_hitboxes.push_str("\n\nThrow");
+                        twitter_hitboxes.push_str(&format!("\n{}", &frames));
+                        twitter_hitboxes.push_str(&format!("\nDamage: {}", throw.damage.to_string()));
+                        if use_wdsk {
+                            twitter_hitboxes.push_str(&format!("\nWDSK: {}", throw.wdsk.to_string()));
+                        }
+                        twitter_hitboxes.push_str(&format!("\nBKB: {}", throw.bkb.to_string()));
+                        twitter_hitboxes.push_str(&format!("\nKBG: {}", throw.kbg.to_string()));
+                        twitter_hitboxes.push_str(&format!("\nAngle: {}", throw.trajectory));
+                        twitter_hitboxes.push_str(&format!("\nEffect: {:?}", throw.effect));
+                        twitter_hitboxes.push_str(&format!("\nWDTS: {}", throw.weight_dependent_speed));
+                        twitter_hitboxes.push_str(&match throw.grab_target {
+                            GrabTarget::None              => "\nGrab Target: N".into(),
+                            GrabTarget::GroundedOnly      => "\nGrab Target: G".into(),
+                            GrabTarget::AerialOnly        => "\nGrab Target: A".into(),
+                            GrabTarget::AerialAndGrounded => "\nGrab Target: AG".into(),
+                            GrabTarget::Unknown (_)       => format!("\nGrab Target: {:?}", throw.grab_target),
+                        });
+                        twitter_hitboxes.push_str(&format!("\nIframes: {}", throw.i_frames));
 
                         let rows = vec!(row);
 
