@@ -1,6 +1,7 @@
-use std::fs;
-use std::fs::DirEntry;
 use std::collections::HashMap;
+use std::fs::{File, DirEntry};
+use std::fs;
+use std::io::Read;
 
 use brawllib_rs::fighter::ModType;
 use brawllib_rs::high_level_fighter::HighLevelFighter;
@@ -16,6 +17,7 @@ pub struct BrawlMods {
 pub struct BrawlMod {
     pub name:        String,
     pub fighters:    Vec<BrawlFighter>,
+    pub dummy:       bool,
 }
 
 pub struct BrawlFighter {
@@ -31,10 +33,33 @@ pub struct ScriptInfo {
 
 impl BrawlMods {
     pub fn new(cli: &CLIResults) -> Option<BrawlMods> {
+        let mut mod_order = String::new();
+        if let Ok(mut file) = File::open("../data/mods.txt") {
+            file.read_to_string(&mut mod_order).unwrap();
+        }
+
         match fs::read_dir("../data") {
             Ok(dir) => {
-                let mut mods: Vec<_> = dir.filter_map(|x| BrawlMod::new(x.unwrap(), &cli)).collect();
-                mods.sort_by_key(|x| x.name.clone());
+                let mut filtered_mods: Vec<_> = dir.filter_map(|x| BrawlMod::new(x.unwrap(), &cli)).collect();
+
+                let mut mods = vec!();
+                for name in mod_order.trim().lines() {
+                    mods.push(if let Some((i, _)) = filtered_mods.iter().enumerate().find(|(_, x)| x.name == name) {
+                        filtered_mods.remove(i)
+                    } else {
+                        BrawlMod {
+                            name: name.to_string(),
+                            fighters: vec!(),
+                            dummy: true,
+                        }
+                    });
+                }
+
+                // add the remaining list in alphabetical order
+                // this means if we forget to add multiple mods to the list or have no list at all, we still get determinism
+                filtered_mods.sort_by_key(|x| x.name.clone());
+                mods.extend(filtered_mods);
+
                 Some(BrawlMods { mods })
             }
             Err(_) => {
@@ -175,6 +200,7 @@ impl BrawlMod {
             Some(BrawlMod {
                 name:     mod_name,
                 fighters: brawl_fighters,
+                dummy:    false,
             })
         } else {
             None
