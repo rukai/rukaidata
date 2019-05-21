@@ -40,7 +40,9 @@ impl BrawlMods {
 
         match fs::read_dir("../data") {
             Ok(dir) => {
-                let mut filtered_mods: Vec<_> = dir.filter_map(|x| BrawlMod::new(x.unwrap(), &cli)).collect();
+                let mut filtered_mods: Vec<_> = dir
+                    .filter(|x| x.as_ref().unwrap().path().is_dir())
+                    .filter_map(|x| BrawlMod::new(x.unwrap(), &cli)).collect();
 
                 let mut mods = vec!();
                 for name in mod_order.trim().lines() {
