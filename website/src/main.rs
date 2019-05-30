@@ -20,24 +20,25 @@ fn main() {
         if let Some(brawl_mods) = BrawlMods::new(&cli) {
             info!("brawl files loaded");
 
-            let mut handlebars = Handlebars::new();
-            handlebars.register_templates_directory(".html.hbs", "templates").unwrap();
-            info!("handlebars templates loaded");
+            if cli.generate_web {
+                let mut handlebars = Handlebars::new();
+                handlebars.register_templates_directory(".html.hbs", "templates").unwrap();
+                info!("handlebars templates loaded");
 
-            let assets = AssetPaths::new();
-
-            page::index::generate(&handlebars, &brawl_mods, &assets);
-            page::error::generate(&handlebars, &brawl_mods, &assets);
-            page::brawl_mod::generate(&handlebars, &brawl_mods, &assets);
-            page::fighter::generate(&handlebars, &brawl_mods, &assets);
-            page::attributes::generate(&handlebars, &brawl_mods, &assets);
-            page::actions::generate(&handlebars, &brawl_mods, &assets);
-            page::action::generate(&handlebars, &brawl_mods, &assets);
-            page::subactions::generate(&handlebars, &brawl_mods, &assets);
-            page::subaction::generate(&handlebars, &brawl_mods, &assets);
-            page::script::generate(&handlebars, &brawl_mods, &assets);
-            page::scripts::generate(&handlebars, &brawl_mods, &assets);
-            page::variables::generate(&handlebars, &brawl_mods, &assets);
+                let assets = AssetPaths::new();
+                page::index::generate(&handlebars, &brawl_mods, &assets);
+                page::error::generate(&handlebars, &brawl_mods, &assets);
+                page::brawl_mod::generate(&handlebars, &brawl_mods, &assets);
+                page::fighter::generate(&handlebars, &brawl_mods, &assets);
+                page::attributes::generate(&handlebars, &brawl_mods, &assets);
+                page::actions::generate(&handlebars, &brawl_mods, &assets);
+                page::action::generate(&handlebars, &brawl_mods, &assets);
+                page::subactions::generate(&handlebars, &brawl_mods, &assets);
+                page::subaction::generate(&handlebars, &brawl_mods, &assets);
+                page::script::generate(&handlebars, &brawl_mods, &assets);
+                page::scripts::generate(&handlebars, &brawl_mods, &assets);
+                page::variables::generate(&handlebars, &brawl_mods, &assets);
+            }
 
             if cli.generate_gifs {
                 gif::generate(&brawl_mods);

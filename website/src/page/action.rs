@@ -23,6 +23,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     current: other_name == &fighter.fighter.name,
                 });
             }
+            fs::create_dir_all(format!("../root/{}/{}/actions/", brawl_mod.name, fighter.fighter.name)).unwrap();
             fighter.fighter.actions.par_iter().enumerate().for_each(|(index, action)| {
                 let page = ActionPage {
                     assets,
@@ -34,7 +35,6 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     fighter_links: &fighter_links,
                 };
 
-                fs::create_dir_all(format!("../root/{}/{}/actions/", brawl_mod.name, fighter.fighter.name)).unwrap();
                 let path = format!("../root/{}/{}/actions/{}.html",
                     brawl_mod.name, fighter.fighter.name, action.name);
                 let file = File::create(path).unwrap();

@@ -16,6 +16,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
         let mod_links = brawl_mods.gen_mod_links(brawl_mod.name.clone());
 
         for fighter in &brawl_mod.fighters {
+            fs::create_dir_all(format!("../root/{}/{}/subactions", brawl_mod.name, fighter.fighter.name)).unwrap();
+
             fighter.fighter.subactions.par_iter().enumerate().for_each(|(index, subaction)| {
                 let fighter_name = &fighter.fighter.name;
                 // Originally tried to handle scripts as a table of frame,main,gfx,sfx,other but
@@ -893,7 +895,6 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     twitter_description,
                 };
 
-                fs::create_dir_all(format!("../root/{}/{}/subactions", brawl_mod.name, fighter_name)).unwrap();
                 {
                     let path = format!("../root/{}/{}/subactions/{}.html", brawl_mod.name, fighter_name, subaction.name);
                     let file = File::create(path).unwrap();
