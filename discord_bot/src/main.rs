@@ -164,6 +164,9 @@ impl EventHandler for Handler {
                     if tokens.contains(&"forward") && tokens.contains(&"smash") { subactions = vec!("AttackS4Start", "AttackS4S") }
                     if tokens.contains(&"forwardsmash")                         { subactions = vec!("AttackS4Start", "AttackS4S") }
                     if tokens.contains(&"fsmash")                               { subactions = vec!("AttackS4Start", "AttackS4S") }
+                    if tokens.contains(&"side") && tokens.contains(&"smash")    { subactions = vec!("AttackS4Start", "AttackS4S") }
+                    if tokens.contains(&"sidesmash")                            { subactions = vec!("AttackS4Start", "AttackS4S") }
+                    if tokens.contains(&"ssmash")                               { subactions = vec!("AttackS4Start", "AttackS4S") }
 
                     // aerials
                     if tokens.contains(&"up")      && tokens.contains(&"air") { subactions = vec!("AttackAirHi") }
