@@ -2,6 +2,8 @@
 
 Uses [brawllib_rs](https://github.com/rukai/brawllib_rs) to display frame data on characters.
 
+How does it work? Read the [writeup](docs/writeup.md).
+
 ## Run the rukaidata website on your machine
 
 1.  Install stable rust via https://rustup.rs/ (on windows, you need to do a custom install and select the pc-windows-gnu toolchain)

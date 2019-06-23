@@ -15,6 +15,7 @@ struct GifWait {
 
 impl GifWait {
     fn wait(self, state: &WgpuState) {
+        state.poll();
         loop {
             match self.rx.try_recv() {
                 Err(_) => {
@@ -51,7 +52,7 @@ pub fn generate(brawl_mods: &BrawlMods) {
 
                     info!("{} {} {} GIF started", brawl_mod.name, fighter_name, subaction.name);
 
-                    if gif_waits.len() > 8 {
+                    if gif_waits.len() >= 8 {
                         gif_waits.remove(0).wait(&state);
                     }
                 }
