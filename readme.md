@@ -11,7 +11,7 @@ How does it work? Read the [writeup](docs/writeup.md).
 3.  Copy the entire contents of a brawl mod sd card to the directory `data/MODNAMEHERE` **(optional)**
 4.  Open a terminal and `cd` to the directory this readme is in.
 5.  Run the command: `cd website`
-6.  Run the command: `cargo run --release` This generates the website into the `root` directory.
+6.  Run the command: `cargo run --release -- -w` This generates the website into the `root` directory.
 7.  Run a webserver on the `root` directory to access the generated website e.g.
     1.  Install python. Make sure to add python to your PATH environment variable, there should be a checkbox for this in the windows installer other OSs should handle this by default.
     2.  Run `serve.sh` for linux/mac or `serve.bat` for windows.
@@ -26,7 +26,7 @@ You can use the following arguments to specify filters:
 
 e.g. To only generate framedata for PM3.6 marth and squirtle run this command:
 
-`cargo run --release -- -mpm3.6 -fmarth,pokezenigame`
+`cargo run --release -- -mpm3.6 -fmarth,pokezenigame -w`
 
 Using filters will save you generation time and disk space.
 
