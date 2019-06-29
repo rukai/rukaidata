@@ -104,25 +104,37 @@ pub fn process_events(events: &[EventAst], common: bool, brawl_mod: &BrawlMod, f
                     result.push_str(&format!("<li>CallEveryFrame {{ thread_id: {}, script: <a href='{}'>{}</a> }}</li>", thread_id, script_info.address, script_info.name));
                 } else {
                     if let Some(script) = fighter.fighter.scripts_section.iter().find(|x| x.callers.contains(&offset.origin)) {
-                        result.push_str(&format!("<li>Subroutine(<a href='/{}/{}/scripts_common/{}.html'>External: {}</a>)</li>", brawl_mod.name, fighter.fighter.name, script.name, script.name));
+                        result.push_str(&format!("<li>CallEveryFrame(<a href='/{}/{}/scripts_common/{}.html'>External: {}</a>)</li>", brawl_mod.name, fighter.fighter.name, script.name, script.name));
                     } else {
                         result.push_str(&format!("<li>{:x?}</li>", event));
                         error!("Failed to lookup script for CallEveryFrame destination");
                     }
                 }
             }
-            EventAst::IntVariableSet { value, variable } => result.push_str(&format!("<li>IntVariableSet {{ variable: {}, value: {} }}</li>",           process_expression(&Expression::Variable(variable.clone())), value)),
-            EventAst::IntVariableAdd { value, variable } => result.push_str(&format!("<li>IntVariableAdd {{ variable: {}, value: {} }}</li>",           process_expression(&Expression::Variable(variable.clone())), value)),
-            EventAst::IntVariableSubtract { value, variable } => result.push_str(&format!("<li>IntVariableSubtract {{ variable: {}, value: {} }}</li>", process_expression(&Expression::Variable(variable.clone())), value)),
-            EventAst::IntVariableIncrement { variable } => result.push_str(&format!("<li>IntVariableIncrement {{ variable: {} }}</li>",                 process_expression(&Expression::Variable(variable.clone())))),
-            EventAst::IntVariableDecrement { variable } => result.push_str(&format!("<li>IntVariableDecrement {{ variable: {} }}</li>",                 process_expression(&Expression::Variable(variable.clone())))),
-            EventAst::FloatVariableSet { value, variable } => result.push_str(&format!("<li>FloatVariableSet {{ variable: {}, value: {} }}</li>",           process_expression(&Expression::Variable(variable.clone())), process_float_value(value))),
-            EventAst::FloatVariableAdd { value, variable } => result.push_str(&format!("<li>FloatVariableAdd {{ variable: {}, value: {} }}</li>",           process_expression(&Expression::Variable(variable.clone())), process_float_value(value))),
+            EventAst::IndependentSubroutine { thread_id, offset } => {
+                if let Some(script_info) = script_lookup.get(&offset.offset) {
+                    result.push_str(&format!("<li>IndependentSubroutine {{ thread_id: {}, script: <a href='{}'>{}</a> }}</li>", thread_id, script_info.address, script_info.name));
+                } else {
+                    if let Some(script) = fighter.fighter.scripts_section.iter().find(|x| x.callers.contains(&offset.origin)) {
+                        result.push_str(&format!("<li>IndependentSubroutine(<a href='/{}/{}/scripts_common/{}.html'>External: {}</a>)</li>", brawl_mod.name, fighter.fighter.name, script.name, script.name));
+                    } else {
+                        result.push_str(&format!("<li>{:x?}</li>", event));
+                        error!("Failed to lookup script for IndependentSubroutine destination");
+                    }
+                }
+            }
+            EventAst::IntVariableSet        { value, variable } => result.push_str(&format!("<li>IntVariableSet {{ variable: {}, value: {} }}</li>",        process_expression(&Expression::Variable(variable.clone())), value)),
+            EventAst::IntVariableAdd        { value, variable } => result.push_str(&format!("<li>IntVariableAdd {{ variable: {}, value: {} }}</li>",        process_expression(&Expression::Variable(variable.clone())), value)),
+            EventAst::IntVariableSubtract   { value, variable } => result.push_str(&format!("<li>IntVariableSubtract {{ variable: {}, value: {} }}</li>",   process_expression(&Expression::Variable(variable.clone())), value)),
+            EventAst::IntVariableIncrement  { variable        } => result.push_str(&format!("<li>IntVariableIncrement {{ variable: {} }}</li>",             process_expression(&Expression::Variable(variable.clone())))),
+            EventAst::IntVariableDecrement  { variable        } => result.push_str(&format!("<li>IntVariableDecrement {{ variable: {} }}</li>",             process_expression(&Expression::Variable(variable.clone())))),
+            EventAst::FloatVariableSet      { value, variable } => result.push_str(&format!("<li>FloatVariableSet {{ variable: {}, value: {} }}</li>",      process_expression(&Expression::Variable(variable.clone())), process_float_value(value))),
+            EventAst::FloatVariableAdd      { value, variable } => result.push_str(&format!("<li>FloatVariableAdd {{ variable: {}, value: {} }}</li>",      process_expression(&Expression::Variable(variable.clone())), process_float_value(value))),
             EventAst::FloatVariableSubtract { value, variable } => result.push_str(&format!("<li>FloatVariableSubtract {{ variable: {}, value: {} }}</li>", process_expression(&Expression::Variable(variable.clone())), process_float_value(value))),
             EventAst::FloatVariableMultiply { value, variable } => result.push_str(&format!("<li>FloatVariableMultiply {{ variable: {}, value: {} }}</li>", process_expression(&Expression::Variable(variable.clone())), process_float_value(value))),
-            EventAst::FloatVariableDivide { value, variable } => result.push_str(&format!("<li>FloatVariableDivide {{ variable: {}, value: {} }}</li>",     process_expression(&Expression::Variable(variable.clone())), process_float_value(value))),
-            EventAst::BoolVariableSetTrue { variable } => result.push_str(&format!("<li>BoolVariableSetTrue {{ variable: {} }}</li>",   process_expression(&Expression::Variable(variable.clone())))),
-            EventAst::BoolVariableSetFalse { variable } => result.push_str(&format!("<li>BoolVariableSetFalse {{ variable: {} }}</li>", process_expression(&Expression::Variable(variable.clone())))),
+            EventAst::FloatVariableDivide   { value, variable } => result.push_str(&format!("<li>FloatVariableDivide {{ variable: {}, value: {} }}</li>",   process_expression(&Expression::Variable(variable.clone())), process_float_value(value))),
+            EventAst::BoolVariableSetTrue   { variable        } => result.push_str(&format!("<li>BoolVariableSetTrue {{ variable: {} }}</li>",              process_expression(&Expression::Variable(variable.clone())))),
+            EventAst::BoolVariableSetFalse  { variable        } => result.push_str(&format!("<li>BoolVariableSetFalse {{ variable: {} }}</li>",             process_expression(&Expression::Variable(variable.clone())))),
             EventAst::ItemThrow { unk1, unk2, unk3, unk4, unk5 } => result.push_str(&format!("<li>ItemThrow {{ unk1: {}, unk2: {}, unk3: {} unk4: {}, unk5: {} }}</li>",
                 process_expression(&Expression::Variable(unk1.clone())),
                 process_expression(&Expression::Variable(unk2.clone())),
