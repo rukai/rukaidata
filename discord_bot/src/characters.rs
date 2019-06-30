@@ -103,6 +103,16 @@ pub fn pm(token: &str) -> Option<&str> {
     }
 }
 
+// Sssssh
+pub fn secret(token: &str) -> Option<&str> {
+    match token.as_ref() {
+        "knuckles" => Some("Knuckles"),
+        "knucks"   => Some("Knuckles"),
+        "knux"     => Some("Knuckles"),
+        _        => None,
+    }
+}
+
 pub fn lxp(token: &str) -> Option<&str> {
     match token.as_ref() {
         "doctor"        => Some("DoctorMario"),

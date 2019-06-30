@@ -18,7 +18,8 @@ impl EventHandler for Handler {
 
             if let Some(command) = tokens.get(0) {
                 if *command == ".brawldata" || *command == ".pm3.6data" || *command == ".p+data" || *command == ".lxpdata" || *command == ".lxp2.1data"
-                || *command == "!brawldata" || *command == "!pm3.6data" || *command == "!p+data" || *command == "!lxpdata" || *command == "!lxp2.1data" || *command == "!pmdata" {
+                || *command == "!brawldata" || *command == "!pm3.6data" || *command == "!p+data" || *command == "!lxpdata" || *command == "!lxp2.1data" || *command == "!pmdata"
+                || *command == "!secretdata" || *command == ".secretdata" {
                     let mod_path = match command[1..].as_ref() {
                         "brawldata" => "Brawl",
                         "pmdata" => "PM3.6",
@@ -26,6 +27,7 @@ impl EventHandler for Handler {
                         "p+data" => "P+",
                         "lxpdata" => "LXP2.1",
                         "lxp2.1data" => "LXP2.1",
+                        "secretdata" => "Secret",
                         _ => unreachable!(),
                     };
 
@@ -38,6 +40,7 @@ impl EventHandler for Handler {
                             "PM3.6"  => characters::brawl(token).or_else(|| characters::pm(token)),
                             "P+"     => characters::brawl(token).or_else(|| characters::pm(token)),
                             "LXP2.1" => characters::lxp(token),
+                            "Secret" => characters::secret(token),
                             _ => unreachable!(),
                         };
 
