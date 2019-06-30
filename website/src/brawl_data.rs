@@ -11,13 +11,13 @@ use crate::page::NavLink;
 use crate::cli::CLIResults;
 
 pub struct BrawlMods {
-    pub mods: Vec<BrawlMod>,
+    pub mods:      Vec<BrawlMod>,
+    pub mod_links: Vec<NavLink>
 }
 
 pub struct BrawlMod {
     pub name:        String,
     pub fighters:    Vec<BrawlFighter>,
-    pub dummy:       bool,
 }
 
 pub struct BrawlFighter {
@@ -40,29 +40,31 @@ impl BrawlMods {
 
         match fs::read_dir("../data") {
             Ok(dir) => {
-                let mut filtered_mods: Vec<_> = dir
-                    .filter(|x| x.as_ref().unwrap().path().is_dir())
-                    .filter_map(|x| BrawlMod::new(x.unwrap(), &cli)).collect();
-
-                let mut mods = vec!();
+                let mut mod_links = vec!();
                 for name in mod_order.trim().lines() {
-                    mods.push(if let Some((i, _)) = filtered_mods.iter().enumerate().find(|(_, x)| x.name == name) {
-                        filtered_mods.remove(i)
-                    } else {
-                        BrawlMod {
-                            name: name.to_string(),
-                            fighters: vec!(),
-                            dummy: true,
-                        }
+                    mod_links.push(NavLink {
+                        name:    name.to_string(),
+                        link:    format!("/{}", name),
+                        current: false,
                     });
                 }
 
-                // add the remaining list in alphabetical order
-                // this means if we forget to add multiple mods to the list or have no list at all, we still get determinism
-                filtered_mods.sort_by_key(|x| x.name.clone());
-                mods.extend(filtered_mods);
+                let mods: Vec<_> = dir
+                    .filter(|x| x.as_ref().unwrap().path().is_dir())
+                    .filter_map(|x| BrawlMod::new(x.unwrap(), &cli)).collect();
 
-                Some(BrawlMods { mods })
+                // If nav links are not manually specified, automatically generate them.
+                if mod_links.len() == 0 {
+                    for brawl_mod in &mods {
+                        mod_links.push(NavLink {
+                            name:    brawl_mod.name.clone(),
+                            link:    format!("/{}", brawl_mod.name),
+                            current: false,
+                        });
+                    }
+                }
+
+                Some(BrawlMods { mods, mod_links })
             }
             Err(_) => {
                 println!("Can't read 'data' directory.");
@@ -73,11 +75,11 @@ impl BrawlMods {
 
     pub fn gen_mod_links(&self, current_mod: String) -> Vec<NavLink> {
         let mut links = vec!();
-        for brawl_mod in &self.mods { // TODO: Allow specify ordering either via config file or the order used in --mods NAME1,NAME2
+        for link in &self.mod_links {
             links.push(NavLink {
-                name:    brawl_mod.name.clone(),
-                link:    format!("/{}", brawl_mod.name),
-                current: brawl_mod.name == current_mod,
+                name:    link.name.clone(),
+                link:    link.link.clone(),
+                current: link.name == current_mod,
             });
         }
         links
@@ -205,7 +207,6 @@ impl BrawlMod {
             Some(BrawlMod {
                 name:     mod_name,
                 fighters: brawl_fighters,
-                dummy:    false,
             })
         } else {
             None
