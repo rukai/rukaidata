@@ -128,19 +128,13 @@ impl BrawlMod {
                     let mut script_lookup_common = HashMap::new();
 
                     for action in &fighter.actions {
-                        if action.common {
+                        if action.script_entry_common {
                             if action.script_entry.offset != 0 {
                                 let name = format!("{} Entry 0x{:x}", action.name, action.script_entry.offset);
                                 let address = format!("/{}/{}/actions/{}.html#script-entry", mod_name, fighter.name, action.name);
                                 // These sorts of scripts may be from the same offset, as multiple actions refer to the same script.
                                 // It shouldnt matter too much as the scripts are going to be identical anyway.
                                 script_lookup_common.insert(action.script_entry.offset, ScriptInfo { name, address });
-                            }
-
-                            if action.script_exit.offset != 0 {
-                                let name = format!("{} Exit 0x{:x}", action.name, action.script_exit.offset);
-                                let address = format!("/{}/{}/actions/{}.html#script-exit", mod_name, fighter.name, action.name);
-                                script_lookup_common.insert(action.script_exit.offset, ScriptInfo { name, address });
                             }
                         }
                         else {
@@ -149,7 +143,16 @@ impl BrawlMod {
                                 let address = format!("/{}/{}/actions/{}.html#script-entry", mod_name, fighter.name, action.name);
                                 script_lookup.insert(action.script_entry.offset, ScriptInfo { name, address });
                             }
+                        }
 
+                        if action.script_exit_common {
+                            if action.script_exit.offset != 0 {
+                                let name = format!("{} Exit 0x{:x}", action.name, action.script_exit.offset);
+                                let address = format!("/{}/{}/actions/{}.html#script-exit", mod_name, fighter.name, action.name);
+                                script_lookup_common.insert(action.script_exit.offset, ScriptInfo { name, address });
+                            }
+                        }
+                        else {
                             if action.script_exit.offset != 0 {
                                 let name = format!("{} Exit 0x{:x}", action.name, action.script_exit.offset);
                                 let address = format!("/{}/{}/actions/{}.html#script-exit", mod_name, fighter.name, action.name);
@@ -424,9 +427,14 @@ impl BrawlMod {
 
     pub fn gen_action_links(&self, fighter: &HighLevelFighter, current_action: &str) -> Vec<NavLink> {
         let mut links = vec!();
-        for action in &fighter.actions {
+        for (i, action) in fighter.actions.iter().enumerate() {
+            let name = if action.name.starts_with("0x") {
+                action.name.to_string()
+            } else {
+                format!("0x{:x} {}", i, action.name)
+            };
             links.push(NavLink {
-                name:    action.name.clone(),
+                name,
                 link:    format!("/{}/{}/actions/{}.html", self.name, fighter.name, action.name),
                 current: current_action == action.name,
             });

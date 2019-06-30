@@ -25,13 +25,20 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
             }
             fs::create_dir_all(format!("../root/{}/{}/actions/", brawl_mod.name, fighter.fighter.name)).unwrap();
             fighter.fighter.actions.par_iter().enumerate().for_each(|(index, action)| {
+                let title = if action.name.starts_with("0x") {
+                    format!("{} - {} - Action - {}", brawl_mod.name, fighter.fighter.name, action.name)
+                } else {
+                    format!("{} - {} - Action - 0x{:x} {}", brawl_mod.name, fighter.fighter.name, index, action.name)
+                };
                 let page = ActionPage {
                     assets,
-                    mod_links:     &mod_links,
-                    title:         format!("{} - {} - Action - {} 0x{:x}", brawl_mod.name, fighter.fighter.name, action.name, index),
-                    action_links:  brawl_mod.gen_action_links(&fighter.fighter, &action.name),
-                    script_entry:  process_scripts::process_events(&action.script_entry.block.events, action.common, brawl_mod, &fighter),
-                    script_exit:   process_scripts::process_events(&action.script_exit.block.events, action.common, brawl_mod, &fighter),
+                    title,
+                    mod_links:           &mod_links,
+                    action_links:        brawl_mod.gen_action_links(&fighter.fighter, &action.name),
+                    script_entry:        process_scripts::process_events(&action.script_entry.block.events, action.script_entry_common, brawl_mod, &fighter),
+                    script_exit:         process_scripts::process_events(&action.script_exit.block.events, action.script_exit_common, brawl_mod, &fighter),
+                    script_entry_common: action.script_entry_common,
+                    script_exit_common:  action.script_exit_common,
                     fighter_links: &fighter_links,
                 };
 
@@ -47,11 +54,13 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
 
 #[derive(Serialize)]
 pub struct ActionPage<'a> {
-    assets:        &'a AssetPaths,
-    mod_links:     &'a [NavLink],
-    fighter_links: &'a [NavLink],
-    action_links:  Vec<NavLink>,
-    title:         String,
-    script_entry:  String,
-    script_exit:   String,
+    assets:              &'a AssetPaths,
+    mod_links:           &'a [NavLink],
+    fighter_links:       &'a [NavLink],
+    action_links:        Vec<NavLink>,
+    title:               String,
+    script_entry:        String,
+    script_exit:         String,
+    script_entry_common: bool,
+    script_exit_common:  bool,
 }

@@ -18,16 +18,24 @@
         <!-- take up 12 columns from xs to sm, take up 8 columns from md to xl -->
         <div class="col-12 col-md-8">
             <h1>{{title}}</h1>
+            {{#if script_entry_common}}
+            <h2 id="script-entry">Entry Script (Common)</h2>
+            {{else}}
             <h2 id="script-entry">Entry Script</h2>
+            {{/if}}
             {{{script_entry}}}
+
+            {{#if script_exit_common}}
+            <h2 id="script-exit">Exit Script (Common)</h2>
+            {{else}}
             <h2 id="script-exit">Exit Script</h2>
+            {{/if}}
             {{{script_exit}}}
         </div>
 
         <!-- Display nothing from xs to sm, display something from md to xl -->
         <nav class="d-none d-md-block col-2 sidebar sidebar-right">
             <ul class="nav nav-pills flex-column">
-                <li><a class="nav-link" href="{{fighter_link}}">Main</a></li>
                 {{#each action_links}}
                 {{#if current}}
                 <li><a class="nav-link active" href="{{link}}">{{name}}</a></li>
