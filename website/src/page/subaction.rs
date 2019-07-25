@@ -733,8 +733,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
 
                                         let enable_fighter_ground = if grab.target.grounded() { "" } else { "icon-disable" };
                                         let enable_fighter_air    = if grab.target.aerial()   { "" } else { "icon-disable" };
-                                        can_hit.push_str(&format!(r#"<img title="Fighter on the ground" class="spritesheet-fighter-ground {}" src="{}" />"#, enable_fighter_air, assets.spritesheet_png));
-                                        can_hit.push_str(&format!(r#"<img title="Fighter in the air" class="spritesheet-fighter-air {}" src="{}" />"#, enable_fighter_ground, assets.spritesheet_png));
+                                        can_hit.push_str(&format!(r#"<img title="Fighter on the ground" class="spritesheet-fighter-ground {}" src="{}" />"#, enable_fighter_ground, assets.spritesheet_png));
+                                        can_hit.push_str(&format!(r#"<img title="Fighter in the air" class="spritesheet-fighter-air {}" src="{}" />"#, enable_fighter_air, assets.spritesheet_png));
 
                                         row.push(can_hit);
                                         has_grab = true;
