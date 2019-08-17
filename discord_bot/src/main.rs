@@ -298,7 +298,7 @@ impl EventHandler for Handler {
                     println!("\"{}\"", msg.content);
                 }
 
-                if *command == ".rattening" {
+                if *command == ".rattening" || *command == "!rattening" {
                     send(&ctx, &msg.channel_id, "🐀🐀🐀 https://www.youtube.com/watch?v=qXEtmSi36AI");
                 }
             }
