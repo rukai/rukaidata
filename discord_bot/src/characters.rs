@@ -109,7 +109,10 @@ pub fn secret(token: &str) -> Option<&str> {
         "knuckles" => Some("Knuckles"),
         "knucks"   => Some("Knuckles"),
         "knux"     => Some("Knuckles"),
-        _        => None,
+        "donald"   => Some("Donald"),
+        "ronald"   => Some("Donald"),
+        "mcdonald" => Some("Donald"),
+        _          => None,
     }
 }
 
