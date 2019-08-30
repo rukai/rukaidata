@@ -34,6 +34,14 @@
                 <button type="button" class="btn btn-sm btn-primary" onclick="fighter_render.face_right()">Face Right</button>
             </div>
             <div class="form-check form-check-inline">
+                <select class="form-control" id="invulnerable-select" style="margin-right:10px;margin-top:4px;" onchange="fighter_render.set_invulnerable_type(this.value)">
+                    <option>Hit</option>
+                    <option>Grab</option>
+                    <option>Trap Item</option>
+                </select>
+                <label class="form-check-label" for="invulnerable-select">Invulnerable</label>
+            </div>
+            <div class="form-check form-check-inline">
                 <input class="form-check-input" type="checkbox" id="wireframe-checkbox" onclick="fighter_render.wireframe_toggle()">
                 <label class="form-check-label" for="wireframe-checkbox">Wireframe</label>
             </div>

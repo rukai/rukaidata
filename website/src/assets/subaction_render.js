@@ -739,6 +739,13 @@ class FighterRender {
             this.frame_index = 0;
         }
 
+        this.invulnerable_select = document.getElementById('invulnerable-select');
+        var invuln = this.get_from_url("invuln");
+        if (invuln == null) {
+            invuln = "Hit"
+        }
+        this.invulnerable_select.value = invuln;
+
         this.ecb_checkbox = document.getElementById('ecb-checkbox');
         this.ecb_checkbox.checked = this.get_bool_from_url("ecb");
 
@@ -829,6 +836,11 @@ class FighterRender {
             this.controls.object = this.camera;
             this.controls.update();
         }
+    }
+
+    set_invulnerable_type(value) {
+        this.setup_frame();
+        this.set_in_url("invuln", this.invulnerable_select.value);
     }
 
     wireframe_toggle() {
@@ -1222,6 +1234,12 @@ class FighterRender {
             }
             else if (hurt_box.state == "Invincible") {
                 material = this.hurtbox_invincible_material;
+            }
+            else if (this.invulnerable_select.value == "Grab" && !hurt_box.hurt_box.grabbable) {
+                material = this.hurtbox_intangible_material;
+            }
+            else if (this.invulnerable_select.value == "Trap Item" && !hurt_box.hurt_box.trap_item_hittable) {
+                material = this.hurtbox_intangible_material;
             }
 
             const cube = new THREE.Mesh(geometry, material);
