@@ -261,9 +261,9 @@ impl EventHandler for Handler {
                     if tokens.contains(&"down") && tokens.contains(&"taunt") { subactions = vec!("AppealLw") }
                     if tokens.contains(&"side") && tokens.contains(&"taunt") { subactions = vec!("AppealS") }
                     if tokens.contains(&"lose")                              { subactions = vec!("Lose") }
-                    if tokens.contains(&"1")    && tokens.contains(&"win")   { subactions = vec!("Win1") }
-                    if tokens.contains(&"2")    && tokens.contains(&"win")   { subactions = vec!("Win2") }
-                    if tokens.contains(&"3")    && tokens.contains(&"win")   { subactions = vec!("Win3") }
+                    if (tokens.contains(&"1") && tokens.contains(&"win")) || tokens.contains(&"win1") { subactions = vec!("Win1") }
+                    if (tokens.contains(&"2") && tokens.contains(&"win")) || tokens.contains(&"win2") { subactions = vec!("Win2") }
+                    if (tokens.contains(&"3") && tokens.contains(&"win")) || tokens.contains(&"win3") { subactions = vec!("Win3") }
 
                     let message = match (character, subactions.is_empty()) {
                         (Some(character), false) => {

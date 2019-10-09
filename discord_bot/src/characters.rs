@@ -33,6 +33,8 @@ pub fn brawl(token: &str) -> Option<&str> {
         "ice"             => Some("Ice%20Climbers"),
         "ic"              => Some("Ice%20Climbers"),
         "ics"             => Some("Ice%20Climbers"),
+        "ices"            => Some("Ice%20Climbers"),
+        "icies"           => Some("Ice%20Climbers"),
         "ike"             => Some("Ike"),
         "ivysaur"         => Some("Ivysaur"),
         "ivy"             => Some("Ivysaur"),
