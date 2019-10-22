@@ -39,7 +39,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     index += 1;
                     let class = if !frame.hit_boxes.is_empty() {
                         String::from("hitbox-frame-button")
-                    } else if index > subaction.iasa {
+                    } else if subaction.iasa.map(|x| index > x).unwrap_or(false) {
                         String::from("iasa-frame-button")
                     } else {
                         String::from("standard-frame-button")
@@ -70,6 +70,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     auto_cancel.push_str(&range_string(last_frame_change + 1, subaction.frames.len()));
                 }
 
+                let iasa_string = subaction.iasa.map(|x| x + 1).map(|x| x.to_string()).unwrap_or("None".into());
                 let mut invincible = String::new();
                 let mut intangible = String::new();
                 let mut partial_invincible = String::new();
@@ -174,7 +175,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                 let mut attributes = vec!();
                 attributes.push(Attribute {
                     name: r#"<abbr title="Interruptible As Soon As. The first frame the subaction can be interrupted with another subaction.">IASA</abbr>"#.into(),
-                    value: (subaction.iasa + 1).to_string()
+                    value: iasa_string.clone(),
                 });
                 if auto_cancel.len() > 0 {
                     attributes.push(Attribute {
@@ -827,7 +828,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                 // We can't reuse the `attributes` vec as we have different values here e.g. frame count and no subaction index
                 let mut twitter_description = String::new();
                 twitter_description.push_str(&format!("Frames: {}", subaction.frames.len()));
-                twitter_description.push_str(&format!("\nIASA: {}", subaction.iasa + 1));
+                twitter_description.push_str(&format!("\nIASA: {}", iasa_string));
                 if auto_cancel.len() > 0 {
                     twitter_description.push_str(&format!("\nAuto Cancel: {}", auto_cancel));
                 }
