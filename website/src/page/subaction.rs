@@ -489,6 +489,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             if use_flinchless {
                                 header.push(r#"<abbr title="TODO">Flinchless"#);
                             }
+                            header.push("Shieldstun");
+                            header.push("Hitlag");
                             header.push("Targets");
 
                             // store twitter string values here
@@ -589,6 +591,12 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                         if use_flinchless {
                                             row.push(hit.flinchless.to_string());
                                         }
+
+                                        let shieldstun = ((hit.damage + 4.45) * 0.447).floor();
+                                        row.push(shieldstun.to_string());
+
+                                        let hitlag = ((hit.damage * 0.384 + 5.0) * hit.hitlag_mult).floor();
+                                        row.push(hitlag.to_string());
 
                                         let mut can_hit = String::new();
 
@@ -725,6 +733,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                         row.push(hitbox.hitbox_id.to_string());
                                         row.push(String::from("Grab"));
                                         row.push(format!("set action: 0x{:x}", grab.set_action));
+                                        row.push(String::new());
+                                        row.push(String::new());
                                         row.push(String::new());
                                         row.push(String::new());
                                         row.push(String::new());
