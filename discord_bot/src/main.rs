@@ -71,9 +71,11 @@ impl EventHandler for Handler {
 
                     // grabs
                     if tokens.contains(&"grab")                              { subactions = vec!("Catch") }
-                    if tokens.contains(&"dash") && tokens.contains(&"grab")  { subactions = vec!("CatchDash") }
+                    if tokens.contains(&"dash")  && tokens.contains(&"grab") { subactions = vec!("CatchDash") }
                     if tokens.contains(&"dashgrab")                          { subactions = vec!("CatchDash") }
-                    if tokens.contains(&"turn") && tokens.contains(&"grab")  { subactions = vec!("CatchTurn") }
+                    if tokens.contains(&"pivot") && tokens.contains(&"grab") { subactions = vec!("CatchTurn") }
+                    if tokens.contains(&"pivotgrab")                         { subactions = vec!("CatchTurn") }
+                    if tokens.contains(&"turn")  && tokens.contains(&"grab") { subactions = vec!("CatchTurn") }
                     if tokens.contains(&"turngrab")                          { subactions = vec!("CatchTurn") }
                     if tokens.contains(&"pummel")                            { subactions = vec!("CatchAttack") }
 
