@@ -8,7 +8,7 @@ repository = "https://github.com/rukai/rukaidata"
 
 [dependencies]
 #brawllib_rs = "0.18"
-brawllib_rs =  { git = "https://github.com/rukai/brawllib_rs", rev = "cc51631d92d97236465734912a702808fa663923" }
+brawllib_rs =  { git = "https://github.com/rukai/brawllib_rs", rev = "678eca45893d6ec342f15b7434125dcc3dd57591" }
 getopts = "0.2"
 serde_derive = "1"
 serde = "1"
