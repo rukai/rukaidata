@@ -56,6 +56,7 @@ pub fn brawl(token: &str) -> Option<&str> {
         "luigi"           => Some("Luigi"),
         "mario"           => Some("Mario"),
         "marth"           => Some("Marth"),
+        "swordball"       => Some("Meta%20Knight"),
         "meta"            => Some("Meta%20Knight"),
         "metaknight"      => Some("Meta%20Knight"),
         "mk"              => Some("Meta%20Knight"),
@@ -105,16 +106,29 @@ pub fn pm(token: &str) -> Option<&str> {
     }
 }
 
+pub fn pplus(token: &str) -> Option<&str> {
+    match token.as_ref() {
+        "knuckles"      => Some("Knuckles"),
+        "knucks"        => Some("Knuckles"),
+        "knux"          => Some("Knuckles"),
+        "fightingfreak" => Some("Knuckles"),
+        "&"             => Some("Knuckles"),
+        _               => None,
+    }
+}
+
 // Sssssh
 pub fn secret(token: &str) -> Option<&str> {
     match token.as_ref() {
-        "knuckles" => Some("Knuckles"),
-        "knucks"   => Some("Knuckles"),
-        "knux"     => Some("Knuckles"),
-        "donald"   => Some("Donald"),
-        "ronald"   => Some("Donald"),
-        "mcdonald" => Some("Donald"),
-        _          => None,
+        "knuckles"      => Some("Knuckles"),
+        "knucks"        => Some("Knuckles"),
+        "knux"          => Some("Knuckles"),
+        "fightingfreak" => Some("Knuckles"),
+        "&"             => Some("Knuckles"),
+        "donald"        => Some("Donald"),
+        "ronald"        => Some("Donald"),
+        "mcdonald"      => Some("Donald"),
+        _               => None,
     }
 }
 

@@ -38,7 +38,7 @@ impl EventHandler for Handler {
                         character = match mod_path {
                             "Brawl"  => characters::brawl(token),
                             "PM3.6"  => characters::brawl(token).or_else(|| characters::pm(token)),
-                            "P+"     => characters::brawl(token).or_else(|| characters::pm(token)),
+                            "P+"     => characters::brawl(token).or_else(|| characters::pm(token)).or_else(|| characters::pplus(token)),
                             "LXP2.1" => characters::lxp(token),
                             "Secret" => characters::secret(token),
                             _ => unreachable!(),
