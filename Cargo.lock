@@ -161,7 +161,7 @@ dependencies = [
 [[package]]
 name = "brawllib_rs"
 version = "0.18.0"
-source = "git+https://github.com/rukai/brawllib_rs?rev=678eca45893d6ec342f15b7434125dcc3dd57591#678eca45893d6ec342f15b7434125dcc3dd57591"
+source = "git+https://github.com/rukai/brawllib_rs?rev=1bfc3e50f09c4d446bc192ae757a04bfef24b0da#1bfc3e50f09c4d446bc192ae757a04bfef24b0da"
 dependencies = [
  "bitflags",
  "byteorder",
