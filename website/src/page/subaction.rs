@@ -595,7 +595,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                         let shieldstun = ((hit.damage + 4.45) * 0.447).floor();
                                         row.push(shieldstun.to_string());
 
-                                        let hitlag = ((hit.damage * 0.384 + 5.0) * hit.hitlag_mult).floor();
+                                        let hitlag = ((hit.damage * 0.384 + 3.0) * hit.hitlag_mult).floor();
                                         row.push(hitlag.to_string());
 
                                         let mut can_hit = String::new();
