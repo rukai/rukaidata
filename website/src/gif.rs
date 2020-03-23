@@ -14,25 +14,15 @@ struct GifWait {
 }
 
 impl GifWait {
-    fn wait(self, state: &WgpuState) {
-        state.poll();
-        loop {
-            match self.rx.try_recv() {
-                Err(_) => {
-                    state.poll();
-                }
-                Ok(bytes) => {
-                    let mut file = File::create(self.path).unwrap();
-                    file.write_all(&bytes).unwrap();
-                    break;
-                }
-            }
-        }
+    fn wait(self) {
+        let bytes = self.rx.recv().unwrap();
+        let mut file = File::create(self.path).unwrap();
+        file.write_all(&bytes).unwrap();
     }
 }
 
 pub fn generate(brawl_mods: &BrawlMods) {
-    let mut state = WgpuState::new();
+    let mut state = futures::executor::block_on(WgpuState::new());
     let mut gif_waits = vec!();
     for brawl_mod in &brawl_mods.mods {
         for fighter in &brawl_mod.fighters {
@@ -44,7 +34,7 @@ pub fn generate(brawl_mods: &BrawlMods) {
                     let twitter_image = format!("/{}/{}/subactions/{}.gif", brawl_mod.name, fighter_name, subaction.name);
                     let path = format!("../root{}", twitter_image);
 
-                    let rx = renderer::render_gif(&mut state, &fighter.fighter, index);
+                    let rx = futures::executor::block_on(renderer::render_gif(&mut state, &fighter.fighter, index));
                     gif_waits.push(GifWait {
                         path,
                         rx,
@@ -53,7 +43,7 @@ pub fn generate(brawl_mods: &BrawlMods) {
                     info!("{} {} {} GIF started", brawl_mod.name, fighter_name, subaction.name);
 
                     if gif_waits.len() >= 8 {
-                        gif_waits.remove(0).wait(&state);
+                        gif_waits.remove(0).wait();
                     }
                 }
             }
@@ -61,6 +51,6 @@ pub fn generate(brawl_mods: &BrawlMods) {
     }
 
     for gif_wait in gif_waits {
-        gif_wait.wait(&state);
+        gif_wait.wait();
     }
 }

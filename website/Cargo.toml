@@ -8,7 +8,7 @@ repository = "https://github.com/rukai/rukaidata"
 
 [dependencies]
 #brawllib_rs = "0.18"
-brawllib_rs =  { git = "https://github.com/rukai/brawllib_rs", rev = "1bfc3e50f09c4d446bc192ae757a04bfef24b0da" }
+brawllib_rs = { git = "https://github.com/rukai/brawllib_rs", rev = "d4bde0d775b959b439dcf363546720f4ef8a34ae" }
 getopts = "0.2"
 serde_derive = "1"
 serde = "1"
@@ -19,3 +19,4 @@ handlebars = { version = "3", features = ["dir_source"] }
 rayon = "1"
 minifier = "0.0"
 sha2 = "0.8"
+futures = "0.3"
