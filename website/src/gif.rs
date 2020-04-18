@@ -22,7 +22,7 @@ impl GifWait {
 }
 
 pub fn generate(brawl_mods: &BrawlMods) {
-    let mut state = futures::executor::block_on(WgpuState::new());
+    let mut state = futures::executor::block_on(WgpuState::new(None));
     let mut gif_waits = vec!();
     for brawl_mod in &brawl_mods.mods {
         for fighter in &brawl_mod.fighters {
