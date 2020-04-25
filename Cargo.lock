@@ -161,7 +161,7 @@ dependencies = [
 [[package]]
 name = "brawllib_rs"
 version = "0.18.0"
-source = "git+https://github.com/rukai/brawllib_rs?rev=53eec41509a90e11f976eba9ca723797d511a224#53eec41509a90e11f976eba9ca723797d511a224"
+source = "git+https://github.com/rukai/brawllib_rs?rev=183661fefd8ee5a53238f000ef9dae81188448a4#183661fefd8ee5a53238f000ef9dae81188448a4"
 dependencies = [
  "bitflags",
  "byteorder",
@@ -1081,6 +1081,9 @@ name = "instant"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6c346c299e3fe8ef94dc10c2c0253d858a69aac1245157a3bf4125915d528caf"
+dependencies = [
+ "web-sys",
+]
 
 [[package]]
 name = "iovec"
@@ -2717,7 +2720,7 @@ dependencies = [
 [[package]]
 name = "wgpu"
 version = "0.5.0"
-source = "git+https://github.com/gfx-rs/wgpu-rs?rev=423f576d8e3a7d685560450b1c9f3486815b0619#423f576d8e3a7d685560450b1c9f3486815b0619"
+source = "git+https://github.com/gfx-rs/wgpu-rs?rev=0fb47262eaf8a7fe13c3175de599ec1014811381#0fb47262eaf8a7fe13c3175de599ec1014811381"
 dependencies = [
  "arrayvec",
  "env_logger",
@@ -2849,7 +2852,9 @@ dependencies = [
  "percent-encoding",
  "raw-window-handle",
  "smithay-client-toolkit",
+ "wasm-bindgen",
  "wayland-client",
+ "web-sys",
  "winapi 0.3.8",
  "x11-dl",
 ]
