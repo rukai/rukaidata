@@ -287,19 +287,7 @@ impl EventHandler for Handler {
 
                     send(&ctx, &msg.channel_id, &message);
 
-                    print!("{} - ", Utc::now().format("%F %T"));
-                    if character.is_none() && subactions.len() > 0 {
-                        print!("X - ");
-                    }
-                    else {
-                        print!("  - ");
-                    }
-                    if let Some(guild) = msg.guild_id {
-                        if let Ok(guild) = guild.to_partial_guild(&ctx) {
-                            print!("{} - ", guild.name);
-                        }
-                    }
-                    println!("\"{}\"", msg.content);
+                    println!("{}", Utc::now().format("%F %T"));
                 }
 
                 if *command == ".rattening" || *command == "!rattening" {
