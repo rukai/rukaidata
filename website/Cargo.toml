@@ -8,7 +8,7 @@ repository = "https://github.com/rukai/rukaidata"
 
 [dependencies]
 #brawllib_rs = "0.18"
-brawllib_rs = { git = "https://github.com/rukai/brawllib_rs", rev = "183661fefd8ee5a53238f000ef9dae81188448a4" }
+brawllib_rs = { git = "https://github.com/rukai/brawllib_rs", rev = "4d58e77a5b4260ff928b3f702289f600d4b06573" }
 getopts = "0.2"
 serde_derive = "1"
 serde = "1"
@@ -20,4 +20,3 @@ rayon = "1"
 minifier = "0.0"
 sha2 = "0.8"
 futures = "0.3"
-gfx-memory = "=0.1.1" # https://github.com/gfx-rs/wgpu-rs/issues/261
