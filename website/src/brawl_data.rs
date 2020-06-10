@@ -300,12 +300,6 @@ impl BrawlMod {
             else if link.name.contains("AirCatch") {
                 misc.push(link);
             }
-            else if link.name.contains("Catch") || link.name.starts_with("Throw") && !link.name.contains("Thrown") {
-                grabs.push(link);
-            }
-            else if !link.name.starts_with("Throw") && link.name.contains("Throw") && !link.name.contains("Thrown") {
-                item_throw.push(link);
-            }
             else if link.name.contains("Step") {
                 footstool.push(link);
             }
@@ -314,6 +308,12 @@ impl BrawlMod {
             }
             else if link.name.contains("Special") {
                 specials.push(link);
+            }
+            else if link.name.contains("Catch") || link.name.starts_with("Throw") && !link.name.contains("Thrown") {
+                grabs.push(link);
+            }
+            else if !link.name.starts_with("Throw") && link.name.contains("Throw") && !link.name.contains("Thrown") {
+                item_throw.push(link);
             }
             else if link.name.contains("AttackEnd") {
                 misc.push(link);
