@@ -42,7 +42,7 @@ pub fn generate(brawl_mods: &BrawlMods) {
 
                     info!("{} {} {} GIF started", brawl_mod.name, fighter_name, subaction.name);
 
-                    if gif_waits.len() >= 8 {
+                    if gif_waits.len() >= num_cpus::get() {
                         gif_waits.remove(0).wait();
                     }
                 }
