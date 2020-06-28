@@ -17,16 +17,17 @@ impl EventHandler for Handler {
             let tokens: Vec<_> = lower.split_whitespace().collect();
 
             if let Some(command) = tokens.get(0) {
-                if *command == ".brawldata" || *command == ".pm3.02data" || *command == ".pm3.6data" || *command == ".p+data" || *command == ".lxpdata" || *command == ".lxp2.1data"
-                || *command == "!brawldata" || *command == "!pm3.02data" || *command == "!pm3.6data" || *command == "!p+data" || *command == "!lxpdata" || *command == "!lxp2.1data" || *command == "!pmdata"
+                if *command == ".brawldata" || *command == ".pm3.02data" || *command == ".pm3.6data" || *command == ".p+data" || *command == ".xpdata" || *command == ".lxpdata" || *command == ".lxp2.1data"
+                || *command == "!brawldata" || *command == "!pm3.02data" || *command == "!pm3.6data" || *command == "!p+data" || *command == "!xpdata" || *command == "!lxpdata" || *command == "!lxp2.1data" || *command == "!pmdata"
                 || *command == "!secretdata" || *command == ".secretdata" {
                     let mod_path = match command[1..].as_ref() {
-                        "brawldata" => "Brawl",
-                        "pmdata" => "PM3.6",
-                        "pm3.6data" => "PM3.6",
+                        "brawldata"  => "Brawl",
+                        "pmdata"     => "PM3.6",
+                        "pm3.6data"  => "PM3.6",
                         "pm3.02data" => "PM3.02",
-                        "p+data" => "P+",
-                        "lxpdata" => "LXP2.1",
+                        "p+data"     => "P+",
+                        "xpdata"     => "LXP2.1",
+                        "lxpdata"    => "LXP2.1",
                         "lxp2.1data" => "LXP2.1",
                         "secretdata" => "Secret",
                         _ => unreachable!(),
