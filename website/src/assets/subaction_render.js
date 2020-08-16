@@ -1034,85 +1034,14 @@ class FighterRender {
                 continue;
             }
 
-            var prev_distance = 0;
             var prev = null;
             const next = new THREE.Vector3(hit_box.next_pos.x, hit_box.next_pos.y + frame.y_pos, hit_box.next_pos.z + frame.x_pos);
             if (hit_box.prev_pos != null) {
                 prev = new THREE.Vector3(hit_box.prev_pos.x, hit_box.prev_pos.y + frame.y_pos, hit_box.prev_pos.z + frame.x_pos);
-                prev_distance = next.distanceTo(prev);
             }
-
-            const vertices = [];
-            const indices = [];
-            var widthSegments = 23;
-            var heightSegments = 17;
-
-            // Make the wireframes less busy in wireframe mode
-            if (this.wireframe_checkbox.checked) {
-                widthSegments = 11;
-                heightSegments = 7;
-            }
-
-            const grid = []
-            var index_offset = 0;
-            // modified UV sphere generation from:
-            // https://github.com/mrdoob/THREE.js/blob/4ca3860851d0cd33535afe801a1aa856da277f3a/src/geometries/SphereGeometry.js
-            for (var iy = 0; iy <= heightSegments; iy++) {
-                var verticesRow = [];
-                var v = iy / heightSegments;
-
-                for (var ix = 0; ix <= widthSegments; ix++) {
-                    var u = ix / widthSegments;
-                    var y_offset = 0;
-                    if (prev != null) {
-                        if (v >= 0 && v <= 0.5) {
-                            y_offset += prev_distance;
-                        }
-                    }
-
-                    const sin_v_pi = Math.sin(v * Math.PI);
-                    vertices.push(hit_box.next_size * Math.cos(u * Math.PI * 2) * sin_v_pi);
-                    vertices.push(hit_box.next_size * Math.cos(v * Math.PI) + y_offset);
-                    vertices.push(hit_box.next_size * Math.sin(u * Math.PI * 2) * sin_v_pi);
-
-                    verticesRow.push(index_offset++);
-                }
-                grid.push(verticesRow);
-            }
-
-            for (var iy = 0; iy < heightSegments; iy++) {
-                for (var ix = 0; ix < widthSegments; ix++) {
-                    var a = grid[iy][ix + 1];
-                    var b = grid[iy][ix];
-                    var c = grid[iy + 1][ix];
-                    var d = grid[iy + 1][ix + 1];
-
-                    indices.push(a, b, d);
-                    indices.push(b, c, d);
-                }
-            }
-
-            const geometry = new THREE.BufferGeometry();
-            geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
-            geometry.setIndex(indices);
-
-            const hit_box_mesh = new THREE.Mesh(geometry, material);
-
-            const rotation = new THREE.Quaternion();
-            if (prev != null) {
-                const diff = prev.clone();
-                diff.sub(next);
-                diff.normalize();
-                rotation.setFromUnitVectors(new THREE.Vector3(0, 1, 0), diff);
-            }
-
             const transform = new THREE.Matrix4();
-            transform.compose(next, rotation, new THREE.Vector3(1, 1, 1));
 
-            hit_box_mesh.matrixAutoUpdate = false;
-            hit_box_mesh.matrix.copy(transform);
-
-            this.scene.add(hit_box_mesh);
+            this.draw_cylinder(prev, next, hit_box.next_size, transform, material);
         }
 
         // generate hurtboxes
@@ -1131,102 +1060,6 @@ class FighterRender {
                 bm.x.z, bm.y.z, bm.z.z, bm.w.z,
                 bm.x.w, bm.y.w, bm.z.w, bm.w.w
             );
-            const bone_scale = new THREE.Vector3();
-            bone_scale.setFromMatrixScale(bone_matrix);
-
-            const radius = hurt_box.hurt_box.radius;
-            var stretch = hurt_box.hurt_box.stretch;
-            var offset = hurt_box.hurt_box.offset;
-
-            stretch = new THREE.Vector3(stretch.x, stretch.y, stretch.z);
-            offset = new THREE.Vector3(offset.x, offset.y, offset.z);
-
-            const stretch_face = stretch.clone();
-            stretch_face.divideScalar(radius);
-            stretch_face.divide(bone_scale);
-
-            const vertices = [];
-            const indices = [];
-
-            var index_offset = 0;
-
-            var widthSegments = 23; // needs to be odd, so we have a middle segment
-            var heightSegments = 17; // needs to be odd, so we have a middle segment
-
-            // Make the wireframes less busy in wireframe mode
-            if (this.wireframe_checkbox.checked) {
-                widthSegments = 11;
-                heightSegments = 7;
-            }
-
-            const grid = []
-            // modified UV sphere generation from:
-            // https://github.com/mrdoob/THREE.js/blob/4ca3860851d0cd33535afe801a1aa856da277f3a/src/geometries/SphereGeometry.js
-            for (var iy = 0; iy <= heightSegments; iy++) {
-                const verticesRow = [];
-                const v = iy / heightSegments;
-
-                for (var ix = 0; ix <= widthSegments; ix++) {
-                    const u = ix / widthSegments;
-
-                    // The x, y and z stretch values, split the sphere in half, across its dimension.
-                    // This can result in 8 individual sphere corners.
-                    const corner_offset = new THREE.Vector3();
-                    if (u >= 0.25 && u <= 0.75) { // X
-                        if (stretch.x > 0) {
-                            corner_offset.x = stretch_face.x;
-                        }
-                    }
-                    else if (stretch.x < 0) {
-                        corner_offset.x = stretch_face.x;
-                    }
-
-                    if (v >= 0 && v <= 0.5) { // Y
-                        if (stretch.y > 0) {
-                            corner_offset.y = stretch_face.y;
-                        }
-                    }
-                    else if (stretch.y < 0) {
-                        corner_offset.y = stretch_face.y;
-                    }
-
-                    if (u >= 0 && u <= 0.5) { // Z
-                        if (stretch.z > 0) {
-                            corner_offset.z = stretch_face.z;
-                        }
-                    }
-                    else if (stretch.z < 0) {
-                        corner_offset.z = stretch_face.z;
-                    }
-
-                    // vertex generation is supposed have the 8 sphere corners take up exactly 1/8th of the unit sphere.
-                    // However that is difficult because we would need to double up the middle segments.
-                    // So instead we just make it look like this is the case by having large widthSegments and heightSegments.
-                    const sin_v_pi = Math.sin(v * Math.PI);
-                    vertices.push(corner_offset.x - Math.cos(u * Math.PI * 2) * sin_v_pi);
-                    vertices.push(corner_offset.y + Math.cos(v * Math.PI));
-                    vertices.push(corner_offset.z + Math.sin(u * Math.PI * 2) * sin_v_pi);
-
-                    verticesRow.push(index_offset++);
-                }
-                grid.push(verticesRow);
-            }
-
-            for (var iy = 0; iy < heightSegments; iy++) {
-                for (var ix = 0; ix < widthSegments; ix++) {
-                    const a = grid[iy][(ix + 1) % widthSegments];
-                    const b = grid[iy][ix];
-                    const c = grid[iy + 1][ix];
-                    const d = grid[iy + 1][(ix + 1) % widthSegments];
-
-                    indices.push(a, b, d);
-                    indices.push(b, c, d);
-                }
-            }
-
-            const geometry = new THREE.BufferGeometry();
-            geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
-            geometry.setIndex(indices);
 
             var material = this.hurtbox_normal_material;
             if (hurt_box.state == "IntangibleFlashing" || hurt_box.state == "IntangibleNoFlashing" || hurt_box.state == "IntangibleQuickFlashing") {
@@ -1242,27 +1075,19 @@ class FighterRender {
                 material = this.hurtbox_intangible_material;
             }
 
-            const cube = new THREE.Mesh(geometry, material);
+            // Ah ... so its less of an offset + stretch and more like two seperate independent offsets.
+            const prev_raw = hurt_box.hurt_box.offset;
+            const next_raw = hurt_box.hurt_box.stretch;
+            const radius = hurt_box.hurt_box.radius;
 
-            const transform_translation = new THREE.Matrix4();
-            transform_translation.makeTranslation(
-                offset.x / (bone_scale.x * radius),
-                offset.y / (bone_scale.y * radius),
-                offset.z / (bone_scale.z * radius)
-            );
-
-            const transform_scale = new THREE.Matrix4();
-            transform_scale.makeScale(radius, radius, radius);
+            const prev = new THREE.Vector3(prev_raw.x, prev_raw.y, prev_raw.z);
+            const next = new THREE.Vector3(next_raw.x, next_raw.y, next_raw.z);
 
             const transform = new THREE.Matrix4();
             transform.copy(transform_translation_frame);
             transform.multiply(bone_matrix);
-            transform.multiply(transform_scale);
-            transform.multiply(transform_translation);
 
-            cube.matrixAutoUpdate = false;
-            cube.matrix.copy(transform);
-            this.scene.add(cube);
+            this.draw_cylinder(prev, next, radius, transform, material);
         }
 
         // ledge grab box
@@ -1301,6 +1126,89 @@ class FighterRender {
                 button.classList.add('current-frame-button');
             }
         }
+    }
+
+    draw_cylinder(prev, next, radius, external_transform, material) {
+        const vertices = [];
+        const indices = [];
+        var widthSegments = 23;
+        var heightSegments = 17;
+
+        // Make the wireframes less busy in wireframe mode
+        if (this.wireframe_checkbox.checked) {
+            widthSegments = 11;
+            heightSegments = 7;
+        }
+
+        var prev_distance = 0;
+        if (prev != null) {
+            prev_distance = next.distanceTo(prev);
+        }
+
+        const grid = []
+        var index_offset = 0;
+        // modified UV sphere generation from:
+        // https://github.com/mrdoob/THREE.js/blob/4ca3860851d0cd33535afe801a1aa856da277f3a/src/geometries/SphereGeometry.js
+        for (var iy = 0; iy <= heightSegments; iy++) {
+            var verticesRow = [];
+            var v = iy / heightSegments;
+
+            for (var ix = 0; ix <= widthSegments; ix++) {
+                var u = ix / widthSegments;
+                var y_offset = 0;
+                if (prev != null) {
+                    if (v >= 0 && v <= 0.5) {
+                        y_offset += prev_distance;
+                    }
+                }
+
+                const sin_v_pi = Math.sin(v * Math.PI);
+                vertices.push(radius * Math.cos(u * Math.PI * 2) * sin_v_pi);
+                vertices.push(radius * Math.cos(v * Math.PI) + y_offset);
+                vertices.push(radius * Math.sin(u * Math.PI * 2) * sin_v_pi);
+
+                verticesRow.push(index_offset++);
+            }
+            grid.push(verticesRow);
+        }
+
+        for (var iy = 0; iy < heightSegments; iy++) {
+            for (var ix = 0; ix < widthSegments; ix++) {
+                var a = grid[iy][ix + 1];
+                var b = grid[iy][ix];
+                var c = grid[iy + 1][ix];
+                var d = grid[iy + 1][ix + 1];
+
+                indices.push(a, b, d);
+                indices.push(b, c, d);
+            }
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+        geometry.setIndex(indices);
+
+        const mesh = new THREE.Mesh(geometry, material);
+
+        const rotation = new THREE.Quaternion();
+        if (prev != null) {
+            const diff = prev.clone();
+            diff.sub(next);
+            diff.normalize();
+            rotation.setFromUnitVectors(new THREE.Vector3(0, 1, 0), diff);
+        }
+
+        const internal_transform = new THREE.Matrix4();
+        internal_transform.compose(next, rotation, new THREE.Vector3(1, 1, 1));
+
+        const transform = new THREE.Matrix4();
+        transform.copy(external_transform);
+        transform.multiply(internal_transform);
+
+        mesh.matrixAutoUpdate = false;
+        mesh.matrix.copy(transform);
+
+        this.scene.add(mesh);
     }
 
     animate(timestamp) {
