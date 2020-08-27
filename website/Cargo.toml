@@ -7,8 +7,7 @@ description = "Uses brawllib_rs to display frame data of characters"
 repository = "https://github.com/rukai/rukaidata"
 
 [dependencies]
-#brawllib_rs = "0.18"
-brawllib_rs = { git = "https://github.com/rukai/brawllib_rs", rev = "2f2393a2e104e3d02c8df398f2d66772486de717" }
+brawllib_rs = "0.19"
 getopts = "0.2"
 serde_derive = "1"
 serde = "1"

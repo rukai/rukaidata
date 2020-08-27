@@ -6,7 +6,7 @@ How does it work? Read the [writeup](docs/writeup.md).
 
 ## Run the rukaidata website on your machine
 
-1.  Install stable rust via https://rustup.rs/ (on windows, you need to do a custom install and select the pc-windows-gnu toolchain)
+1.  Install stable rust via https://rustup.rs/ (use the default settings)
 2.  Right click brawl in dolphin game list -> Properties -> Filesystem -> Disc -> Right click Partition 1 -> Extract Files... -> select the directory `data/Brawl`
 3.  Copy the entire contents of a brawl mod sd card to the directory `data/MODNAMEHERE` **(optional)**
 4.  Open a terminal and `cd` to the directory this readme is in.
@@ -29,6 +29,18 @@ e.g. To only generate framedata for PM3.6 marth and squirtle run this command:
 `cargo run --release -- -mpm3.6 -fmarth,pokezenigame -w`
 
 Using filters will save you generation time and disk space.
+
+## Webpage and gif generation
+
+By default rukaidata will generate no output, however you use the following flags to additively specify what to generate:
+
+*   `-w` Generate webpages
+*   `-g` Generate subaction gifs`
+
+e.g. To generate webpages and gifs for everything run this command:
+
+`cargo run --release -- -wg`
+
 
 ## `data` folder cleanup
 
