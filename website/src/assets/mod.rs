@@ -14,8 +14,8 @@ impl AssetPaths {
             let minified = minifier::css::minify(&contents).unwrap();
 
             let mut hasher = Sha256::default();
-            hasher.input(&minified);
-            let hash: String = hasher.result().iter().map(|x| format!("{:x}", x)).collect();
+            hasher.update(&minified);
+            let hash: String = hasher.finalize().iter().map(|x| format!("{:x}", x)).collect();
 
             let path = format!("/assets_static/{}.css", hash);
             File::create(format!("../root/{}", path)).unwrap().write_all(minified.as_bytes()).unwrap();
@@ -27,7 +27,7 @@ impl AssetPaths {
 
             let mut hasher = Sha256::default();
             hasher.write_all(contents).unwrap();
-            let hash: String = hasher.result().iter().map(|x| format!("{:x}", x)).collect();
+            let hash: String = hasher.finalize().iter().map(|x| format!("{:x}", x)).collect();
 
             let path = format!("/assets_static/{}.png", hash);
             File::create(format!("../root/{}", path)).unwrap().write_all(contents).unwrap();
@@ -39,7 +39,7 @@ impl AssetPaths {
 
             let mut hasher = Sha256::default();
             hasher.write_all(contents).unwrap();
-            let hash: String = hasher.result().iter().map(|x| format!("{:x}", x)).collect();
+            let hash: String = hasher.finalize().iter().map(|x| format!("{:x}", x)).collect();
 
             let path = format!("/assets_static/{}.png", hash);
             File::create(format!("../root/{}", path)).unwrap().write_all(contents).unwrap();
@@ -54,8 +54,8 @@ impl AssetPaths {
             // Can't complain though, the minifier repo does say its not ready yet :P
 
             let mut hasher = Sha256::default();
-            hasher.input(&minified);
-            let hash: String = hasher.result().iter().map(|x| format!("{:x}", x)).collect();
+            hasher.update(&minified);
+            let hash: String = hasher.finalize().iter().map(|x| format!("{:x}", x)).collect();
 
             let path = format!("/assets_static/{}.js", hash);
             File::create(format!("../root/{}", path)).unwrap().write_all(minified.as_bytes()).unwrap();

@@ -3,6 +3,7 @@ pub mod characters;
 use std::env;
 
 use chrono::Utc;
+use serenity::async_trait;
 use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
 use serenity::model::id::ChannelId;
@@ -10,8 +11,9 @@ use serenity::prelude::*;
 
 struct Handler;
 
+#[async_trait]
 impl EventHandler for Handler {
-    fn message(&self, ctx: Context, msg: Message) {
+    async fn message(&self, ctx: Context, msg: Message) {
         if msg.author.name != "rukaidata" {
             let lower = msg.content.trim().to_lowercase();
             let tokens: Vec<_> = lower.split_whitespace().collect();
@@ -286,36 +288,40 @@ impl EventHandler for Handler {
                         (None,            true ) => format!("https://rukaidata.com/{}", mod_path),
                     };
 
-                    send(&ctx, &msg.channel_id, &message);
+                    send(&ctx, &msg.channel_id, &message).await;
 
                     println!("{}", Utc::now().format("%F %T"));
                 }
 
                 if *command == ".rattening" || *command == "!rattening" {
-                    send(&ctx, &msg.channel_id, "🐀🐀🐀 https://www.youtube.com/watch?v=qXEtmSi36AI");
+                    send(&ctx, &msg.channel_id, "🐀🐀🐀 https://www.youtube.com/watch?v=qXEtmSi36AI").await;
                 }
             }
         }
     }
 
-    fn ready(&self, _: Context, ready: Ready) {
+    async fn ready(&self, _: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
     }
 }
 
-fn send(ctx: &Context, channel_id: &ChannelId, text: &str) {
-    if let Err(why) = channel_id.say(&ctx.http, text) {
+async fn send(ctx: &Context, channel_id: &ChannelId, text: &str) {
+    if let Err(why) = channel_id.say(&ctx.http, text).await {
         println!("Error sending message: {:?}", why);
     }
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let token = env::var("DISCORD_TOKEN")
         .expect("Expected a token in the environment");
 
-    let mut client = Client::new(&token, Handler).expect("Err creating client");
+    let mut client = Client::builder(&token)
+        .event_handler(Handler)
+        .await
+        .expect("Err creating client");
 
-    if let Err(why) = client.start() {
+    if let Err(why) = client.start().await {
         println!("Client error: {:?}", why);
     }
 }
