@@ -18,6 +18,7 @@ pub struct BrawlMods {
 pub struct BrawlMod {
     pub name:        String,
     pub fighters:    Vec<BrawlFighter>,
+    pub is_mod:      bool,
 }
 
 pub struct BrawlFighter {
@@ -207,6 +208,7 @@ impl BrawlMod {
             Some(BrawlMod {
                 name:     mod_name,
                 fighters: brawl_fighters,
+                is_mod,
             })
         } else {
             None

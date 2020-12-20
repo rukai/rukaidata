@@ -9,4 +9,4 @@ repository = "https://github.com/rukai/rukaidata"
 [dependencies]
 serenity = "0.9"
 chrono = "0.4"
-tokio = "0.2"
+tokio = "0.3"
