@@ -322,7 +322,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                         }
                         header.push(r#"<abbr title="Base knockback">BKB</abbr>"#);
                         header.push(r#"<abbr title="Knockback growth">KBG</abbr>"#);
-                        header.push("Angle");
+                        header.push(r#"<abbr title="Specifies the angle used when the fighter faces to the right.">Angle</abbr>"#);
                         header.push("Effect");
                         header.push("Sound");
                         header.push("Grab Target");
@@ -389,7 +389,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             // TODO: determine what optional columns to use
                             let use_wdsk = hitboxes.iter().any(|x| x.wdsk != 0);
                             let use_angle_flipping = hitboxes.iter().any(|x| match x.angle_flipping {
-                                AngleFlip::AwayFromAttacker => false,
+                                AngleFlip::AttackerPosition => false,
                                 _ => true,
                             });
                             let use_clang = hitboxes.iter().any(|x| !x.clang);
@@ -441,7 +441,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                             }
                             header.push(r#"<abbr title="Base knockback">BKB</abbr>"#);
                             header.push(r#"<abbr title="Knockback growth">KBG</abbr>"#);
-                            header.push("Angle");
+                            header.push(r#"<abbr title="Specifies the angle used when the fighter faces to the right. It is flipped across the y-axis when the angle flipper has a direction to the left.">Angle</abbr>"#);
                             header.push("Effect");
                             header.push("Sound");
                             if use_angle_flipping {
@@ -542,11 +542,14 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                         row.push(format!("{:?}", hit.sound));
                                         if use_angle_flipping {
                                             match hit.angle_flipping {
-                                                AngleFlip::AwayFromAttacker => row.push(String::from(r#"<abbr title="Reverse Hittable: If the victim is behind the attacker the angle is flipped.">RH</abbr>"#)),
-                                                AngleFlip::AttackerDir => row.push(String::from(r#"<abbr title="Forwards: The launch angle is flipped if the attacker is facing left">F</abbr>"#)),
-                                                AngleFlip::AttackerDirReverse => row.push(String::from(r#"<abbr title="Backwards: The launch angle is flipped if the attacker is facing right">B</abbr>"#)),
-                                                AngleFlip::FaceZaxis => row.push(String::from(r#"<abbr title="tooltiptext">Face Z Axis: A buggy unused angle flip, makes the victim face the screen and other weird stuff">FZA</abbr>"#)),
-                                                AngleFlip::Unknown (_) => row.push(format!("{:?}", hit.angle_flipping)),
+                                                AngleFlip::AttackerPosition   => row.push(String::from(r#"<abbr title="Attacker Position: The direction from the attacker to the defender.">AP</abbr>"#)),
+                                                AngleFlip::MovementDir        => row.push(String::from(r#"<abbr title="Movement Direction: The direction the attacker is moving.">MD</abbr>"#)),
+                                                AngleFlip::LeftDir            => row.push(String::from(r#"<abbr title="Left Direction: Direction is always to the left.">LD</abbr>"#)),
+                                                AngleFlip::AttackerDir        => row.push(String::from(r#"<abbr title="Attacker Direction: The direction the attacker is facing.">AD</abbr>"#)),
+                                                AngleFlip::AttackerDirReverse => row.push(String::from(r#"<abbr title="Attacker Direction Reverse: The opposite direction to where the attacker is facing.">ADR</abbr>"#)),
+                                                AngleFlip::HitboxPosition     => row.push(String::from(r#"<abbr title="Hitbox Position: The direction from the hitbox to the defender.">HP</abbr>"#)),
+                                                AngleFlip::FaceZaxis          => row.push(String::from(r#"<abbr title="Face Z Axis: A buggy unused angle flip, makes the victim face the screen and other weird stuff.">FZA</abbr>"#)),
+                                                AngleFlip::Unknown (_)        => row.push(format!("{:?}", hit.angle_flipping)),
                                             }
                                         }
                                         if use_clang {
@@ -712,11 +715,14 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                         kbg.push_str(&hit.kbg.to_string());
                                         angle.push_str(&hit.trajectory.to_string());
                                         angle_flipping.push_str(&match hit.angle_flipping {
-                                            AngleFlip::AwayFromAttacker => "RH".into(),
-                                            AngleFlip::AttackerDir => "F".into(),
-                                            AngleFlip::AttackerDirReverse => "B".into(),
-                                            AngleFlip::FaceZaxis => "FZA".into(),
-                                            AngleFlip::Unknown (_) => format!("{:?}", hit.angle_flipping),
+                                            AngleFlip::AttackerPosition   => "AP".into(),
+                                            AngleFlip::MovementDir        => "MD".into(),
+                                            AngleFlip::LeftDir            => "LD".into(),
+                                            AngleFlip::AttackerDir        => "AD".into(),
+                                            AngleFlip::AttackerDirReverse => "ADR".into(),
+                                            AngleFlip::HitboxPosition     => "HP".into(),
+                                            AngleFlip::FaceZaxis          => "FZA".into(),
+                                            AngleFlip::Unknown (_)        => format!("{:?}", hit.angle_flipping),
                                         });
                                         effect.push_str(&format!("{:?}", hit.effect));
                                         clang.push_str(if hit.clang { "y" } else { "n" });
