@@ -1,4 +1,5 @@
-# Rukaidata [![dependency status](https://deps.rs/repo/github/rukai/rukaidata/status.svg)](https://deps.rs/repo/github/rukai/rukaidata) [![Build Status](https://travis-ci.com/rukai/rukaidata.svg?branch=master)](https://travis-ci.com/rukai/rukaidata)
+# Rukaidata
+[![dependency status](https://deps.rs/repo/github/rukai/rukaidata/status.svg)](https://deps.rs/repo/github/rukai/rukaidata)
 
 Uses [brawllib_rs](https://github.com/rukai/brawllib_rs) to display frame data on characters.
 

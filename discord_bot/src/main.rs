@@ -129,6 +129,7 @@ impl EventHandler for Handler {
                     if tokens.contains(&"getup") && tokens.contains(&"stand")  && facedown { subactions = vec!("DownStandD") }
 
                     // trip
+                    if tokens.contains(&"trip") || tokens.contains(&"slip")   { subactions = vec!("Slip") }
                     if tokens.contains(&"trip") && tokens.contains(&"attack") { subactions = vec!("DownAttackU") }
                     if tokens.contains(&"trip") && tokens.contains(&"stand")  { subactions = vec!("DownStandU") }
 
