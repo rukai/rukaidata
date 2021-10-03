@@ -103,12 +103,12 @@ The game logic for each character is split between:
 
 The C++ code lives elsewhere but refers to many constants and data structures in this file.
 Hurtboxes are one such data structure.
-They are really spheres that get stretched, resized, rotated.
+They are really spheres that get stretched into cylinders.
 There is a list of hurtboxes with each one containing:
 *   Bone index - The bone the hurtbox is attached to.
 *   Offset - Offsets the hurtboxes position from the bone its attached to.
-*   Stretch - How far the sphere gets stretched in each dimension. Only the center of the sphere gets stretched by this, producing a cylindrical shape.
-*   Radius - The size of the spheres radius.
+*   Stretch - An offset to stretch the sphere into a cylinder with hemispherical ends. A value of [0, 0, 0] results in a perfect sphere with no stretching.
+*   Radius - The radius of the sphere.
 
 "Attaching" the hurtbox to a bone means we apply the bones transformation matrix resulting from the current animation + frame to the hurtbox.
 
