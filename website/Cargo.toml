@@ -12,9 +12,9 @@ getopts = "0.2"
 serde_derive = "1"
 serde = "1"
 serde_json = "1"
-env_logger = "0.8"
+env_logger = "0.9"
 log = "0.4"
-handlebars = { version = "3", features = ["dir_source"] }
+handlebars = { version = "4", features = ["dir_source"] }
 rayon = "1"
 minifier = "0.0"
 sha2 = "0.9"
