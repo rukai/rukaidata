@@ -741,16 +741,65 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                         flinchless.push_str(if hit.flinchless { "y" } else { "n" });
                                     }
                                     CollisionBoxValues::Grab(grab) => {
-                                        row.push(String::from("0"));
+                                        row.push("0".into());
                                         row.push(hitbox.hitbox_id.to_string());
-                                        row.push(String::from("Grab"));
+                                        row.push("Grab".into());
                                         row.push(format!("set action: 0x{:x}", grab.set_action));
-                                        row.push(String::new());
-                                        row.push(String::new());
-                                        row.push(String::new());
-                                        row.push(String::new());
-                                        row.push(String::new());
-                                        row.push(String::new());
+                                        row.push("".into());
+                                        row.push("".into());
+                                        row.push("".into());
+                                        row.push("".into());
+                                        row.push("".into());
+                                        row.push("".into());
+
+                                        if use_wdsk {
+                                            row.push("".into());
+                                        }
+                                        if use_angle_flipping {
+                                            row.push("".into());
+                                        }
+                                        if use_clang {
+                                            row.push("".into());
+                                        }
+                                        if use_direct {
+                                            row.push("".into());
+                                        }
+                                        if use_hitlag_mult {
+                                            row.push("".into());
+                                        }
+                                        if use_sdi_mult {
+                                            row.push("".into());
+                                        }
+                                        if use_shield_damage {
+                                            row.push("".into());
+                                        }
+                                        if use_tripping_rate {
+                                            row.push("".into());
+                                        }
+                                        if use_rehit_rate {
+                                            row.push("".into());
+                                        }
+                                        if use_can_be_shielded {
+                                            row.push("".into());
+                                        }
+                                        if use_can_be_reflected {
+                                            row.push("".into());
+                                        }
+                                        if use_can_be_absorbed {
+                                            row.push("".into());
+                                        }
+                                        if use_remain_grabbed {
+                                            row.push("".into());
+                                        }
+                                        if use_ignore_invincibility {
+                                            row.push("".into());
+                                        }
+                                        if use_freeze_frame_disable {
+                                            row.push("".into());
+                                        }
+                                        if use_flinchless {
+                                            row.push("".into());
+                                        }
 
                                         let mut can_hit = String::new();
 
@@ -825,6 +874,12 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                                 }
                                 if has_grab {
                                     twitter_hitboxes.push_str("\nHas Grabbox");
+                                }
+
+                                // Assert that the header size is the same as all rows because its easy to forget to add an empty cell when a column is not used
+                                // Possibly we should build the tables via a hashmap instead of a Vec to entirely avoid this problem
+                                for row in &rows {
+                                    assert_eq!(row.len(), header.len(), "A hitbox table row has less cells than the header!");
                                 }
 
                                 hitbox_tables.push(HitBoxTable { frames, header, rows });
