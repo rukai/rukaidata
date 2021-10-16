@@ -1,5 +1,4 @@
 use std::fs;
-use std::fs::File;
 use std::io::Write;
 
 use sha2::{Digest, Sha256};
@@ -22,10 +21,7 @@ impl AssetPaths {
                 .collect();
 
             let path = format!("/assets_static/{}.css", hash);
-            File::create(format!("../root/{}", path))
-                .unwrap()
-                .write_all(minified.as_bytes())
-                .unwrap();
+            fs::write(format!("../root/{}", path), minified).unwrap();
             path
         };
 
@@ -41,10 +37,7 @@ impl AssetPaths {
                 .collect();
 
             let path = format!("/assets_static/{}.png", hash);
-            File::create(format!("../root/{}", path))
-                .unwrap()
-                .write_all(contents)
-                .unwrap();
+            fs::write(format!("../root/{}", path), contents).unwrap();
             path
         };
 
@@ -60,10 +53,7 @@ impl AssetPaths {
                 .collect();
 
             let path = format!("/assets_static/{}.png", hash);
-            File::create(format!("../root/{}", path))
-                .unwrap()
-                .write_all(contents)
-                .unwrap();
+            fs::write(format!("../root/{}", path), contents).unwrap();
             path
         };
 
@@ -83,10 +73,7 @@ impl AssetPaths {
                 .collect();
 
             let path = format!("/assets_static/{}.js", hash);
-            File::create(format!("../root/{}", path))
-                .unwrap()
-                .write_all(minified.as_bytes())
-                .unwrap();
+            fs::write(format!("../root/{}", path), minified.as_bytes()).unwrap();
             path
         };
 

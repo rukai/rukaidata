@@ -1,6 +1,4 @@
 use std::fs;
-use std::fs::File;
-use std::io::Write;
 use std::sync::mpsc::Receiver;
 
 use brawllib_rs::renderer;
@@ -15,9 +13,7 @@ struct GifWait {
 
 impl GifWait {
     fn wait(self) {
-        let bytes = self.rx.recv().unwrap();
-        let mut file = File::create(self.path).unwrap();
-        file.write_all(&bytes).unwrap();
+        fs::write(self.path, self.rx.recv().unwrap()).unwrap();
     }
 }
 
