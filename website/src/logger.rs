@@ -1,9 +1,9 @@
+use env_logger::fmt::{Color, Formatter};
 use env_logger::Builder;
-use env_logger::fmt::{Formatter, Color};
-use std::io::Write;
-use std::io;
+use log::{Level, Record};
 use std::env;
-use log::{Record, Level};
+use std::io;
+use std::io::Write;
 
 pub fn init() {
     if let Ok(env_var) = env::var("BW_LOG") {
@@ -16,8 +16,8 @@ fn format(buf: &mut Formatter, record: &Record) -> io::Result<()> {
     let level_color = match level {
         Level::Trace => Color::White,
         Level::Debug => Color::Blue,
-        Level::Info  => Color::Green,
-        Level::Warn  => Color::Yellow,
+        Level::Info => Color::Green,
+        Level::Warn => Color::Yellow,
         Level::Error => Color::Red,
     };
 
@@ -27,8 +27,7 @@ fn format(buf: &mut Formatter, record: &Record) -> io::Result<()> {
     let write_level = write!(buf, "{:>5}", style.value(level));
     let write_args = if let Some(module_path) = record.module_path() {
         writeln!(buf, " {} {}", module_path, record.args())
-    }
-    else {
+    } else {
         writeln!(buf, " {}", record.args())
     };
 

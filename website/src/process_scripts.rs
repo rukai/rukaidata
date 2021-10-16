@@ -1,19 +1,21 @@
-use brawllib_rs::script_ast::{EventAst, ForLoop, Iterations, IfStatement, Expression, UnaryExpression, BinaryExpression, Interrupt, FloatValue};
-use brawllib_rs::script_ast::variable_ast::{
-    VariableAst,
-    InternalConstantInt,
-    LongtermAccessInt,
-    LongtermAccessFloat,
-    LongtermAccessBool,
-    RandomAccessInt,
-    RandomAccessFloat,
-    RandomAccessBool,
-};
 use brawllib_rs::script::Argument;
+use brawllib_rs::script_ast::variable_ast::{
+    InternalConstantInt, LongtermAccessBool, LongtermAccessFloat, LongtermAccessInt,
+    RandomAccessBool, RandomAccessFloat, RandomAccessInt, VariableAst,
+};
+use brawllib_rs::script_ast::{
+    BinaryExpression, EventAst, Expression, FloatValue, ForLoop, IfStatement, Interrupt,
+    Iterations, UnaryExpression,
+};
 
-use crate::brawl_data::{BrawlMod, BrawlFighter};
+use crate::brawl_data::{BrawlFighter, BrawlMod};
 
-pub fn process_events(events: &[EventAst], common: bool, brawl_mod: &BrawlMod, fighter: &BrawlFighter) -> String {
+pub fn process_events(
+    events: &[EventAst],
+    common: bool,
+    brawl_mod: &BrawlMod,
+    fighter: &BrawlFighter,
+) -> String {
     let script_lookup = if common {
         &fighter.script_lookup_common
     } else {
@@ -168,33 +170,66 @@ pub fn process_events(events: &[EventAst], common: bool, brawl_mod: &BrawlMod, f
 fn process_float_value(value: &FloatValue) -> String {
     match value {
         FloatValue::Constant(constant) => format!("{}", constant),
-        FloatValue::Variable(variable) => process_expression(&Expression::Variable(variable.clone())),
+        FloatValue::Variable(variable) => {
+            process_expression(&Expression::Variable(variable.clone()))
+        }
     }
 }
 
 fn process_expression(expr: &Expression) -> String {
     match expr {
-        Expression::Nullary (requirement) => format!("{:?}", requirement),
-        Expression::Unary (UnaryExpression { requirement, value })
-            => format!("{:?} {}", requirement, process_expression(value)),
-        Expression::Binary (BinaryExpression { left, operator, right })
-            => format!("({} {:?} {})", process_expression(left), operator, process_expression(right)),
-        Expression::Not (expr) => format!("not({})", process_expression(expr)),
-        Expression::Variable (variable) =>
-            // TODO: This handler needs to be also called by stuff like IntVariableSet
+        Expression::Nullary(requirement) => format!("{:?}", requirement),
+        Expression::Unary(UnaryExpression { requirement, value }) => {
+            format!("{:?} {}", requirement, process_expression(value))
+        }
+        Expression::Binary(BinaryExpression {
+            left,
+            operator,
+            right,
+        }) => format!(
+            "({} {:?} {})",
+            process_expression(left),
+            operator,
+            process_expression(right)
+        ),
+        Expression::Not(expr) => format!("not({})", process_expression(expr)),
+        Expression::Variable(variable) =>
+        // TODO: This handler needs to be also called by stuff like IntVariableSet
+        {
             match variable {
-                VariableAst::InternalConstantInt (InternalConstantInt::Address (address)) => format!("InternalConstantInt (0x{:x})", address),
-                VariableAst::LongtermAccessInt   (LongtermAccessInt::Address   (address)) => format!("LongtermAccessInt (0x{:x})", address),
-                VariableAst::LongtermAccessFloat (LongtermAccessFloat::Address (address)) => format!("LongtermAccessFloat (0x{:x})", address),
-                VariableAst::LongtermAccessBool  (LongtermAccessBool::Address  (address)) => format!("LongtermAccessBool (0x{:x})", address),
-                VariableAst::RandomAccessInt     (RandomAccessInt::Address     (address)) => format!("RandomAccessInt (0x{:x})", address),
-                VariableAst::RandomAccessFloat   (RandomAccessFloat::Address   (address)) => format!("RandomAccessFloat (0x{:x})", address),
-                VariableAst::RandomAccessBool    (RandomAccessBool::Address    (address)) => format!("RandomAccessBool (0x{:x})", address),
-                VariableAst::Unknown { memory_type, data_type, address } =>
-                    format!("Unknown {{ memory_type: {:?}, data_type: {:?}, address: 0x{:x} }}", memory_type, data_type, address),
+                VariableAst::InternalConstantInt(InternalConstantInt::Address(address)) => {
+                    format!("InternalConstantInt (0x{:x})", address)
+                }
+                VariableAst::LongtermAccessInt(LongtermAccessInt::Address(address)) => {
+                    format!("LongtermAccessInt (0x{:x})", address)
+                }
+                VariableAst::LongtermAccessFloat(LongtermAccessFloat::Address(address)) => {
+                    format!("LongtermAccessFloat (0x{:x})", address)
+                }
+                VariableAst::LongtermAccessBool(LongtermAccessBool::Address(address)) => {
+                    format!("LongtermAccessBool (0x{:x})", address)
+                }
+                VariableAst::RandomAccessInt(RandomAccessInt::Address(address)) => {
+                    format!("RandomAccessInt (0x{:x})", address)
+                }
+                VariableAst::RandomAccessFloat(RandomAccessFloat::Address(address)) => {
+                    format!("RandomAccessFloat (0x{:x})", address)
+                }
+                VariableAst::RandomAccessBool(RandomAccessBool::Address(address)) => {
+                    format!("RandomAccessBool (0x{:x})", address)
+                }
+                VariableAst::Unknown {
+                    memory_type,
+                    data_type,
+                    address,
+                } => format!(
+                    "Unknown {{ memory_type: {:?}, data_type: {:?}, address: 0x{:x} }}",
+                    memory_type, data_type, address
+                ),
                 _ => format!("{:?}", variable),
             }
-        Expression::Value (value) => format!("value({})", value),
-        Expression::Scalar (scalar) => format!("scalar({})", scalar),
+        }
+        Expression::Value(value) => format!("value({})", value),
+        Expression::Scalar(scalar) => format!("scalar({})", scalar),
     }
 }

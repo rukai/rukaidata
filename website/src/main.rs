@@ -1,18 +1,20 @@
-#[macro_use] extern crate serde_derive;
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate serde_derive;
+#[macro_use]
+extern crate log;
 
 use handlebars::Handlebars;
 
+pub mod assets;
+pub mod brawl_data;
 pub mod cli;
+pub mod gif;
 pub mod logger;
 pub mod page;
-pub mod brawl_data;
 pub mod process_scripts;
-pub mod assets;
-pub mod gif;
 
-use brawl_data::BrawlMods;
 use assets::AssetPaths;
+use brawl_data::BrawlMods;
 
 fn main() {
     logger::init();
@@ -22,7 +24,9 @@ fn main() {
 
             if cli.generate_web {
                 let mut handlebars = Handlebars::new();
-                handlebars.register_templates_directory(".html.hbs", "templates").unwrap();
+                handlebars
+                    .register_templates_directory(".html.hbs", "templates")
+                    .unwrap();
                 info!("handlebars templates loaded");
 
                 let assets = AssetPaths::new();

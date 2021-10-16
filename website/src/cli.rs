@@ -12,10 +12,20 @@ pub(crate) fn parse_cli() -> Option<CLIResults> {
     let program = &args[0];
 
     let mut opts = Options::new();
-    opts.optflag("g", "gif",      "Enable subaction gif generation");
-    opts.optflag("w", "web",      "Enable website generation");
-    opts.optopt( "m", "mods",     "List of mod folders in data/ to use", "NAME1,NAME2,NAME3...");
-    opts.optopt( "f", "fighters", "List of fighters to use",             "NAME1,NAME2,NAME3...");
+    opts.optflag("g", "gif", "Enable subaction gif generation");
+    opts.optflag("w", "web", "Enable website generation");
+    opts.optopt(
+        "m",
+        "mods",
+        "List of mod folders in data/ to use",
+        "NAME1,NAME2,NAME3...",
+    );
+    opts.optopt(
+        "f",
+        "fighters",
+        "List of fighters to use",
+        "NAME1,NAME2,NAME3...",
+    );
 
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => m,
@@ -25,14 +35,14 @@ pub(crate) fn parse_cli() -> Option<CLIResults> {
         }
     };
 
-    let mut fighter_names: Vec<String> = vec!();
+    let mut fighter_names: Vec<String> = vec![];
     if let Some(f_match) = matches.opt_str("f") {
         for fighter_name in f_match.split(",") {
             fighter_names.push(fighter_name.to_lowercase());
         }
     }
 
-    let mut mod_names = vec!();
+    let mut mod_names = vec![];
     if let Some(m_match) = matches.opt_str("m") {
         for mod_name in m_match.split(",") {
             mod_names.push(mod_name.to_lowercase());
@@ -42,12 +52,17 @@ pub(crate) fn parse_cli() -> Option<CLIResults> {
     let generate_gifs = matches.opt_present("g");
     let generate_web = matches.opt_present("w");
 
-    Some(CLIResults { mod_names, fighter_names, generate_gifs, generate_web })
+    Some(CLIResults {
+        mod_names,
+        fighter_names,
+        generate_gifs,
+        generate_web,
+    })
 }
 
 pub struct CLIResults {
-    pub mod_names:     Vec<String>,
+    pub mod_names: Vec<String>,
     pub fighter_names: Vec<String>,
     pub generate_gifs: bool,
-    pub generate_web:  bool,
+    pub generate_web: bool,
 }

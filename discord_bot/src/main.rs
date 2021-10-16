@@ -13,6 +13,7 @@ struct Handler;
 
 #[async_trait]
 impl EventHandler for Handler {
+    #[rustfmt::skip]
     async fn message(&self, ctx: Context, msg: Message) {
         if msg.author.name != "rukaidata" {
             let lower = msg.content.trim().to_lowercase();
@@ -314,8 +315,7 @@ async fn send(ctx: &Context, channel_id: &ChannelId, text: &str) {
 
 #[tokio::main]
 async fn main() {
-    let token = env::var("DISCORD_TOKEN")
-        .expect("Expected a token in the environment");
+    let token = env::var("DISCORD_TOKEN").expect("Expected a token in the environment");
 
     let mut client = Client::builder(&token)
         .event_handler(Handler)

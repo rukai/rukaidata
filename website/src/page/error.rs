@@ -2,9 +2,9 @@ use std::fs::File;
 
 use handlebars::Handlebars;
 
+use crate::assets::AssetPaths;
 use crate::brawl_data::BrawlMods;
 use crate::page::NavLink;
-use crate::assets::AssetPaths;
 
 pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetPaths) {
     let page = ErrorPage {
@@ -17,6 +17,6 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
 
 #[derive(Serialize)]
 pub struct ErrorPage<'a> {
-    assets:        &'a AssetPaths,
+    assets: &'a AssetPaths,
     pub mod_links: Vec<NavLink>,
 }

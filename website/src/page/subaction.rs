@@ -1,22 +1,26 @@
-use std::fs::File;
 use std::fs;
+use std::fs::File;
 
+use brawllib_rs::high_level_fighter::CollisionBoxValues;
+use brawllib_rs::script_ast::{AngleFlip, GrabTarget, HitBoxEffect};
 use handlebars::Handlebars;
 use rayon::prelude::*;
-use brawllib_rs::high_level_fighter::CollisionBoxValues;
-use brawllib_rs::script_ast::{AngleFlip, HitBoxEffect, GrabTarget};
 
+use crate::assets::AssetPaths;
 use crate::brawl_data::{BrawlMods, SubactionLinks};
 use crate::page::NavLink;
 use crate::process_scripts;
-use crate::assets::AssetPaths;
 
 pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetPaths) {
     for brawl_mod in &brawl_mods.mods {
         let mod_links = brawl_mods.gen_mod_links(brawl_mod.name.clone());
 
         for fighter in &brawl_mod.fighters {
-            fs::create_dir_all(format!("../root/{}/{}/subactions", brawl_mod.name, fighter.fighter.name)).unwrap();
+            fs::create_dir_all(format!(
+                "../root/{}/{}/subactions",
+                brawl_mod.name, fighter.fighter.name
+            ))
+            .unwrap();
 
             fighter.fighter.subactions.par_iter().enumerate().for_each(|(index, subaction)| {
                 let fighter_name = &fighter.fighter.name;
@@ -995,34 +999,43 @@ fn range_string(start: usize, end: usize) -> String {
 fn angle_string(angle: i32, id: u8) -> String {
     let angle_name = match angle {
         0 => String::from(r#"<abbr title="">0</abbr>"#),
-        361 => String::from(r#"<abbr title="Sakurai Angle: When hit in the air angle is 45. When hit on the ground, if knockback < 32 then angle is 0, otherwise angle is 44.">361</abbr>"#),
-        363 => String::from(r#"<abbr title="Autolink Angle: Angle is the angle the attacker is travelling on the frame collision occurred.">363</abbr>"#),
-        365 => String::from(r#"<abbr title="Speed Dependent Autolink angle: Angle is the angle the attacker is travelling on the frame collision occurred. The knockback of the move is solely determined by the attackers velocity. Higher velocity results in more knockback.">365</abbr>"#),
-        a   => a.to_string(),
+        361 => String::from(
+            r#"<abbr title="Sakurai Angle: When hit in the air angle is 45. When hit on the ground, if knockback < 32 then angle is 0, otherwise angle is 44.">361</abbr>"#,
+        ),
+        363 => String::from(
+            r#"<abbr title="Autolink Angle: Angle is the angle the attacker is travelling on the frame collision occurred.">363</abbr>"#,
+        ),
+        365 => String::from(
+            r#"<abbr title="Speed Dependent Autolink angle: Angle is the angle the attacker is travelling on the frame collision occurred. The knockback of the move is solely determined by the attackers velocity. Higher velocity results in more knockback.">365</abbr>"#,
+        ),
+        a => a.to_string(),
     };
-    format!(r#"<canvas class="hitbox-angle-render" width="0" height="0" hitbox-id="{}" angle="{}"></canvas>{}"#, id, angle, angle_name)
+    format!(
+        r#"<canvas class="hitbox-angle-render" width="0" height="0" hitbox-id="{}" angle="{}"></canvas>{}"#,
+        id, angle, angle_name
+    )
 }
 
 #[derive(Serialize)]
 pub struct SubactionPage<'a> {
-    assets:              &'a AssetPaths,
-    mod_links:           &'a [NavLink],
-    fighter_links:       Vec<NavLink>,
-    subaction_links:     SubactionLinks,
-    fighter_link:        String,
-    title:               String,
-    attributes:          Vec<Attribute>,
-    throw_table:         Option<HitBoxTable>,
-    hitbox_tables:       Vec<HitBoxTable>,
-    subaction:           String,
-    subaction_extent:    String,
-    script_main:         String,
-    script_gfx:          String,
-    script_sfx:          String,
-    script_other:        String,
-    frame_buttons:       Vec<FrameButton>,
+    assets: &'a AssetPaths,
+    mod_links: &'a [NavLink],
+    fighter_links: Vec<NavLink>,
+    subaction_links: SubactionLinks,
+    fighter_link: String,
+    title: String,
+    attributes: Vec<Attribute>,
+    throw_table: Option<HitBoxTable>,
+    hitbox_tables: Vec<HitBoxTable>,
+    subaction: String,
+    subaction_extent: String,
+    script_main: String,
+    script_gfx: String,
+    script_sfx: String,
+    script_other: String,
+    frame_buttons: Vec<FrameButton>,
     twitter_description: String,
-    twitter_image:       String,
+    twitter_image: String,
 }
 
 #[derive(Serialize)]
@@ -1033,7 +1046,7 @@ pub struct FrameButton {
 
 #[derive(Serialize)]
 struct Attribute {
-    name:  String,
+    name: String,
     value: String,
 }
 
@@ -1041,5 +1054,5 @@ struct Attribute {
 struct HitBoxTable {
     frames: String,
     header: Vec<&'static str>,
-    rows:   Vec<Vec<String>>,
+    rows: Vec<Vec<String>>,
 }

@@ -1,8 +1,8 @@
-use std::fs::File;
 use std::fs;
+use std::fs::File;
 use std::io::Write;
 
-use sha2::{Sha256, Digest};
+use sha2::{Digest, Sha256};
 
 impl AssetPaths {
     pub fn new() -> AssetPaths {
@@ -15,10 +15,17 @@ impl AssetPaths {
 
             let mut hasher = Sha256::default();
             hasher.update(&minified);
-            let hash: String = hasher.finalize().iter().map(|x| format!("{:x}", x)).collect();
+            let hash: String = hasher
+                .finalize()
+                .iter()
+                .map(|x| format!("{:x}", x))
+                .collect();
 
             let path = format!("/assets_static/{}.css", hash);
-            File::create(format!("../root/{}", path)).unwrap().write_all(minified.as_bytes()).unwrap();
+            File::create(format!("../root/{}", path))
+                .unwrap()
+                .write_all(minified.as_bytes())
+                .unwrap();
             path
         };
 
@@ -27,10 +34,17 @@ impl AssetPaths {
 
             let mut hasher = Sha256::default();
             hasher.write_all(contents).unwrap();
-            let hash: String = hasher.finalize().iter().map(|x| format!("{:x}", x)).collect();
+            let hash: String = hasher
+                .finalize()
+                .iter()
+                .map(|x| format!("{:x}", x))
+                .collect();
 
             let path = format!("/assets_static/{}.png", hash);
-            File::create(format!("../root/{}", path)).unwrap().write_all(contents).unwrap();
+            File::create(format!("../root/{}", path))
+                .unwrap()
+                .write_all(contents)
+                .unwrap();
             path
         };
 
@@ -39,10 +53,17 @@ impl AssetPaths {
 
             let mut hasher = Sha256::default();
             hasher.write_all(contents).unwrap();
-            let hash: String = hasher.finalize().iter().map(|x| format!("{:x}", x)).collect();
+            let hash: String = hasher
+                .finalize()
+                .iter()
+                .map(|x| format!("{:x}", x))
+                .collect();
 
             let path = format!("/assets_static/{}.png", hash);
-            File::create(format!("../root/{}", path)).unwrap().write_all(contents).unwrap();
+            File::create(format!("../root/{}", path))
+                .unwrap()
+                .write_all(contents)
+                .unwrap();
             path
         };
 
@@ -55,21 +76,33 @@ impl AssetPaths {
 
             let mut hasher = Sha256::default();
             hasher.update(&minified);
-            let hash: String = hasher.finalize().iter().map(|x| format!("{:x}", x)).collect();
+            let hash: String = hasher
+                .finalize()
+                .iter()
+                .map(|x| format!("{:x}", x))
+                .collect();
 
             let path = format!("/assets_static/{}.js", hash);
-            File::create(format!("../root/{}", path)).unwrap().write_all(minified.as_bytes()).unwrap();
+            File::create(format!("../root/{}", path))
+                .unwrap()
+                .write_all(minified.as_bytes())
+                .unwrap();
             path
         };
 
-        AssetPaths { favicon_png, spritesheet_png, style_css, subaction_render_js }
+        AssetPaths {
+            favicon_png,
+            spritesheet_png,
+            style_css,
+            subaction_render_js,
+        }
     }
 }
 
 #[derive(Serialize)]
 pub struct AssetPaths {
-    pub favicon_png:         String,
-    pub spritesheet_png:     String,
-    pub style_css:           String,
+    pub favicon_png: String,
+    pub spritesheet_png: String,
+    pub style_css: String,
     pub subaction_render_js: String,
 }

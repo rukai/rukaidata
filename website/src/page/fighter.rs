@@ -1,12 +1,12 @@
-use std::fs::File;
 use std::fs;
+use std::fs::File;
 
 use handlebars::Handlebars;
 use rayon::prelude::*;
 
+use crate::assets::AssetPaths;
 use crate::brawl_data::BrawlMods;
 use crate::page::NavLink;
-use crate::assets::AssetPaths;
 
 pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetPaths) {
     for brawl_mod in &brawl_mods.mods {
@@ -14,8 +14,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
         brawl_mod.fighters.par_iter().for_each(|fighter| {
             let fighter = &fighter.fighter;
             let page = FighterPage {
-                mod_links:     &mod_links,
-                title:         format!("{} - {}", brawl_mod.name, fighter.name),
+                mod_links: &mod_links,
+                title: format!("{} - {}", brawl_mod.name, fighter.name),
                 fighter_links: brawl_mod.gen_fighter_links(&fighter.name),
                 assets,
             };
@@ -30,8 +30,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
 
 #[derive(Serialize)]
 struct FighterPage<'a> {
-    assets:        &'a AssetPaths,
-    mod_links:     &'a [NavLink],
+    assets: &'a AssetPaths,
+    mod_links: &'a [NavLink],
     fighter_links: Vec<NavLink>,
-    title:         String,
+    title: String,
 }
