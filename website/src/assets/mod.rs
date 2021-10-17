@@ -1,7 +1,47 @@
 use std::fs;
 use std::io::Write;
+use subprocess::{Exec, Redirection};
 
 use sha2::{Digest, Sha256};
+
+fn run_command_in_dir(command: &str, args: &[&str], dir: &str) {
+    let data = Exec::cmd(command)
+        .args(args)
+        .stdout(Redirection::Pipe)
+        .stderr(Redirection::Merge)
+        .cwd(dir)
+        .capture()
+        .unwrap();
+
+    if !data.exit_status.success() {
+        panic!(
+            "command {} {:?} exited with {:?} and output:\n{}",
+            command,
+            args,
+            data.exit_status,
+            data.stdout_str()
+        )
+    }
+}
+
+fn run_command(command: &str, args: &[&str]) {
+    let data = Exec::cmd(command)
+        .args(args)
+        .stdout(Redirection::Pipe)
+        .stderr(Redirection::Merge)
+        .capture()
+        .unwrap();
+
+    if !data.exit_status.success() {
+        panic!(
+            "command {} {:?} exited with {:?} and output:\n{}",
+            command,
+            args,
+            data.exit_status,
+            data.stdout_str()
+        )
+    }
+}
 
 impl AssetPaths {
     pub fn new() -> AssetPaths {
@@ -77,11 +117,60 @@ impl AssetPaths {
             path
         };
 
+        //TODO: install wasm-bindgen
+        //TODO: hash fighter_renderer.wasm file name
+        let fighter_renderer_js = {
+            // TODO: this will be nicer when --profile is stabilized
+            //let all_args = ["run", "--profile", env!("PROFILE"), "--", "-t", topology_path];
+
+            let all_args = if env!("PROFILE") == "release" {
+                vec!["build", "--release"]
+            } else {
+                vec!["build"]
+            };
+            info!("Compiling fighter_renderer to wasm");
+            run_command_in_dir("cargo", &all_args, "../fighter_renderer");
+
+            let wasm_path = format!(
+                "../fighter_renderer/target/wasm32-unknown-unknown/{}/fighter_renderer.wasm",
+                env!("PROFILE")
+            );
+            run_command(
+                "wasm-bindgen",
+                &[
+                    "--out-dir",
+                    "../fighter_renderer/target/generated",
+                    "--web",
+                    &wasm_path,
+                ],
+            );
+
+            let contents =
+                fs::read("../fighter_renderer/target/generated/fighter_renderer_bg.wasm").unwrap();
+            let path = format!("/assets_static/{}", "fighter_renderer_bg.wasm");
+            fs::write(format!("../root/{}", path), contents).unwrap();
+
+            let contents =
+                fs::read("../fighter_renderer/target/generated/fighter_renderer.js").unwrap();
+            let mut hasher = Sha256::default();
+            hasher.update(&contents);
+            let hash: String = hasher
+                .finalize()
+                .iter()
+                .map(|x| format!("{:x}", x))
+                .collect();
+
+            let path = format!("/assets_static/{}.js", hash);
+            fs::write(format!("../root/{}", path), contents).unwrap();
+            path
+        };
+
         AssetPaths {
             favicon_png,
             spritesheet_png,
             style_css,
             subaction_render_js,
+            fighter_renderer_js,
         }
     }
 }
@@ -92,4 +181,5 @@ pub struct AssetPaths {
     pub spritesheet_png: String,
     pub style_css: String,
     pub subaction_render_js: String,
+    pub fighter_renderer_js: String,
 }

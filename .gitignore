@@ -1,6 +1,7 @@
 /data/
 !/data/Brawl/source.txt
 /target
+/fighter_renderer/target
 /root
 
 **/*.rs.bk

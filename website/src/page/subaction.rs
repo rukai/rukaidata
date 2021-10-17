@@ -11,7 +11,12 @@ use crate::brawl_data::{BrawlMods, SubactionLinks};
 use crate::page::NavLink;
 use crate::process_scripts;
 
-pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetPaths) {
+pub fn generate(
+    handlebars: &Handlebars,
+    brawl_mods: &BrawlMods,
+    assets: &AssetPaths,
+    wasm_mode: bool,
+) {
     for brawl_mod in &brawl_mods.mods {
         let mod_links = brawl_mods.gen_mod_links(brawl_mod.name.clone());
 
@@ -975,6 +980,7 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                     frame_buttons,
                     twitter_image: twitter_image.clone(),
                     twitter_description,
+                    wasm_mode,
                 };
 
                 {
@@ -1036,6 +1042,7 @@ pub struct SubactionPage<'a> {
     frame_buttons: Vec<FrameButton>,
     twitter_description: String,
     twitter_image: String,
+    wasm_mode: bool,
 }
 
 #[derive(Serialize)]

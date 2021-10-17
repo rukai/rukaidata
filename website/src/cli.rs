@@ -14,6 +14,7 @@ pub(crate) fn parse_cli() -> Option<CLIResults> {
     let mut opts = Options::new();
     opts.optflag("g", "gif", "Enable subaction gif generation");
     opts.optflag("w", "web", "Enable website generation");
+    opts.optflag("a", "wasm", "Use wasm/wgpu backend");
     opts.optopt(
         "m",
         "mods",
@@ -51,12 +52,14 @@ pub(crate) fn parse_cli() -> Option<CLIResults> {
 
     let generate_gifs = matches.opt_present("g");
     let generate_web = matches.opt_present("w");
+    let wasm_mode = matches.opt_present("a");
 
     Some(CLIResults {
         mod_names,
         fighter_names,
         generate_gifs,
         generate_web,
+        wasm_mode,
     })
 }
 
@@ -65,4 +68,5 @@ pub struct CLIResults {
     pub fighter_names: Vec<String>,
     pub generate_gifs: bool,
     pub generate_web: bool,
+    pub wasm_mode: bool,
 }

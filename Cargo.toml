@@ -3,6 +3,7 @@ members = [
     "discord_bot",
     "website",
 ]
+exclude = ["fighter_renderer"]
 
 [profile.release]
 debug-assertions = true
