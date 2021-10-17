@@ -145,10 +145,18 @@
             {{{script_other}}}
 
             <div id="fighter-scripts"></div>
+            {{#if wasm_mode }}
+            <script>
+                window.fighter_subaction_data_string = '{{{ subaction }}}';
+                window.fighter_subaction_extent_string = '{{{ subaction_extent }}}';
+            </script>
+            {{else}}
             <script>
                 const fighter_subaction_data = {{{ subaction }}};
                 const fighter_subaction_extent = {{{ subaction_extent }}};
             </script>
+            {{/if}}
+
         </div>
 
         <!-- Display nothing from xs to sm, display something from md to xl -->

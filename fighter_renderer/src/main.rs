@@ -1,6 +1,6 @@
+use brawllib_rs::high_level_fighter::HighLevelSubaction;
 use brawllib_rs::renderer::app::state::{AppEvent, State};
 use brawllib_rs::renderer::app::App;
-use brawllib_rs::high_level_fighter::HighLevelSubaction;
 
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -11,10 +11,13 @@ fn main() {
     console_log::init().expect("could not initialize logger");
 
     let document = web_sys::window().unwrap().document().unwrap();
-    //document.get_bytes_from_somewhere
+    let global = JsValue::from(js_sys::global());
+    let subaction_json = js_sys::Reflect::get(&global, &"fighter_subaction_data_string".into())
+        .unwrap()
+        .as_string()
+        .unwrap();
 
-    let fighter_bytes = include_bytes!("subaction_data.bin");
-    let subaction = bincode::deserialize(fighter_bytes).unwrap();
+    let subaction = serde_json::from_str(&subaction_json).unwrap();
 
     wasm_bindgen_futures::spawn_local(run_renderer(document, subaction));
 }
