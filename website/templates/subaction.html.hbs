@@ -411,13 +411,13 @@
     </div>
 </div>
 
-<script src="https://unpkg.com/three@0.94.0/build/three.min.js"></script>
 {{#if wasm_mode}}
 <script type="module">
     import init from "{{assets.fighter_renderer_js}}"
     init();
 </script>
 {{else}}
+<script src="https://unpkg.com/three@0.94.0/build/three.min.js"></script>
 <script src="{{assets.subaction_render_js}}"></script>
 {{/if}}
 

@@ -8,7 +8,8 @@ resolver = "2"
 
 [dependencies]
 #brawllib_rs = "0.21"
-brawllib_rs = { git = "https://github.com/rukai/brawllib_rs", ref = "71c8b521c65e15d8af0d9fb6f9cdad5013acb65f" }
+brawllib_rs = { git = "https://github.com/rukai/brawllib_rs", rev = "7c49d4e8feb306bc2e1ecdec32807598c1b1768f" }
+#brawllib_rs = { path = "/home/rukai2/Projects/Crates/brawllib_rs/brawllib_rs" }
 wgpu = { version = "0.11", features = ["webgl"] }
 bincode = "1"
 
