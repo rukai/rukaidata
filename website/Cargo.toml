@@ -1,7 +1,8 @@
 [package]
 name = "rukaidata_website"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
+rust-version = "1.56"
 authors = ["Rukai <rubickent@gmail.com>"]
 description = "Uses brawllib_rs to display frame data of characters"
 repository = "https://github.com/rukai/rukaidata"
