@@ -5,10 +5,11 @@ use brawllib_rs::renderer::app::App;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{Document, HtmlElement};
+use log::Level;
 
 fn main() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    console_log::init().expect("could not initialize logger");
+    console_log::init_with_level(Level::Warn).expect("could not initialize logger");
 
     let document = web_sys::window().unwrap().document().unwrap();
     let global = JsValue::from(js_sys::global());
