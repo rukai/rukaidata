@@ -21,8 +21,15 @@
             <div id="fighter-render">
             </div>
             {{#if wasm_mode}}
-            <button id="run">Run</button>
-            <p id="frame">unset</p>
+            <p>
+                |
+                {{#each frame_buttons}}
+                <a href="javascript:;" class="frame-button {{class}}" id="set_frame_{{index}}">{{index}}</a> |
+                {{/each}}
+            </p>
+            <div>
+                <button type="button" id="run-toggle" class="btn btn-sm btn-primary">Run</button>
+            </div>
             {{else}}
             <p>
                 |
