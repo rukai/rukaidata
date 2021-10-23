@@ -113,7 +113,7 @@ checksum = "0d8c1fef690941d3e7788d328517591fecc684c084084702d6ff1641e993699a"
 [[package]]
 name = "brawllib_rs"
 version = "0.21.0"
-source = "git+https://github.com/rukai/brawllib_rs?rev=7c49d4e8feb306bc2e1ecdec32807598c1b1768f#7c49d4e8feb306bc2e1ecdec32807598c1b1768f"
+source = "git+https://github.com/rukai/brawllib_rs?rev=d830204dc8b4b9f33810216eb83954fd4e610b78#d830204dc8b4b9f33810216eb83954fd4e610b78"
 dependencies = [
  "anyhow",
  "bitflags",

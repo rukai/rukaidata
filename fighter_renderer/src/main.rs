@@ -3,6 +3,7 @@ use std::sync::mpsc::Sender;
 use brawllib_rs::high_level_fighter::HighLevelSubaction;
 use brawllib_rs::renderer::app::state::{AppEvent, State};
 use brawllib_rs::renderer::app::App;
+use brawllib_rs::renderer::camera::CharacterFacing;
 
 use log::Level;
 use wasm_bindgen::prelude::*;
@@ -119,7 +120,9 @@ fn setup_previous_frame_button(document: &Document, event_tx: Sender<AppEvent>) 
         document,
         "previous-frame",
         Box::new(move || {
-            event_tx.send(AppEvent::SetState(State::Pause)).unwrap();
+            event_tx
+                .send(AppEvent::SetState(State::StepBackward))
+                .unwrap();
         }) as Box<dyn FnMut()>,
     );
 }
@@ -129,7 +132,9 @@ fn setup_next_frame_button(document: &Document, event_tx: Sender<AppEvent>) {
         document,
         "next-frame",
         Box::new(move || {
-            event_tx.send(AppEvent::SetState(State::Pause)).unwrap();
+            event_tx
+                .send(AppEvent::SetState(State::StepForward))
+                .unwrap();
         }) as Box<dyn FnMut()>,
     );
 }
@@ -139,7 +144,9 @@ fn setup_face_left_button(document: &Document, event_tx: Sender<AppEvent>) {
         document,
         "face-left",
         Box::new(move || {
-            event_tx.send(AppEvent::SetState(State::Pause)).unwrap();
+            event_tx
+                .send(AppEvent::ResetCamera(CharacterFacing::Left))
+                .unwrap();
         }) as Box<dyn FnMut()>,
     );
 }
@@ -149,7 +156,9 @@ fn setup_face_right_button(document: &Document, event_tx: Sender<AppEvent>) {
         document,
         "face-right",
         Box::new(move || {
-            event_tx.send(AppEvent::SetState(State::Pause)).unwrap();
+            event_tx
+                .send(AppEvent::ResetCamera(CharacterFacing::Right))
+                .unwrap();
         }) as Box<dyn FnMut()>,
     );
 }
