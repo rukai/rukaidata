@@ -978,7 +978,7 @@ pub fn generate(
                     script_sfx,
                     script_other,
                     frame_buttons,
-                    twitter_image: twitter_image.clone(),
+                    twitter_image,
                     twitter_description,
                     wasm_mode,
                 };

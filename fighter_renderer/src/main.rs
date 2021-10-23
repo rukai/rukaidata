@@ -4,8 +4,11 @@ use brawllib_rs::renderer::app::App;
 
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
+use wasm_bindgen_futures::JsFuture;
 use web_sys::{Document, HtmlElement};
+use web_sys::{Request, RequestInit, RequestMode, Response};
 use log::Level;
+
 
 fn main() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
@@ -21,6 +24,32 @@ fn main() {
     let subaction = serde_json::from_str(&subaction_json).unwrap();
 
     wasm_bindgen_futures::spawn_local(run_renderer(document, subaction));
+}
+
+// TODO: hmmmmm if we have to do some slow javascript conversion,
+// then there is no gaurantee this will be faster than just parsing json
+// So lets wait till we have more complete functionality before attempting this optimization
+#[allow(unused)]
+async fn get_subaction(subaction_name: &str) -> HighLevelSubaction {
+    let mut opts = RequestInit::new();
+    opts.method("GET");
+    opts.mode(RequestMode::Cors);
+
+    let url = format!("{}.bin", subaction_name);
+
+    let request = Request::new_with_str_and_init(&url, &opts).unwrap();
+
+    let window = web_sys::window().unwrap();
+    let resp_value = JsFuture::from(window.fetch_with_request(&request)).await.unwrap();
+
+    // `resp_value` is a `Response` object.
+    assert!(resp_value.is_instance_of::<Response>());
+    let resp: Response = resp_value.dyn_into().unwrap();
+
+    // Convert this other `Promise` into a rust `Future`.
+    let json = JsFuture::from(resp.json().unwrap()).await.unwrap();
+
+    todo!("How do I get binary data from the json?")
 }
 
 pub async fn run_renderer(document: Document, subaction: HighLevelSubaction) {
