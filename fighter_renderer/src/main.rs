@@ -12,11 +12,16 @@ use wasm_bindgen_futures::JsFuture;
 use web_sys::{Document, HtmlElement};
 use web_sys::{Request, RequestInit, RequestMode, Response};
 
+mod hitbox_table_angles;
+
 fn main() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     console_log::init_with_level(Level::Warn).expect("could not initialize logger");
 
     let document = web_sys::window().unwrap().document().unwrap();
+
+    hitbox_table_angles::draw_hitbox_table_angles(&document);
+
     let global = JsValue::from(js_sys::global());
     let subaction_json = js_sys::Reflect::get(&global, &"fighter_subaction_data_string".into())
         .unwrap()

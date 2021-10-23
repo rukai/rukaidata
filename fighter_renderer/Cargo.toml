@@ -30,6 +30,9 @@ features = [
   'RequestMode',
   'Response',
   'Window',
+  'HtmlCollection',
+  'HtmlCanvasElement',
+  'CanvasRenderingContext2d',
 ]
 
 [profile.release]
