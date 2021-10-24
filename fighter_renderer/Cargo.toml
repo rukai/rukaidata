@@ -7,9 +7,7 @@ rust-version = "1.56"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-#brawllib_rs = "0.21"
-brawllib_rs = { git = "https://github.com/rukai/brawllib_rs", rev = "e62bbcc20816e93580893049908c6ed231289a78" }
-#brawllib_rs = { path = "/home/rukai2/Projects/Crates/brawllib_rs/brawllib_rs" }
+brawllib_rs = "0.22"
 wgpu = { version = "0.11", features = ["webgl"] }
 serde_json = "1"
 log = "0.4"
@@ -29,6 +27,8 @@ features = [
   'Headers',
   'HtmlCanvasElement',
   'HtmlCollection',
+  'HtmlInputElement',
+  'HtmlSelectElement',
   'Request',
   'RequestInit',
   'RequestMode',

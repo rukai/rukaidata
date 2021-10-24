@@ -18,10 +18,19 @@ jobs:
       with:
         toolchain: stable
     - name: Check `cargo fmt` was run
-      run: cargo fmt --all -- --check
+      run: |
+        cargo fmt --all -- --check
+
+        # Need to check fighter_renderer seperately as its not part of the workspace
+        cd fighter_renderer
+        cargo fmt --all -- --check
     - name: Build and test
       run: |
         cargo test
         cargo test --release
         cargo build --examples --all
         cargo build --release --examples --all
+
+        # Need to build fighter_renderer seperately as its not part of the workspace
+        cd fighter_renderer
+        cargo build
