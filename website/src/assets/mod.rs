@@ -1,5 +1,6 @@
 use std::fs;
 use std::io::Write;
+use std::path::Path;
 use subprocess::{Exec, Redirection};
 
 use sha2::{Digest, Sha256};
@@ -118,9 +119,8 @@ impl AssetPaths {
         };
 
         //TODO: install wasm-bindgen
-        //TODO: hash fighter_renderer.wasm file name
         //TODO: run `wasm-opt -Oz -o fighter_renderer_bg.wasm fighter_renderer_bg.wasm`, it currently explodes when parsing my wasm though :/
-        let fighter_renderer_js = {
+        {
             // TODO: this will be nicer when --profile is stabilized
             //let all_args = ["run", "--profile", env!("PROFILE"), "--", "-t", topology_path];
 
@@ -149,14 +149,39 @@ impl AssetPaths {
                     &wasm_path,
                 ],
             );
+        }
 
-            let contents =
-                fs::read("../fighter_renderer/target/generated/fighter_renderer_bg.wasm").unwrap();
-            let path = format!("/assets_static/{}", "fighter_renderer_bg.wasm");
+        const WASM_FILE_NAME: &str = "fighter_renderer_bg.wasm";
+        let fighter_renderer_wasm = {
+            let contents = fs::read(&format!(
+                "../fighter_renderer/target/generated/{}",
+                WASM_FILE_NAME
+            ))
+            .unwrap();
+            let mut hasher = Sha256::default();
+            hasher.update(&contents);
+            let hash: String = hasher
+                .finalize()
+                .iter()
+                .map(|x| format!("{:x}", x))
+                .collect();
+            let path = format!("/assets_static/{}.wasm", hash);
             fs::write(format!("../root/{}", path), contents).unwrap();
+            path
+        };
 
-            let contents =
-                fs::read("../fighter_renderer/target/generated/fighter_renderer.js").unwrap();
+        let fighter_renderer_js = {
+            let mut contents =
+                fs::read_to_string("../fighter_renderer/target/generated/fighter_renderer.js")
+                    .unwrap();
+            let wasm_file_name = Path::new(&fighter_renderer_wasm)
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap();
+            assert!(contents.contains(WASM_FILE_NAME));
+            contents = contents.replace(WASM_FILE_NAME, &wasm_file_name);
+
             let mut hasher = Sha256::default();
             hasher.update(&contents);
             let hash: String = hasher
