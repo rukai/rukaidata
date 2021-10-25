@@ -17,3 +17,9 @@ pub struct NavLink {
     pub link: String,
     pub current: bool,
 }
+
+#[derive(Clone, Serialize)]
+pub struct Preload {
+    pub path: String,
+    pub as_: String,
+}

@@ -8,7 +8,7 @@ use rayon::prelude::*;
 
 use crate::assets::AssetPaths;
 use crate::brawl_data::{BrawlMods, SubactionLinks};
-use crate::page::NavLink;
+use crate::page::{NavLink, Preload};
 use crate::process_scripts;
 
 pub fn generate(
@@ -961,9 +961,21 @@ pub fn generate(
 
                 let twitter_image = format!("/{}/{}/subactions/{}.gif", brawl_mod.name, fighter_name, subaction.name);
 
+                let preload = [
+                    Preload {
+                        path: assets.fighter_renderer_wasm.clone(),
+                        as_: "fetch".to_string(),
+                    },
+                    Preload {
+                        path: assets.fighter_renderer_js.clone(),
+                        as_: "script".to_string(),
+                    },
+                ];
+
                 let page = SubactionPage {
                     assets,
                     fighter_link:     format!("/{}/{}", brawl_mod.name, fighter_name),
+                    preload:          &preload,
                     mod_links:        &mod_links,
                     title:            format!("{} - {} - Subaction - {}", brawl_mod.name, fighter_name, subaction.name),
                     subaction_links:  brawl_mod.gen_subaction_links(&fighter.fighter, subaction.name.clone()),
@@ -1025,6 +1037,7 @@ fn angle_string(angle: i32, id: u8) -> String {
 #[derive(Serialize)]
 pub struct SubactionPage<'a> {
     assets: &'a AssetPaths,
+    preload: &'a [Preload],
     mod_links: &'a [NavLink],
     fighter_links: Vec<NavLink>,
     subaction_links: SubactionLinks,

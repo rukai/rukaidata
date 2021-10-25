@@ -145,7 +145,7 @@ impl AssetPaths {
                     "--target",
                     "web",
                     "--no-typescript",
-                    "--reference-types",
+                    //"--reference-types", // Not supported by chrome :/
                     &wasm_path,
                 ],
             );
@@ -200,6 +200,7 @@ impl AssetPaths {
             spritesheet_png,
             style_css,
             subaction_render_js,
+            fighter_renderer_wasm,
             fighter_renderer_js,
         }
     }
@@ -211,5 +212,6 @@ pub struct AssetPaths {
     pub spritesheet_png: String,
     pub style_css: String,
     pub subaction_render_js: String,
+    pub fighter_renderer_wasm: String,
     pub fighter_renderer_js: String,
 }
