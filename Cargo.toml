@@ -4,6 +4,7 @@ members = [
     "website",
 ]
 exclude = ["fighter_renderer"]
+resolver = "2"
 
 [profile.release]
 debug-assertions = true

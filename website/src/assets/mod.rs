@@ -119,6 +119,7 @@ impl AssetPaths {
 
         //TODO: install wasm-bindgen
         //TODO: hash fighter_renderer.wasm file name
+        //TODO: run `wasm-opt -Oz -o fighter_renderer_bg.wasm fighter_renderer_bg.wasm`, it currently explodes when parsing my wasm though :/
         let fighter_renderer_js = {
             // TODO: this will be nicer when --profile is stabilized
             //let all_args = ["run", "--profile", env!("PROFILE"), "--", "-t", topology_path];
@@ -135,12 +136,16 @@ impl AssetPaths {
                 "../fighter_renderer/target/wasm32-unknown-unknown/{}/fighter_renderer.wasm",
                 env!("PROFILE")
             );
+            // TODO: lets access as crate https://crates.io/crates/wasm-bindgen-cli-support
             run_command(
                 "wasm-bindgen",
                 &[
                     "--out-dir",
                     "../fighter_renderer/target/generated",
-                    "--web",
+                    "--target",
+                    "web",
+                    "--no-typescript",
+                    "--reference-types",
                     &wasm_path,
                 ],
             );
