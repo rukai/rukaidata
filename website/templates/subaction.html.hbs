@@ -179,11 +179,7 @@
             <h3 id="script-other">Other</h3>
             {{{script_other}}}
 
-            <div id="fighter-scripts"></div>
             {{#if wasm_mode }}
-            <script>
-                window.fighter_subaction_data_string = '{{{ subaction }}}';
-            </script>
             {{else}}
             <script>
                 const fighter_subaction_data = {{{ subaction }}};
@@ -455,8 +451,12 @@
 
 {{#if wasm_mode}}
 <script type="module">
-    import init from "{{assets.fighter_renderer_js}}"
-    init();
+    import init, { run } from "{{assets.fighter_renderer_js}}";
+    // TODO: apparently we wont need to do just async wrapper + init call nonsense in the future
+    (async function () {
+        await init();
+        run('{{subaction_bin_path}}');
+    })();
 </script>
 {{else}}
 <script src="https://unpkg.com/three@0.94.0/build/three.min.js"></script>

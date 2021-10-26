@@ -9,8 +9,8 @@ rust-version = "1.56"
 [dependencies]
 brawllib_rs = "0.22"
 wgpu = { version = "0.11", features = ["webgl"] }
-serde_json = "1"
 log = "0.4"
+bincode = "1"
 
 # wasm
 console_log = "0.2"
@@ -39,3 +39,6 @@ features = [
 [profile.release]
 lto = true
 opt-level = 'z'
+
+[lib]
+crate-type = ["cdylib"]
