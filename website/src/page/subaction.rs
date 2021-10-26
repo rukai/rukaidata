@@ -976,6 +976,12 @@ pub fn generate(
                     },
                 ];
 
+                let preload = if wasm_mode {
+                    &preload
+                } else {
+                    &[] as &[Preload]
+                };
+
                 if wasm_mode {
                     let bin = bincode::serialize(&subaction).unwrap();
                     let bin_path = format!("../root/{}/{}/subactions/{}.bin", brawl_mod.name, fighter_name, subaction.name);

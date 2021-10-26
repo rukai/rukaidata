@@ -1,51 +1,51 @@
 body {
     padding-top: 5rem;
     padding-bottom: 1rem;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-family: Verdana, Geneva, Tahoma, sans-serif !important;
     color: rgb(255, 255, 255);
-    background-color: rgb(30, 30, 30);
+    background-color: rgb(30, 30, 30) !important;
 }
 
 p {
-    font-size: 0.8rem;
+    font-size: 0.8rem !important;
 }
 
 @media (min-width: 768px) {
     p {
-        font-size: 1.1rem;
+        font-size: 1.1rem !important;
     }
 }
 
 h1 {
-    font-weight: bold;
+    font-weight: bold !important;
     text-align: center;
-    font-size: 1.2rem;
+    font-size: 1.2rem !important;
 }
 
 @media (min-width: 768px) {
     h1 {
-        font-size: 2.4rem;
+        font-size: 2.4rem !important;
     }
 }
 
 h2 {
-    font-size: 1.0rem;
-    font-weight: bold;
+    font-size: 1.0rem !important;
+    font-weight: bold !important;
 }
 
 @media (min-width: 768px) {
     h2 {
-        font-size: 2rem;
+        font-size: 2rem !important;
     }
     nav.sidebar > h2 {
-        font-size: 1.2rem;
+        font-size: 1.2rem !important;
         margin-bottom: 0;
     }
 }
 
 h3 {
-    margin-top: 0.5rem;
-    font-size: 1.3rem;
+    margin-top: 0.5rem !important;
+    font-size: 1.3rem !important;
 }
 
 pre {
@@ -112,12 +112,15 @@ pre {
 
 .hitbox-frame-button {
     color: #FF0000;
+    text-decoration-line: none;
 }
 .iasa-frame-button {
     color: #00FF00;
+    text-decoration-line: none;
 }
 .standard-frame-button {
     color: #FFFFFF;
+    text-decoration-line: none;
 }
 .current-frame-button {
     background-color: rgb(0, 123, 255)
