@@ -45,13 +45,14 @@ fn run_command(command: &str, args: &[&str]) {
 }
 
 impl AssetPaths {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> AssetPaths {
         fs::create_dir_all("../root/assets_static").unwrap();
 
         let style_css = {
             let contents = include_str!("style.css");
 
-            let minified = minifier::css::minify(&contents).unwrap();
+            let minified = minifier::css::minify(contents).unwrap();
 
             let mut hasher = Sha256::default();
             hasher.update(&minified);
@@ -180,7 +181,7 @@ impl AssetPaths {
                 .to_str()
                 .unwrap();
             assert!(contents.contains(WASM_FILE_NAME));
-            contents = contents.replace(WASM_FILE_NAME, &wasm_file_name);
+            contents = contents.replace(WASM_FILE_NAME, wasm_file_name);
 
             let mut hasher = Sha256::default();
             hasher.update(&contents);

@@ -38,14 +38,14 @@ pub(crate) fn parse_cli() -> Option<CLIResults> {
 
     let mut fighter_names: Vec<String> = vec![];
     if let Some(f_match) = matches.opt_str("f") {
-        for fighter_name in f_match.split(",") {
+        for fighter_name in f_match.split(',') {
             fighter_names.push(fighter_name.to_lowercase());
         }
     }
 
     let mut mod_names = vec![];
     if let Some(m_match) = matches.opt_str("m") {
-        for mod_name in m_match.split(",") {
+        for mod_name in m_match.split(',') {
             mod_names.push(mod_name.to_lowercase());
         }
     }

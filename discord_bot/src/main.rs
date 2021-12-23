@@ -147,9 +147,8 @@ impl EventHandler for Handler {
 
                     // yeet
                     if tokens.contains(&"yeet") {
-                        match character {
-                            Some("Ness") => subactions = vec!("ThrowB"),
-                            _ => { }
+                        if let Some("Ness") = character {
+                            subactions = vec!("ThrowB");
                         }
                     }
 
@@ -278,15 +277,15 @@ impl EventHandler for Handler {
                         (Some(character), false) => {
                             let mut message = String::new();
                             for subaction in &subactions {
-                                if message.len() != 0 {
-                                    message.push_str("\n");
+                                if !message.is_empty() {
+                                    message.push('\n');
                                 }
                                 message.push_str(&format!("https://rukaidata.com/{}/{}/subactions/{}.html", mod_path, character, subaction));
                             }
                             message
                         }
                         (Some(character), true ) => format!("https://rukaidata.com/{}/{}", mod_path, character),
-                        (None,            false) => format!("Need to specify a character."),
+                        (None,            false) => "Need to specify a character.".to_string(),
                         (None,            true ) => format!("https://rukaidata.com/{}", mod_path),
                     };
 

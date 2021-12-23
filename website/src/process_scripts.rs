@@ -80,49 +80,41 @@ pub fn process_events(
             EventAst::Goto (offset) => {
                 if let Some(script_info) = script_lookup.get(&offset.offset) {
                     result.push_str(&format!("<li>Goto(<a href='{}'>{}</a>)</li>", script_info.address, script_info.name));
+                } else if let Some(script) = fighter.fighter.scripts_section.iter().find(|x| x.callers.contains(&offset.origin)) {
+                    result.push_str(&format!("<li>Goto(<a href='help'>External: {}</a>)</li>", script.name));
                 } else {
-                    if let Some(script) = fighter.fighter.scripts_section.iter().find(|x| x.callers.contains(&offset.origin)) {
-                        result.push_str(&format!("<li>Goto(<a href='help'>External: {}</a>)</li>", script.name));
-                    } else {
-                        result.push_str(&format!("<li>Goto(Offset {{ offset: 0x{:x}, origin: 0x{:x} }})</li>", offset.offset, offset.origin));
-                        error!("Failed to lookup script for goto destination");
-                    }
+                    result.push_str(&format!("<li>Goto(Offset {{ offset: 0x{:x}, origin: 0x{:x} }})</li>", offset.offset, offset.origin));
+                    error!("Failed to lookup script for goto destination");
                 }
             }
             EventAst::Subroutine (offset) => {
                 if let Some(script_info) = script_lookup.get(&offset.offset) {
                     result.push_str(&format!("<li>Subroutine(<a href='{}'>{}</a>)</li>", script_info.address, script_info.name));
+                } else if let Some(script) = fighter.fighter.scripts_section.iter().find(|x| x.callers.contains(&offset.origin)) {
+                    result.push_str(&format!("<li>Subroutine(<a href='/{}/{}/scripts_common/{}.html'>External: {}</a>)</li>", brawl_mod.name, fighter.fighter.name, script.name, script.name));
                 } else {
-                    if let Some(script) = fighter.fighter.scripts_section.iter().find(|x| x.callers.contains(&offset.origin)) {
-                        result.push_str(&format!("<li>Subroutine(<a href='/{}/{}/scripts_common/{}.html'>External: {}</a>)</li>", brawl_mod.name, fighter.fighter.name, script.name, script.name));
-                    } else {
-                        result.push_str(&format!("<li>Subroutine(Offset {{ offset: 0x{:x}, origin: 0x{:x} }})</li>", offset.offset, offset.origin));
-                        error!("Failed to lookup script for subroutine destination");
-                    }
+                    result.push_str(&format!("<li>Subroutine(Offset {{ offset: 0x{:x}, origin: 0x{:x} }})</li>", offset.offset, offset.origin));
+                    error!("Failed to lookup script for subroutine destination");
                 }
             }
             EventAst::CallEveryFrame { thread_id, offset } => {
                 if let Some(script_info) = script_lookup.get(&offset.offset) {
                     result.push_str(&format!("<li>CallEveryFrame {{ thread_id: {}, script: <a href='{}'>{}</a> }}</li>", thread_id, script_info.address, script_info.name));
+                } else if let Some(script) = fighter.fighter.scripts_section.iter().find(|x| x.callers.contains(&offset.origin)) {
+                    result.push_str(&format!("<li>CallEveryFrame(<a href='/{}/{}/scripts_common/{}.html'>External: {}</a>)</li>", brawl_mod.name, fighter.fighter.name, script.name, script.name));
                 } else {
-                    if let Some(script) = fighter.fighter.scripts_section.iter().find(|x| x.callers.contains(&offset.origin)) {
-                        result.push_str(&format!("<li>CallEveryFrame(<a href='/{}/{}/scripts_common/{}.html'>External: {}</a>)</li>", brawl_mod.name, fighter.fighter.name, script.name, script.name));
-                    } else {
-                        result.push_str(&format!("<li>{:x?}</li>", event));
-                        error!("Failed to lookup script for CallEveryFrame destination");
-                    }
+                    result.push_str(&format!("<li>{:x?}</li>", event));
+                    error!("Failed to lookup script for CallEveryFrame destination");
                 }
             }
             EventAst::IndependentSubroutine { thread_id, offset } => {
                 if let Some(script_info) = script_lookup.get(&offset.offset) {
                     result.push_str(&format!("<li>IndependentSubroutine {{ thread_id: {}, script: <a href='{}'>{}</a> }}</li>", thread_id, script_info.address, script_info.name));
+                } else if let Some(script) = fighter.fighter.scripts_section.iter().find(|x| x.callers.contains(&offset.origin)) {
+                    result.push_str(&format!("<li>IndependentSubroutine(<a href='/{}/{}/scripts_common/{}.html'>External: {}</a>)</li>", brawl_mod.name, fighter.fighter.name, script.name, script.name));
                 } else {
-                    if let Some(script) = fighter.fighter.scripts_section.iter().find(|x| x.callers.contains(&offset.origin)) {
-                        result.push_str(&format!("<li>IndependentSubroutine(<a href='/{}/{}/scripts_common/{}.html'>External: {}</a>)</li>", brawl_mod.name, fighter.fighter.name, script.name, script.name));
-                    } else {
-                        result.push_str(&format!("<li>{:x?}</li>", event));
-                        error!("Failed to lookup script for IndependentSubroutine destination");
-                    }
+                    result.push_str(&format!("<li>{:x?}</li>", event));
+                    error!("Failed to lookup script for IndependentSubroutine destination");
                 }
             }
             EventAst::IntVariableSet        { value, variable } => result.push_str(&format!("<li>IntVariableSet {{ variable: {}, value: {} }}</li>",        process_expression(&Expression::Variable(variable.clone())), value)),
@@ -141,8 +133,8 @@ pub fn process_events(
                 process_expression(&Expression::Variable(unk1.clone())),
                 process_expression(&Expression::Variable(unk2.clone())),
                 process_expression(&Expression::Variable(unk3.clone())),
-                unk4.as_ref().map(|x| process_expression(&Expression::Variable(x.clone()))).unwrap_or("None".into()),
-                unk5.as_ref().map(|x| process_expression(&Expression::Variable(x.clone()))).unwrap_or("None".into()),
+                unk4.as_ref().map(|x| process_expression(&Expression::Variable(x.clone()))).unwrap_or_else(|| "None".into()),
+                unk5.as_ref().map(|x| process_expression(&Expression::Variable(x.clone()))).unwrap_or_else(|| "None".into()),
             )),
             EventAst::ItemThrow2 { unk1, unk2, unk3 } => result.push_str(&format!("<li>ItemThrow2 {{ unk1: {}, unk2: {}, unk3: {}}}</li>", unk1, unk2, process_expression(&Expression::Variable(unk3.clone())))),
             EventAst::ApplyThrow (throw) => result.push_str(&format!("<li>ApplyThrow {{ unk0: {}, bone: {}, unk1: {} unk2: {}, unk3: {} }}</li>",

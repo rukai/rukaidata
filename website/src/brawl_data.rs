@@ -52,11 +52,11 @@ impl BrawlMods {
 
                 let mods: Vec<_> = dir
                     .filter(|x| x.as_ref().unwrap().path().is_dir())
-                    .filter_map(|x| BrawlMod::new(x.unwrap(), &cli))
+                    .filter_map(|x| BrawlMod::new(x.unwrap(), cli))
                     .collect();
 
                 // If nav links are not manually specified, automatically generate them.
-                if mod_links.len() == 0 {
+                if mod_links.is_empty() {
                     for brawl_mod in &mods {
                         mod_links.push(NavLink {
                             name: brawl_mod.name.clone(),
@@ -92,7 +92,7 @@ impl BrawlMod {
     pub fn new(data: DirEntry, cli: &CLIResults) -> Option<BrawlMod> {
         let mod_name = data.file_name().into_string().unwrap();
         let lower_mod_name = mod_name.to_lowercase();
-        if cli.mod_names.len() == 0 || cli.mod_names.iter().any(|x| x == &lower_mod_name) {
+        if cli.mod_names.is_empty() || cli.mod_names.iter().any(|x| x == &lower_mod_name) {
             let is_mod = lower_mod_name != "brawl";
             let mod_path = if is_mod { Some(data.path()) } else { None };
             let brawl_path = if is_mod {
@@ -100,8 +100,7 @@ impl BrawlMod {
             } else {
                 data.path()
             };
-            let brawllib_mod =
-                BrawllibMod::new(&brawl_path, mod_path.as_ref().map(|x| x.as_path()));
+            let brawllib_mod = BrawllibMod::new(&brawl_path, mod_path.as_deref());
 
             let fighters = match brawllib_mod.load_fighters(true) {
                 Ok(fighters) => fighters,
@@ -122,7 +121,7 @@ impl BrawlMod {
                     ModType::ModFromScratch => false,
                 } && is_mod;
 
-                if (cli.fighter_names.len() == 0
+                if (cli.fighter_names.is_empty()
                     || cli.fighter_names.iter().any(|x| x == &lower_fighter_name))
                     && lower_fighter_name != "poketrainer"
                     && !unmodified_fighter_in_mod
@@ -150,21 +149,15 @@ impl BrawlMod {
                                     ScriptInfo { name, address },
                                 );
                             }
-                        } else {
-                            if action.script_entry.offset != 0 {
-                                let name = format!(
-                                    "{} Entry 0x{:x}",
-                                    action.name, action.script_entry.offset
-                                );
-                                let address = format!(
-                                    "/{}/{}/actions/{}.html#script-entry",
-                                    mod_name, fighter.name, action.name
-                                );
-                                script_lookup.insert(
-                                    action.script_entry.offset,
-                                    ScriptInfo { name, address },
-                                );
-                            }
+                        } else if action.script_entry.offset != 0 {
+                            let name =
+                                format!("{} Entry 0x{:x}", action.name, action.script_entry.offset);
+                            let address = format!(
+                                "/{}/{}/actions/{}.html#script-entry",
+                                mod_name, fighter.name, action.name
+                            );
+                            script_lookup
+                                .insert(action.script_entry.offset, ScriptInfo { name, address });
                         }
 
                         if action.script_exit_common {
@@ -182,21 +175,15 @@ impl BrawlMod {
                                     ScriptInfo { name, address },
                                 );
                             }
-                        } else {
-                            if action.script_exit.offset != 0 {
-                                let name = format!(
-                                    "{} Exit 0x{:x}",
-                                    action.name, action.script_exit.offset
-                                );
-                                let address = format!(
-                                    "/{}/{}/actions/{}.html#script-exit",
-                                    mod_name, fighter.name, action.name
-                                );
-                                script_lookup.insert(
-                                    action.script_exit.offset,
-                                    ScriptInfo { name, address },
-                                );
-                            }
+                        } else if action.script_exit.offset != 0 {
+                            let name =
+                                format!("{} Exit 0x{:x}", action.name, action.script_exit.offset);
+                            let address = format!(
+                                "/{}/{}/actions/{}.html#script-exit",
+                                mod_name, fighter.name, action.name
+                            );
+                            script_lookup
+                                .insert(action.script_exit.offset, ScriptInfo { name, address });
                         }
                     }
 
@@ -290,7 +277,7 @@ impl BrawlMod {
             links.push(NavLink {
                 name: fighter.fighter.name.clone(),
                 link: format!("/{}/{}", self.name, fighter.fighter.name),
-                current: current_fighter == &fighter.fighter.name,
+                current: current_fighter == fighter.fighter.name,
             });
         }
         links
@@ -401,11 +388,11 @@ impl BrawlMod {
                 let number: String = link.name.chars().filter(|x| x.is_digit(10)).collect();
                 if link.name.contains("Air") {
                     attacks_aerial.push(link);
-                } else if link.name.contains("Attack") && number.starts_with("1") {
+                } else if link.name.contains("Attack") && number.starts_with('1') {
                     attacks_jab.push(link);
-                } else if link.name.contains("Attack") && number.starts_with("3") {
+                } else if link.name.contains("Attack") && number.starts_with('3') {
                     attacks_tilt.push(link);
-                } else if link.name.contains("Attack") && number.starts_with("4") {
+                } else if link.name.contains("Attack") && number.starts_with('4') {
                     attacks_smash.push(link);
                 } else if link.name.contains("Attack") {
                     attacks_dash.push(link);
@@ -435,7 +422,7 @@ impl BrawlMod {
                 tech.push(link);
             } else if link.name.contains("Escape") || link.name.contains("Guard") {
                 dodges.push(link);
-            } else if link.name.contains("NONE") || link.name.starts_with("_") {
+            } else if link.name.contains("NONE") || link.name.starts_with('_') {
                 none.push(link);
             } else {
                 misc.push(link);
@@ -467,8 +454,8 @@ impl BrawlMod {
         misc.sort_by_key(|x| x.name.clone());
         none.sort_by_key(|x| x.name.clone());
 
-        let has_glide = glide.len() > 0;
-        let has_crawl = crawl.len() > 0;
+        let has_glide = !glide.is_empty();
+        let has_crawl = !crawl.is_empty();
 
         SubactionLinks {
             attacks_aerial,

@@ -14,16 +14,16 @@ pub fn init(
     event_tx: Sender<AppEventIncoming>,
     frames_len: usize,
 ) -> AppEventOutgoingHandler {
-    setup_frame_buttons(&document, event_tx.clone(), frames_len);
-    setup_run_toggle(&document, event_tx.clone());
-    setup_previous_frame_button(&document, event_tx.clone());
-    setup_next_frame_button(&document, event_tx.clone());
-    setup_face_left_button(&document, event_tx.clone());
-    setup_face_right_button(&document, event_tx.clone());
-    setup_invulnerable_select(&document, event_tx.clone());
-    setup_wireframe_checkbox(&document, event_tx.clone());
-    setup_ecb_checkbox(&document, event_tx.clone());
-    setup_perspective_checkbox(&document, event_tx.clone());
+    setup_frame_buttons(document, event_tx.clone(), frames_len);
+    setup_run_toggle(document, event_tx.clone());
+    setup_previous_frame_button(document, event_tx.clone());
+    setup_next_frame_button(document, event_tx.clone());
+    setup_face_left_button(document, event_tx.clone());
+    setup_face_right_button(document, event_tx.clone());
+    setup_invulnerable_select(document, event_tx.clone());
+    setup_wireframe_checkbox(document, event_tx.clone());
+    setup_ecb_checkbox(document, event_tx.clone());
+    setup_perspective_checkbox(document, event_tx.clone());
 
     event_tx
         .send(AppEventIncoming::SetState(State::Pause))

@@ -30,7 +30,7 @@ pub fn generate(brawl_mods: &BrawlMods) {
             .unwrap();
 
             for (index, subaction) in fighter.fighter.subactions.iter().enumerate() {
-                if subaction.frames.len() > 0 {
+                if !subaction.frames.is_empty() {
                     let twitter_image = format!(
                         "/{}/{}/subactions/{}.gif",
                         brawl_mod.name, fighter_name, subaction.name

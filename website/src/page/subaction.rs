@@ -62,7 +62,7 @@ pub fn generate(
                 let mut last_frame_change = 0;
                 for (index, frame) in subaction.frames.iter().enumerate() {
                     if frame.landing_lag && !landing_lag_prev {
-                        if auto_cancel.len() != 0 {
+                        if !auto_cancel.is_empty() {
                             auto_cancel.push_str(", ");
                         }
                         auto_cancel.push_str(&range_string(last_frame_change + 1, index));
@@ -73,13 +73,13 @@ pub fn generate(
                     }
                 }
                 if !landing_lag_prev && last_frame_change != 0 {
-                    if auto_cancel.len() != 0 {
+                    if !auto_cancel.is_empty() {
                         auto_cancel.push_str(", ");
                     }
                     auto_cancel.push_str(&range_string(last_frame_change + 1, subaction.frames.len()));
                 }
 
-                let iasa_string = subaction.iasa.map(|x| x + 1).map(|x| x.to_string()).unwrap_or("None".into());
+                let iasa_string = subaction.iasa.map(|x| x + 1).map(|x| x.to_string()).unwrap_or_else(|| "None".into());
                 let mut invincible = String::new();
                 let mut intangible = String::new();
                 let mut partial_invincible = String::new();
@@ -101,7 +101,7 @@ pub fn generate(
                     }
                     if !all_invincible {
                         if let Some(start) = start_invincible.take() {
-                            if invincible.len() > 0 {
+                            if !invincible.is_empty() {
                                 invincible.push_str(", ");
                             }
                             invincible.push_str(&range_string(start + 1, i));
@@ -114,7 +114,7 @@ pub fn generate(
                     }
                     if !any_invincible {
                         if let Some(start) = start_partial_invincible.take() {
-                            if partial_invincible.len() > 0 {
+                            if !partial_invincible.is_empty() {
                                 partial_invincible.push_str(", ");
                             }
                             partial_invincible.push_str(&range_string(start + 1, i));
@@ -127,7 +127,7 @@ pub fn generate(
                     }
                     if !all_intangible {
                         if let Some(start) = start_intangible.take() {
-                            if intangible.len() > 0 {
+                            if !intangible.is_empty() {
                                 intangible.push_str(", ");
                             }
                             intangible.push_str(&range_string(start + 1, i));
@@ -140,7 +140,7 @@ pub fn generate(
                     }
                     if !any_intangible {
                         if let Some(start) = start_partial_intangible.take() {
-                            if partial_intangible.len() > 0 {
+                            if !partial_intangible.is_empty() {
                                 partial_intangible.push_str(", ");
                             }
                             partial_intangible.push_str(&range_string(start + 1, i));
@@ -148,7 +148,7 @@ pub fn generate(
                     }
 
                     if frame.reverse_direction {
-                        if reverse_direction.len() > 0 {
+                        if !reverse_direction.is_empty() {
                             reverse_direction.push_str(", ");
                         }
                         reverse_direction.push_str(&format!("{}", i + 1));
@@ -157,36 +157,37 @@ pub fn generate(
 
                 // handle invincible/intangible states that were not turned off
                 if let Some(start) = start_invincible.take() {
-                    if invincible.len() > 0 {
+                    if !invincible.is_empty() {
                         invincible.push_str(", ");
                     }
                     invincible.push_str(&range_string(start + 1, subaction.frames.len()));
                 }
                 if let Some(start) = start_partial_invincible.take() {
-                    if partial_invincible.len() > 0 {
+                    if !partial_invincible.is_empty() {
                         partial_invincible.push_str(", ");
                     }
                     partial_invincible.push_str(&range_string(start + 1, subaction.frames.len()));
                 }
                 if let Some(start) = start_intangible.take() {
-                    if intangible.len() > 0 {
+                    if !intangible.is_empty() {
                         intangible.push_str(", ");
                     }
                     intangible.push_str(&range_string(start + 1, subaction.frames.len()));
                 }
                 if let Some(start) = start_partial_intangible.take() {
-                    if partial_intangible.len() > 0 {
+                    if !partial_intangible.is_empty() {
                         partial_intangible.push_str(", ");
                     }
                     partial_intangible.push_str(&range_string(start + 1, subaction.frames.len()));
                 }
 
-                let mut attributes = vec!();
-                attributes.push(Attribute {
-                    name: r#"<abbr title="Interruptible As Soon As. The first frame the subaction can be interrupted with another subaction.">IASA</abbr>"#.into(),
-                    value: iasa_string.clone(),
-                });
-                if auto_cancel.len() > 0 {
+                let mut attributes = vec!(
+                    Attribute {
+                        name: r#"<abbr title="Interruptible As Soon As. The first frame the subaction can be interrupted with another subaction.">IASA</abbr>"#.into(),
+                        value: iasa_string.clone(),
+                    }
+                );
+                if !auto_cancel.is_empty() {
                     attributes.push(Attribute {
                         name: r#"<abbr title="The frames during which landing will auto cancel.">Auto Cancel Window</abbr>"#.into(),
                         value: auto_cancel.clone()
@@ -208,31 +209,31 @@ pub fn generate(
                         value: ((landing_lag / 2.0) as u32).to_string()
                     });
                 }
-                if invincible.len() > 0 {
+                if !invincible.is_empty() {
                     attributes.push(Attribute {
                         name: r#"<abbr title="Frames where all of the characters hurtboxes are invincible.">Fully Invincible</abbr>"#.into(),
                         value: invincible.clone()
                     });
                 }
-                if intangible.len() > 0 {
+                if !intangible.is_empty() {
                     attributes.push(Attribute {
                         name: r#"<abbr title="Frames where all of the characters hurtboxes are intangible.">Fully Intangible</abbr>"#.into(),
                         value: intangible.clone()
                     });
                 }
-                if partial_invincible.len() > 0 {
+                if !partial_invincible.is_empty() {
                     attributes.push(Attribute {
                         name: r#"<abbr title="Frames where some of the characters hurtboxes are invincible and some are vulnerable.">Partially Invincible</abbr>"#.into(),
                         value: partial_invincible.clone()
                     });
                 }
-                if partial_intangible.len() > 0 {
+                if !partial_intangible.is_empty() {
                     attributes.push(Attribute {
                         name: r#"<abbr title="Frames where some of the characters hurtboxes are intangible and some are vulnerable.">Partially Intangible</abbr>"#.into(),
                         value: partial_intangible.clone()
                     });
                 }
-                if reverse_direction.len() > 0 {
+                if !reverse_direction.is_empty() {
                     attributes.push(Attribute {
                         name: r#"<abbr title="Frames where the character turns to face the oppposite direction.">Direction Reverse Frames</abbr>"#.into(),
                         value: reverse_direction.clone()
@@ -243,14 +244,14 @@ pub fn generate(
                 let mut hitboxes_active = String::new();
                 let mut start_hitboxes_active = None;
                 for (i, frame) in subaction.frames.iter().enumerate() {
-                    let has_hitboxes = frame.hit_boxes.len() > 0;
+                    let has_hitboxes = !frame.hit_boxes.is_empty();
 
                     if has_hitboxes && start_hitboxes_active.is_none() {
                         start_hitboxes_active = Some(i);
                     }
                     if !has_hitboxes {
                         if let Some(start) = start_hitboxes_active.take() {
-                            if hitboxes_active.len() > 0 {
+                            if !hitboxes_active.is_empty() {
                                 hitboxes_active.push_str(", ");
                             }
                             hitboxes_active.push_str(&range_string(start + 1, i));
@@ -260,13 +261,13 @@ pub fn generate(
 
                 // handle hitboxes that were not deleted
                 if let Some(start) = start_hitboxes_active.take() {
-                    if hitboxes_active.len() > 0 {
+                    if !hitboxes_active.is_empty() {
                         hitboxes_active.push_str(", ");
                     }
                     hitboxes_active.push_str(&range_string(start + 1, subaction.frames.len()));
                 }
 
-                if hitboxes_active.len() > 0 {
+                if !hitboxes_active.is_empty() {
                     attributes.push(Attribute {
                         name: "Hitboxes active".into(),
                         value: hitboxes_active.clone(),
@@ -278,7 +279,7 @@ pub fn generate(
                         let mut hitboxes_rehit = String::new();
                         for (i, frame) in subaction.frames.iter().enumerate() {
                             if frame.hitbox_sets_rehit[set_id] {
-                                if hitboxes_rehit.len() > 0 {
+                                if !hitboxes_rehit.is_empty() {
                                     hitboxes_rehit.push_str(", ");
                                 }
                                 hitboxes_rehit.push_str(&format!("{}", i + 1));
@@ -324,8 +325,9 @@ pub fn generate(
 
                         let use_wdsk = throw.wdsk != 0;
 
-                        let mut header = vec!();
-                        header.push(r#"<abbr title="Damage">Dmg</abbr>"#);
+                        let mut header = vec!(
+                            r#"<abbr title="Damage">Dmg</abbr>"#
+                        );
                         if use_wdsk {
                             header.push(r#"<abbr title="Weight Dependent Set Knockback. When this value is not 0, an entirely different formula is used to calculate knockback. In this formula hitbox damage and current % are ignored.">WDSK</abbr>"#);
                         }
@@ -338,8 +340,9 @@ pub fn generate(
                         header.push("Iframes");
                         header.push(r#"<abbr title="Weight Dependent Throw Speed: When enabled, the frame speed of the subaction is multiplied by 2 - weight / 100. Where weight is that of the victim">WDTS</abbr>"#);
 
-                        let mut row = vec!();
-                        row.push(throw.damage.to_string());
+                        let mut row = vec!(
+                            throw.damage.to_string()
+                        );
                         if use_wdsk {
                             row.push(throw.wdsk.to_string());
                         }
@@ -397,10 +400,7 @@ pub fn generate(
 
                             // TODO: determine what optional columns to use
                             let use_wdsk = hitboxes.iter().any(|x| x.wdsk != 0);
-                            let use_angle_flipping = hitboxes.iter().any(|x| match x.angle_flipping {
-                                AngleFlip::AttackerPosition => false,
-                                _ => true,
-                            });
+                            let use_angle_flipping = hitboxes.iter().any(|x| !matches!(x.angle_flipping, AngleFlip::AttackerPosition));
                             let use_clang = hitboxes.iter().any(|x| !x.clang);
                             let use_direct = hitboxes.iter().any(|x| !x.direct);
                             let use_hitlag_mult = hitboxes.iter().any(|x| x.hitlag_mult != 1.0);
@@ -441,10 +441,11 @@ pub fn generate(
                             });
 
                             last_change_frame = Some(i);
-                            let mut header = vec!();
-                            header.push(r#"<abbr title="Hitboxes in different sets can rehit the same enemy across multiple frames. i.e. a multi-hit move. Hitboxes in different sets can also hit in the same frame, the damage is the total of all hit hitboxes however the knockback and angle is taken from the hitbox with the most knockback.">Set</abbr>"#);
-                            header.push(r#"<abbr title="Lower hitbox IDs take priority over higher ones. i.e. if hitbox 0 and 1 are both hit, hitbox 0 is used">ID</abbr>"#);
-                            header.push(r#"<abbr title="Damage">Dmg</abbr>"#);
+                            let mut header = vec!(
+                                r#"<abbr title="Hitboxes in different sets can rehit the same enemy across multiple frames. i.e. a multi-hit move. Hitboxes in different sets can also hit in the same frame, the damage is the total of all hit hitboxes however the knockback and angle is taken from the hitbox with the most knockback.">Set</abbr>"#,
+                                r#"<abbr title="Lower hitbox IDs take priority over higher ones. i.e. if hitbox 0 and 1 are both hit, hitbox 0 is used">ID</abbr>"#,
+                                r#"<abbr title="Damage">Dmg</abbr>"#,
+                            );
                             if use_wdsk {
                                 header.push(r#"<abbr title="Weight Dependent Set Knockback. When this value is not 0, an entirely different formula is used to calculate knockback. In this formula hitbox damage and current % are ignored.">WDSK</abbr>"#);
                             }
@@ -654,68 +655,68 @@ pub fn generate(
 
 
                                         // generate the hitbox string for the twitter description
-                                        if damage.len() > 0 {
-                                            damage.push_str(",");
+                                        if !damage.is_empty() {
+                                            damage.push(',');
                                         }
-                                        if wdsk.len() > 0 {
-                                            wdsk.push_str(",");
+                                        if !wdsk.is_empty() {
+                                            wdsk.push(',');
                                         }
-                                        if bkb.len() > 0 {
-                                            bkb.push_str(",");
+                                        if !bkb.is_empty() {
+                                            bkb.push(',');
                                         }
-                                        if kbg.len() > 0 {
-                                            kbg.push_str(",");
+                                        if !kbg.is_empty() {
+                                            kbg.push(',');
                                         }
-                                        if angle.len() > 0 {
-                                            angle.push_str(",");
+                                        if !angle.is_empty() {
+                                            angle.push(',');
                                         }
-                                        if angle_flipping.len() > 0 {
-                                            angle_flipping.push_str(",");
+                                        if !angle_flipping.is_empty() {
+                                            angle_flipping.push(',');
                                         }
-                                        if effect.len() > 0 {
-                                            effect.push_str(",");
+                                        if !effect.is_empty() {
+                                            effect.push(',');
                                         }
-                                        if clang.len() > 0 {
-                                            clang.push_str(",");
+                                        if !clang.is_empty() {
+                                            clang.push(',');
                                         }
-                                        if direct.len() > 0 {
-                                            direct.push_str(",");
+                                        if !direct.is_empty() {
+                                            direct.push(',');
                                         }
-                                        if hitlag_mult.len() > 0 {
-                                            hitlag_mult.push_str(",");
+                                        if !hitlag_mult.is_empty() {
+                                            hitlag_mult.push(',');
                                         }
-                                        if sdi_mult.len() > 0 {
-                                            sdi_mult.push_str(",");
+                                        if !sdi_mult.is_empty() {
+                                            sdi_mult.push(',');
                                         }
-                                        if shield_damage.len() > 0 {
-                                            shield_damage.push_str(",");
+                                        if !shield_damage.is_empty() {
+                                            shield_damage.push(',');
                                         }
-                                        if tripping_rate.len() > 0 {
-                                            tripping_rate.push_str(",");
+                                        if !tripping_rate.is_empty() {
+                                            tripping_rate.push(',');
                                         }
-                                        if rehit_rate.len() > 0 {
-                                            rehit_rate.push_str(",");
+                                        if !rehit_rate.is_empty() {
+                                            rehit_rate.push(',');
                                         }
-                                        if can_be_shielded.len() > 0 {
-                                            can_be_shielded.push_str(",");
+                                        if !can_be_shielded.is_empty() {
+                                            can_be_shielded.push(',');
                                         }
-                                        if can_be_reflected.len() > 0 {
-                                            can_be_reflected.push_str(",");
+                                        if !can_be_reflected.is_empty() {
+                                            can_be_reflected.push(',');
                                         }
-                                        if can_be_absorbed.len() > 0 {
-                                            can_be_absorbed.push_str(",");
+                                        if !can_be_absorbed.is_empty() {
+                                            can_be_absorbed.push(',');
                                         }
-                                        if remain_grabbed.len() > 0 {
-                                            remain_grabbed.push_str(",");
+                                        if !remain_grabbed.is_empty() {
+                                            remain_grabbed.push(',');
                                         }
-                                        if ignore_invincibility.len() > 0 {
-                                            ignore_invincibility.push_str(",");
+                                        if !ignore_invincibility.is_empty() {
+                                            ignore_invincibility.push(',');
                                         }
-                                        if freeze_frame_disable.len() > 0 {
-                                            freeze_frame_disable.push_str(",");
+                                        if !freeze_frame_disable.is_empty() {
+                                            freeze_frame_disable.push(',');
                                         }
-                                        if flinchless.len() > 0 {
-                                            flinchless.push_str(",");
+                                        if !flinchless.is_empty() {
+                                            flinchless.push(',');
                                         }
 
                                         damage.push_str(&hit.damage.to_string());
@@ -824,7 +825,7 @@ pub fn generate(
                                 rows.push(row);
                             }
 
-                            if rows.len() > 0 {
+                            if !rows.is_empty() {
                                 twitter_hitboxes.push_str(&format!("\n\n{}", frames));
                                 twitter_hitboxes.push_str(&format!("\nDamage: {}", damage));
                                 if use_wdsk {
@@ -897,12 +898,12 @@ pub fn generate(
                     }
 
                     // set initial last_change_frame
-                    if prev_values != next_values && frame.hit_boxes.len() > 0 && last_change_frame.is_none() {
+                    if prev_values != next_values && !frame.hit_boxes.is_empty() && last_change_frame.is_none() {
                         last_change_frame = Some(i);
                     }
 
                     // no more hitboxes, clear last_change_frame
-                    if prev_values != next_values && frame.hit_boxes.len() == 0 {
+                    if prev_values != next_values && frame.hit_boxes.is_empty() {
                         last_change_frame = None;
                     }
                 }
@@ -915,25 +916,25 @@ pub fn generate(
                 let mut twitter_description = String::new();
                 twitter_description.push_str(&format!("Frames: {}", subaction.frames.len()));
                 twitter_description.push_str(&format!("\nIASA: {}", iasa_string));
-                if auto_cancel.len() > 0 {
+                if !auto_cancel.is_empty() {
                     twitter_description.push_str(&format!("\nAuto Cancel: {}", auto_cancel));
                 }
                 if let Some(landing_lag) = subaction.landing_lag {
                     twitter_description.push_str(&format!("\nLanding Lag: {}", landing_lag));
                 }
-                if intangible.len() > 0 {
+                if !intangible.is_empty() {
                     twitter_description.push_str(&format!("\nFully Intangible: {}", intangible));
                 }
-                if invincible.len() > 0 {
+                if !invincible.is_empty() {
                     twitter_description.push_str(&format!("\nFully Invincible: {}", invincible));
                 }
-                if partial_intangible.len() > 0 {
+                if !partial_intangible.is_empty() {
                     twitter_description.push_str(&format!("\nPartially Intangible: {}", partial_intangible));
                 }
-                if partial_invincible.len() > 0 {
+                if !partial_invincible.is_empty() {
                     twitter_description.push_str(&format!("\nPartially Invincible: {}", partial_invincible));
                 }
-                if reverse_direction.len() > 0 {
+                if !reverse_direction.is_empty() {
                     twitter_description.push_str(&format!("\nDirection Reverse Frames: {}", reverse_direction));
                 }
 
@@ -943,7 +944,7 @@ pub fn generate(
                 let mut fighter_links = vec!();
                 for nav_fighter in &brawl_mod.fighters {
                     let nav_fighter = &nav_fighter.fighter;
-                    let subaction_name = if nav_fighter.subactions.iter().find(|x| x.name == subaction.name).is_some() {
+                    let subaction_name = if nav_fighter.subactions.iter().any(|x| x.name == subaction.name) {
                         subaction.name.clone()
                     } else {
                         String::from("Wait1")
@@ -991,7 +992,7 @@ pub fn generate(
                 let page = SubactionPage {
                     assets,
                     fighter_link:       format!("/{}/{}", brawl_mod.name, fighter_name),
-                    preload:            &preload,
+                    preload,
                     mod_links:          &mod_links,
                     title:              format!("{} - {} - Subaction - {}", brawl_mod.name, fighter_name, subaction.name),
                     subaction_links:    brawl_mod.gen_subaction_links(&fighter.fighter, subaction.name.clone()),

@@ -34,7 +34,7 @@ async fn get_subaction(subaction_bin_path: &str) -> HighLevelSubaction {
     opts.method("GET");
     opts.mode(RequestMode::Cors);
 
-    let request = Request::new_with_str_and_init(&subaction_bin_path, &opts).unwrap();
+    let request = Request::new_with_str_and_init(subaction_bin_path, &opts).unwrap();
 
     let window = web_sys::window().unwrap();
     let resp_value = JsFuture::from(window.fetch_with_request(&request))

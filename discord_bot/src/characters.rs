@@ -1,6 +1,6 @@
 #[rustfmt::skip]
 pub fn brawl(token: &str) -> Option<&str> {
-    match token.as_ref() {
+    match token {
         "bowser"          => Some("Bowser"),
         "captain"         => Some("Captain%20Falcon"),
         "falcon"          => Some("Captain%20Falcon"),
@@ -99,7 +99,7 @@ pub fn brawl(token: &str) -> Option<&str> {
 
 #[rustfmt::skip]
 pub fn pm(token: &str) -> Option<&str> {
-    match token.as_ref() {
+    match token {
         "mewtwo" => Some("Mewtwo"),
         "mew2"   => Some("Mewtwo"),
         "m2"     => Some("Mewtwo"),
@@ -110,7 +110,7 @@ pub fn pm(token: &str) -> Option<&str> {
 
 #[rustfmt::skip]
 pub fn pplus(token: &str) -> Option<&str> {
-    match token.as_ref() {
+    match token {
         "knuckles"      => Some("Knuckles"),
         "knucks"        => Some("Knuckles"),
         "knux"          => Some("Knuckles"),
@@ -123,7 +123,7 @@ pub fn pplus(token: &str) -> Option<&str> {
 #[rustfmt::skip]
 // Sssssh
 pub fn secret(token: &str) -> Option<&str> {
-    match token.as_ref() {
+    match token {
         "knuckles"      => Some("Knuckles"),
         "knucks"        => Some("Knuckles"),
         "knux"          => Some("Knuckles"),
@@ -138,7 +138,7 @@ pub fn secret(token: &str) -> Option<&str> {
 
 #[rustfmt::skip]
 pub fn lxp(token: &str) -> Option<&str> {
-    match token.as_ref() {
+    match token {
         "doctor"        => Some("DoctorMario"),
         "doctormario"   => Some("DoctorMario"),
         "doc"           => Some("DoctorMario"),
