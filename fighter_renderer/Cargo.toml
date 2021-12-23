@@ -2,13 +2,12 @@
 name = "fighter_renderer"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.56"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-brawllib_rs = "0.22"
-wgpu = { version = "0.11", features = ["webgl"] }
+brawllib_rs = "0.23"
+wgpu = { version = "0.12", features = ["webgl"] }
 log = "0.4"
 bincode = "1"
 

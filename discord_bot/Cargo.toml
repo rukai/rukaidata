@@ -3,11 +3,10 @@ name = "rukaidata_bot"
 version = "0.1.0"
 authors = ["Rukai <rubickent@gmail.com>"]
 edition = "2021"
-rust-version = "1.56"
 description = "Discord bot to provide rukaidata links"
 repository = "https://github.com/rukai/rukaidata"
 
 [dependencies]
-serenity = { version = "0.10", default-features=false, features = ["client", "gateway", "rustls_backend", "model"] }
-chrono = "0.4"
-tokio = { version = "1.12", features = ["macros", "rt-multi-thread"] }
+serenity = { version = "0.10.9", default-features=false, features = ["client", "gateway", "rustls_backend", "model"] }
+chrono = "0.4.19"
+tokio = { version = "1.15", features = ["macros", "rt-multi-thread"] }

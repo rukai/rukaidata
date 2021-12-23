@@ -2,13 +2,12 @@
 name = "rukaidata_website"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.56"
 authors = ["Rukai <rubickent@gmail.com>"]
 description = "Uses brawllib_rs to display frame data of characters"
 repository = "https://github.com/rukai/rukaidata"
 
 [dependencies]
-brawllib_rs = "0.22"
+brawllib_rs = "0.23"
 getopts = "0.2"
 serde_derive = "1"
 serde = "1"
@@ -18,7 +17,7 @@ log = "0.4"
 handlebars = { version = "4", features = ["dir_source"] }
 rayon = "1"
 minifier = "0.0"
-sha2 = "0.9"
+sha2 = "0.10"
 futures = "0.3"
 num_cpus = "1"
 subprocess = "0.2.7"
