@@ -7,6 +7,6 @@ description = "Discord bot to provide rukaidata links"
 repository = "https://github.com/rukai/rukaidata"
 
 [dependencies]
-serenity = { version = "0.10.9", default-features=false, features = ["client", "gateway", "rustls_backend", "model"] }
+serenity = { version = "0.10.9", default-features=false, features = ["client", "gateway", "rustls_backend", "model", "unstable_discord_api"] }
 chrono = "0.4.19"
 tokio = { version = "1.15", features = ["macros", "rt-multi-thread"] }

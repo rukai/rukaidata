@@ -1,5 +1,21 @@
+pub fn character(mod_path: &str, fighter_option: &str) -> Option<&'static str> {
+    // Rather than actually checking sequences of tokens, I just check the first word of a characters name,
+    // I can get away with this because there aren't really any collisions.
+    match mod_path {
+        "Brawl" => brawl(fighter_option),
+        "PM3.02" => brawl(fighter_option).or_else(|| pm(fighter_option)),
+        "PM3.6" => brawl(fighter_option).or_else(|| pm(fighter_option)),
+        "P+" => brawl(fighter_option)
+            .or_else(|| pm(fighter_option))
+            .or_else(|| pplus(fighter_option)),
+        "LXP2.1" => lxp(fighter_option),
+        "Secret" => secret(fighter_option),
+        _ => unreachable!(),
+    }
+}
+
 #[rustfmt::skip]
-pub fn brawl(token: &str) -> Option<&str> {
+pub fn brawl(token: &str) -> Option<&'static str> {
     match token {
         "bowser"          => Some("Bowser"),
         "captain"         => Some("Captain%20Falcon"),
@@ -98,7 +114,7 @@ pub fn brawl(token: &str) -> Option<&str> {
 }
 
 #[rustfmt::skip]
-pub fn pm(token: &str) -> Option<&str> {
+pub fn pm(token: &str) -> Option<&'static str> {
     match token {
         "mewtwo" => Some("Mewtwo"),
         "mew2"   => Some("Mewtwo"),
@@ -109,7 +125,7 @@ pub fn pm(token: &str) -> Option<&str> {
 }
 
 #[rustfmt::skip]
-pub fn pplus(token: &str) -> Option<&str> {
+pub fn pplus(token: &str) -> Option<&'static str> {
     match token {
         "knuckles"      => Some("Knuckles"),
         "knucks"        => Some("Knuckles"),
@@ -122,7 +138,7 @@ pub fn pplus(token: &str) -> Option<&str> {
 
 #[rustfmt::skip]
 // Sssssh
-pub fn secret(token: &str) -> Option<&str> {
+pub fn secret(token: &str) -> Option<&'static str> {
     match token {
         "knuckles"      => Some("Knuckles"),
         "knucks"        => Some("Knuckles"),
@@ -137,7 +153,7 @@ pub fn secret(token: &str) -> Option<&str> {
 }
 
 #[rustfmt::skip]
-pub fn lxp(token: &str) -> Option<&str> {
+pub fn lxp(token: &str) -> Option<&'static str> {
     match token {
         "doctor"        => Some("DoctorMario"),
         "doctormario"   => Some("DoctorMario"),
