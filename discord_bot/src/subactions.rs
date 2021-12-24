@@ -1,5 +1,5 @@
 #[rustfmt::skip]
-pub fn subactions(tokens: &[&str], character: Option<&str>) -> Vec<&'static str> {
+pub fn subactions(tokens: &[&str], character: &str) -> Vec<&'static str> {
     // TODO: This should be made a vector to contain all the subactions related to the action. (multiple jabs, smash attack startup/attack)
     // TODO: Manually handle character specific stuff such as jabs, glides, etc
     let mut subactions = vec!();
@@ -91,21 +91,19 @@ pub fn subactions(tokens: &[&str], character: Option<&str>) -> Vec<&'static str>
     if tokens.contains(&"roll")    && tokens.contains(&"back")      { subactions = vec!("EscapeB") }
 
     // yeet
-    if tokens.contains(&"yeet") {
-        if let Some("Ness") = character {
-            subactions = vec!("ThrowB");
-        }
+    if tokens.contains(&"yeet") && "Ness" == character {
+        subactions = vec!("ThrowB");
     }
 
     // crawl attack
     if (tokens.contains(&"crawl") && tokens.contains(&"attack")) ||
-        (tokens.contains(&"crawl") && tokens.contains(&"tilt"))   ||
+        (tokens.contains(&"crawl") && tokens.contains(&"tilt"))  ||
         tokens.contains(&"ctilt") {
         match character {
-            Some("Lucario")  => subactions = vec!("AttackSquat"),
-            Some("Squirtle") => subactions = vec!("AttackSquat"),
-            Some("Snake")    => subactions = vec!("AttackLwShank"),
-            Some("Samus")    => subactions = vec!("SpecialSDash"),
+            "Lucario"  => subactions = vec!("AttackSquat"),
+            "Squirtle" => subactions = vec!("AttackSquat"),
+            "Snake"    => subactions = vec!("AttackLwShank"),
+            "Samus"    => subactions = vec!("SpecialSDash"),
             _ => { }
         }
     }

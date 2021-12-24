@@ -9,7 +9,8 @@ use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
 use serenity::model::id::ChannelId;
 use serenity::model::interactions::application_command::{
-    ApplicationCommand, ApplicationCommandInteractionDataOptionValue, ApplicationCommandOptionType,
+    ApplicationCommand, ApplicationCommandInteraction,
+    ApplicationCommandInteractionDataOptionValue, ApplicationCommandOptionType,
 };
 use serenity::model::interactions::{Interaction, InteractionResponseType};
 use serenity::prelude::*;
@@ -17,6 +18,92 @@ use serenity::prelude::*;
 fn tokenize(msg: &str) -> Vec<String> {
     let lower = msg.trim().to_lowercase();
     lower.split_whitespace().map(|x| x.to_string()).collect()
+}
+
+fn data_command(
+    command_name: &str,
+    command: &ApplicationCommandInteraction,
+) -> Result<String, String> {
+    let fighter_option = match command
+        .data
+        .options
+        .get(0)
+        .unwrap()
+        .resolved
+        .as_ref()
+        .unwrap()
+    {
+        ApplicationCommandInteractionDataOptionValue::String(value) => value,
+        data => {
+            return Err(format!("Unexpected fighter arg {:?}", data));
+        }
+    };
+    let subaction_option = match command
+        .data
+        .options
+        .get(1)
+        .unwrap()
+        .resolved
+        .as_ref()
+        .unwrap()
+    {
+        ApplicationCommandInteractionDataOptionValue::String(value) => value,
+        data => {
+            return Err(format!("Unexpected subaction arg {:?}", data));
+        }
+    };
+
+    let mod_path = match command_name {
+        "databrawl" => "Brawl",
+        "datapm" => "PM3.6",
+        "datapplus" => "P+",
+        "datalxp" => "LXP2.1",
+        name => return Err(format!("Outdated slash command: {}", name)),
+    };
+
+    let fighter_tokens = tokenize(fighter_option);
+    let fighter_tokens: Vec<_> = fighter_tokens.iter().map(|x| x.as_str()).collect();
+    let mut character = None;
+    for token in &fighter_tokens {
+        character = characters::character(mod_path, token);
+
+        if character.is_some() {
+            break;
+        }
+    }
+
+    let character = match character {
+        Some(character) => character,
+        None => {
+            return Err(format!(
+                "a fighter named {} does not exist in {}",
+                fighter_option, mod_path
+            ))
+        }
+    };
+
+    let subaction_tokens = tokenize(subaction_option);
+    let subaction_tokens: Vec<_> = subaction_tokens.iter().map(|x| x.as_str()).collect();
+    let subactions = subactions::subactions(&subaction_tokens, character);
+    if subactions.is_empty() {
+        return Err(format!(
+            "subaction {} does not exist on {} in {}",
+            subaction_option, fighter_option, mod_path
+        ));
+    }
+
+    println!("slash command {}", Utc::now().format("%F %T"));
+
+    Ok(subactions
+        .iter()
+        .map(|subaction| {
+            format!(
+                "https://rukaidata.com/{}/{}/subactions/{}.html",
+                mod_path, character, subaction
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n"))
 }
 
 struct Handler;
@@ -27,86 +114,13 @@ impl EventHandler for Handler {
         if let Interaction::ApplicationCommand(command) = interaction {
             let content = match command.data.name.as_str() {
                 "rattening" => "🐀🐀🐀 https://www.youtube.com/watch?v=qXEtmSi36AI".to_string(),
-                command_name => {
-                    let fighter_option = match command
-                        .data
-                        .options
-                        .get(0)
-                        .unwrap()
-                        .resolved
-                        .as_ref()
-                        .unwrap()
-                    {
-                        ApplicationCommandInteractionDataOptionValue::String(value) => value,
-                        data => {
-                            println!("Unexpected fighter arg {:?}", data);
-                            return;
-                        }
-                    };
-                    let subaction_option = match command
-                        .data
-                        .options
-                        .get(1)
-                        .unwrap()
-                        .resolved
-                        .as_ref()
-                        .unwrap()
-                    {
-                        ApplicationCommandInteractionDataOptionValue::String(value) => value,
-                        data => {
-                            println!("Unexpected subaction arg {:?}", data);
-                            return;
-                        }
-                    };
-
-                    let mod_path = match command_name {
-                        "data_brawl" => "Brawl",
-                        "data_pm" => "PM3.6",
-                        "data_pp" => "P+",
-                        "data_lxp" => "LXP2.1",
-                        _ => unreachable!(),
-                    };
-
-                    let fighter_tokens = tokenize(fighter_option);
-                    let fighter_tokens: Vec<_> =
-                        fighter_tokens.iter().map(|x| x.as_str()).collect();
-                    let mut character = None;
-                    for token in &fighter_tokens {
-                        character = characters::character(mod_path, token);
-
-                        if character.is_some() {
-                            break;
-                        }
+                command_name => match data_command(command_name, &command) {
+                    Ok(result) => result,
+                    Err(error) => {
+                        println!("{}", error);
+                        error
                     }
-
-                    let subaction_tokens = tokenize(subaction_option);
-                    let subaction_tokens: Vec<_> =
-                        subaction_tokens.iter().map(|x| x.as_str()).collect();
-                    let subactions = subactions::subactions(&subaction_tokens, character);
-
-                    println!("slash command {}", Utc::now().format("%F %T"));
-
-                    match (character, subactions.is_empty()) {
-                        (Some(character), false) => {
-                            let mut message = String::new();
-                            for subaction in &subactions {
-                                if !message.is_empty() {
-                                    message.push('\n');
-                                }
-                                message.push_str(&format!(
-                                    "https://rukaidata.com/{}/{}/subactions/{}.html",
-                                    mod_path, character, subaction
-                                ));
-                            }
-                            message
-                        }
-                        (Some(character), true) => {
-                            format!("https://rukaidata.com/{}/{}", mod_path, character)
-                        }
-                        (None, false) => "Need to specify a character.".to_string(),
-                        (None, true) => format!("https://rukaidata.com/{}", mod_path),
-                    }
-                }
+                },
             };
 
             if let Err(why) = command
@@ -153,7 +167,7 @@ impl EventHandler for Handler {
                         }
                     }
 
-                    let subactions = subactions::subactions(&tokens, character);
+                    let subactions = character.map(|x| subactions::subactions(&tokens, x)).unwrap_or_else(Vec::new);
 
                     let message = match (character, subactions.is_empty()) {
                         (Some(character), false) => {
@@ -186,19 +200,19 @@ impl EventHandler for Handler {
     async fn ready(&self, ctx: Context, ready: Ready) {
         let data_commands = [
             DataCommand {
-                name: "data_brawl",
+                name: "databrawl",
                 description: "Display Brawl frame data",
             },
             DataCommand {
-                name: "data_pm",
+                name: "datapm",
                 description: "Display Project M 3.6 frame data",
             },
             DataCommand {
-                name: "data_pp",
+                name: "datapplus",
                 description: "Display Project+ (latest release) frame data",
             },
             DataCommand {
-                name: "data_lxp",
+                name: "datalxp",
                 description: "Display Legacy XP 2.1 frame data",
             },
         ];
