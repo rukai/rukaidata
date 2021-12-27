@@ -12,12 +12,21 @@ use serenity::model::interactions::application_command::{
     ApplicationCommand, ApplicationCommandInteraction,
     ApplicationCommandInteractionDataOptionValue, ApplicationCommandOptionType,
 };
-use serenity::model::interactions::{Interaction, InteractionResponseType};
+use serenity::model::interactions::{
+    Interaction, InteractionApplicationCommandCallbackDataFlags, InteractionResponseType,
+};
 use serenity::prelude::*;
 
 fn tokenize(msg: &str) -> Vec<String> {
     let lower = msg.trim().to_lowercase();
     lower.split_whitespace().map(|x| x.to_string()).collect()
+}
+
+fn commands(command: &ApplicationCommandInteraction) -> Result<String, String> {
+    match command.data.name.as_str() {
+        "rattening" => Ok("🐀🐀🐀 https://www.youtube.com/watch?v=qXEtmSi36AI".to_string()),
+        command_name => data_command(command_name, command),
+    }
 }
 
 fn data_command(
@@ -76,7 +85,7 @@ fn data_command(
         Some(character) => character,
         None => {
             return Err(format!(
-                "a fighter named {} does not exist in {}",
+                "fighter `{}` does not exist in mod `{}`",
                 fighter_option, mod_path
             ))
         }
@@ -87,7 +96,7 @@ fn data_command(
     let subactions = subactions::subactions(&subaction_tokens, character);
     if subactions.is_empty() {
         return Err(format!(
-            "subaction {} does not exist on {} in {}",
+            "action `{}` does not exist on fighter `{}` in mod `{}`",
             subaction_option, fighter_option, mod_path
         ));
     }
@@ -106,33 +115,43 @@ fn data_command(
         .join("\n"))
 }
 
+async fn command_response(
+    ctx: &Context,
+    command: ApplicationCommandInteraction,
+    content: &str,
+    ephemeral: bool,
+) {
+    let flags = if ephemeral {
+        InteractionApplicationCommandCallbackDataFlags::EPHEMERAL
+    } else {
+        InteractionApplicationCommandCallbackDataFlags::empty()
+    };
+
+    if let Err(why) = command
+        .create_interaction_response(&ctx.http, |response| {
+            response
+                .kind(InteractionResponseType::ChannelMessageWithSource)
+                .interaction_response_data(|message| message.content(content).flags(flags))
+        })
+        .await
+    {
+        println!("Cannot respond to slash command: {}", why);
+    }
+}
+
 struct Handler;
 
 #[async_trait]
 impl EventHandler for Handler {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = interaction {
-            let content = match command.data.name.as_str() {
-                "rattening" => "🐀🐀🐀 https://www.youtube.com/watch?v=qXEtmSi36AI".to_string(),
-                command_name => match data_command(command_name, &command) {
-                    Ok(result) => result,
-                    Err(error) => {
-                        println!("{}", error);
-                        error
-                    }
-                },
+            match commands(&command) {
+                Ok(result) => command_response(&ctx, command, &result, false).await,
+                Err(error) => {
+                    println!("{}", error);
+                    command_response(&ctx, command, &error, true).await
+                }
             };
-
-            if let Err(why) = command
-                .create_interaction_response(&ctx.http, |response| {
-                    response
-                        .kind(InteractionResponseType::ChannelMessageWithSource)
-                        .interaction_response_data(|message| message.content(content))
-                })
-                .await
-            {
-                println!("Cannot respond to slash command: {}", why);
-            }
         }
     }
     #[rustfmt::skip]
