@@ -1034,7 +1034,9 @@ fn range_string(start: usize, end: usize) -> String {
 
 fn angle_string(angle: i32, id: u8) -> String {
     let angle_name = match angle {
-        0 => String::from(r#"<abbr title="">0</abbr>"#),
+        0 => String::from(
+            r#"<abbr title="Angle 0: When opponent is hit on the ground they remain in nontumble grounded hitstun regardless of knockback">0</abbr>"#,
+        ),
         361 => String::from(
             r#"<abbr title="Sakurai Angle: When hit in the air angle is 45. When hit on the ground, if knockback < 32 then angle is 0, otherwise angle is 44.">361</abbr>"#,
         ),
