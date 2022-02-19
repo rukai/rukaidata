@@ -3,7 +3,6 @@ pub mod subactions;
 
 use std::env;
 
-use chrono::Utc;
 use serenity::async_trait;
 use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
@@ -20,6 +19,10 @@ use serenity::prelude::*;
 fn tokenize(msg: &str) -> Vec<String> {
     let lower = msg.trim().to_lowercase();
     lower.split_whitespace().map(|x| x.to_string()).collect()
+}
+
+fn timestamp() -> String {
+    time::OffsetDateTime::now_utc().to_string()
 }
 
 fn commands(command: &ApplicationCommandInteraction) -> Result<String, String> {
@@ -101,7 +104,7 @@ fn data_command(
         ));
     }
 
-    println!("slash command {}", Utc::now().format("%F %T"));
+    println!("slash command {}", timestamp());
 
     Ok(subactions
         .iter()
@@ -206,7 +209,7 @@ impl EventHandler for Handler {
 
                     send(&ctx, &msg.channel_id, &message).await;
 
-                    println!("{}", Utc::now().format("%F %T"));
+                    println!("{}", timestamp());
                 }
 
                 if *command == ".rattening" || *command == "!rattening" {
