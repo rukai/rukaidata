@@ -357,12 +357,12 @@ pub fn generate(
 
                         twitter_hitboxes.push_str("\n\nThrow");
                         twitter_hitboxes.push_str(&format!("\n{}", &frames));
-                        twitter_hitboxes.push_str(&format!("\nDamage: {}", throw.damage.to_string()));
+                        twitter_hitboxes.push_str(&format!("\nDamage: {}", throw.damage));
                         if use_wdsk {
-                            twitter_hitboxes.push_str(&format!("\nWDSK: {}", throw.wdsk.to_string()));
+                            twitter_hitboxes.push_str(&format!("\nWDSK: {}", throw.wdsk));
                         }
-                        twitter_hitboxes.push_str(&format!("\nBKB: {}", throw.bkb.to_string()));
-                        twitter_hitboxes.push_str(&format!("\nKBG: {}", throw.kbg.to_string()));
+                        twitter_hitboxes.push_str(&format!("\nBKB: {}", throw.bkb));
+                        twitter_hitboxes.push_str(&format!("\nKBG: {}", throw.kbg));
                         twitter_hitboxes.push_str(&format!("\nAngle: {}", throw.trajectory));
                         twitter_hitboxes.push_str(&format!("\nEffect: {:?}", throw.effect));
                         twitter_hitboxes.push_str(&format!("\nWDTS: {}", throw.weight_dependent_speed));
