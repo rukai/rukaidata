@@ -119,12 +119,8 @@ impl AssetPaths {
             path
         };
 
-        //TODO: install wasm-bindgen
-        //TODO: run `wasm-opt -Oz -o fighter_renderer_bg.wasm fighter_renderer_bg.wasm`, it currently explodes when parsing my wasm though :/
+        const WASM_FILE_NAME: &str = "fighter_renderer_bg.wasm";
         {
-            // TODO: this will be nicer when --profile is stabilized
-            //let all_args = ["run", "--profile", env!("PROFILE"), "--", "-t", topology_path];
-
             let all_args = if env!("PROFILE") == "release" {
                 vec!["build", "--release"]
             } else {
@@ -150,9 +146,14 @@ impl AssetPaths {
                     &wasm_path,
                 ],
             );
+
+            run_command_in_dir(
+                "wasm-opt",
+                &["-Oz", "-o", WASM_FILE_NAME, WASM_FILE_NAME],
+                "../fighter_renderer/target/generated/",
+            );
         }
 
-        const WASM_FILE_NAME: &str = "fighter_renderer_bg.wasm";
         let fighter_renderer_wasm = {
             let contents = fs::read(&format!(
                 "../fighter_renderer/target/generated/{}",
