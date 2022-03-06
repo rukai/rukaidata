@@ -25,25 +25,6 @@ fn run_command_in_dir(command: &str, args: &[&str], dir: &str) {
     }
 }
 
-fn run_command(command: &str, args: &[&str]) {
-    let data = Exec::cmd(command)
-        .args(args)
-        .stdout(Redirection::Pipe)
-        .stderr(Redirection::Merge)
-        .capture()
-        .unwrap();
-
-    if !data.exit_status.success() {
-        panic!(
-            "command {} {:?} exited with {:?} and output:\n{}",
-            command,
-            args,
-            data.exit_status,
-            data.stdout_str()
-        )
-    }
-}
-
 impl AssetPaths {
     #[allow(clippy::new_without_default)]
     pub fn new() -> AssetPaths {
@@ -133,19 +114,15 @@ impl AssetPaths {
                 "../fighter_renderer/target/wasm32-unknown-unknown/{}/fighter_renderer.wasm",
                 env!("PROFILE")
             );
-            // TODO: lets access as crate https://crates.io/crates/wasm-bindgen-cli-support
-            run_command(
-                "wasm-bindgen",
-                &[
-                    "--out-dir",
-                    "../fighter_renderer/target/generated",
-                    "--target",
-                    "web",
-                    "--no-typescript",
-                    //"--reference-types", // Not supported by chrome :/
-                    &wasm_path,
-                ],
-            );
+            let destination_dir = "../fighter_renderer/target/generated";
+            let mut bindgen = wasm_bindgen_cli_support::Bindgen::new();
+            bindgen
+                .web(true)
+                .unwrap()
+                .omit_default_module_path(false)
+                .input_path(&wasm_path)
+                .generate(destination_dir)
+                .unwrap();
 
             run_command_in_dir(
                 "wasm-opt",
