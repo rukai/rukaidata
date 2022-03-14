@@ -1,3 +1,4 @@
+use crate::cli::CLIResults;
 use std::fs;
 use std::io::Write;
 use std::path::Path;
@@ -12,7 +13,7 @@ fn run_command_in_dir(command: &str, args: &[&str], dir: &str) {
         .stderr(Redirection::Merge)
         .cwd(dir)
         .capture()
-        .unwrap();
+        .unwrap_or_else(|e| panic!("Failed to run the command {command} {args:?}\n{e}"));
 
     if !data.exit_status.success() {
         panic!(
@@ -27,7 +28,7 @@ fn run_command_in_dir(command: &str, args: &[&str], dir: &str) {
 
 impl AssetPaths {
     #[allow(clippy::new_without_default)]
-    pub fn new() -> AssetPaths {
+    pub fn new(cli: &CLIResults) -> AssetPaths {
         fs::create_dir_all("../root/assets_static").unwrap();
 
         let style_css = {
@@ -101,55 +102,59 @@ impl AssetPaths {
         };
 
         const WASM_FILE_NAME: &str = "fighter_renderer_bg.wasm";
-        {
-            let all_args = if env!("PROFILE") == "release" {
-                vec!["build", "--release"]
-            } else {
-                vec!["build"]
-            };
-            info!("Compiling fighter_renderer to wasm");
-            run_command_in_dir("cargo", &all_args, "../fighter_renderer");
+        let fighter_renderer_wasm = if cli.wasm_mode {
+            {
+                let all_args = if env!("PROFILE") == "release" {
+                    vec!["build", "--release"]
+                } else {
+                    vec!["build"]
+                };
+                info!("Compiling fighter_renderer to wasm");
+                run_command_in_dir("cargo", &all_args, "../fighter_renderer");
 
-            let wasm_path = format!(
-                "../fighter_renderer/target/wasm32-unknown-unknown/{}/fighter_renderer.wasm",
-                env!("PROFILE")
-            );
-            let destination_dir = "../fighter_renderer/target/generated";
-            let mut bindgen = wasm_bindgen_cli_support::Bindgen::new();
-            bindgen
-                .web(true)
-                .unwrap()
-                .omit_default_module_path(false)
-                .input_path(&wasm_path)
-                .generate(destination_dir)
+                let wasm_path = format!(
+                    "../fighter_renderer/target/wasm32-unknown-unknown/{}/fighter_renderer.wasm",
+                    env!("PROFILE")
+                );
+                let destination_dir = "../fighter_renderer/target/generated";
+                let mut bindgen = wasm_bindgen_cli_support::Bindgen::new();
+                bindgen
+                    .web(true)
+                    .unwrap()
+                    .omit_default_module_path(false)
+                    .input_path(&wasm_path)
+                    .generate(destination_dir)
+                    .unwrap();
+
+                run_command_in_dir(
+                    "wasm-opt",
+                    &["-Oz", "-o", WASM_FILE_NAME, WASM_FILE_NAME],
+                    "../fighter_renderer/target/generated/",
+                );
+            }
+
+            {
+                let contents = fs::read(&format!(
+                    "../fighter_renderer/target/generated/{}",
+                    WASM_FILE_NAME
+                ))
                 .unwrap();
-
-            run_command_in_dir(
-                "wasm-opt",
-                &["-Oz", "-o", WASM_FILE_NAME, WASM_FILE_NAME],
-                "../fighter_renderer/target/generated/",
-            );
-        }
-
-        let fighter_renderer_wasm = {
-            let contents = fs::read(&format!(
-                "../fighter_renderer/target/generated/{}",
-                WASM_FILE_NAME
-            ))
-            .unwrap();
-            let mut hasher = Sha256::default();
-            hasher.update(&contents);
-            let hash: String = hasher
-                .finalize()
-                .iter()
-                .map(|x| format!("{:x}", x))
-                .collect();
-            let path = format!("/assets_static/{}.wasm", hash);
-            fs::write(format!("../root/{}", path), contents).unwrap();
-            path
+                let mut hasher = Sha256::default();
+                hasher.update(&contents);
+                let hash: String = hasher
+                    .finalize()
+                    .iter()
+                    .map(|x| format!("{:x}", x))
+                    .collect();
+                let path = format!("/assets_static/{}.wasm", hash);
+                fs::write(format!("../root/{}", path), contents).unwrap();
+                path
+            }
+        } else {
+            String::new()
         };
 
-        let fighter_renderer_js = {
+        let fighter_renderer_js = if cli.wasm_mode {
             let mut contents =
                 fs::read_to_string("../fighter_renderer/target/generated/fighter_renderer.js")
                     .unwrap();
@@ -172,6 +177,8 @@ impl AssetPaths {
             let path = format!("/assets_static/{}.js", hash);
             fs::write(format!("../root/{}", path), contents).unwrap();
             path
+        } else {
+            String::new()
         };
 
         AssetPaths {

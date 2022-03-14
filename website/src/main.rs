@@ -29,7 +29,7 @@ fn main() {
                     .unwrap();
                 info!("handlebars templates loaded");
 
-                let assets = AssetPaths::new();
+                let assets = AssetPaths::new(&cli);
                 page::index::generate(&handlebars, &brawl_mods, &assets);
                 page::error::generate(&handlebars, &brawl_mods, &assets);
                 page::brawl_mod::generate(&handlebars, &brawl_mods, &assets);
