@@ -205,8 +205,8 @@ pub fn subactions(tokens: &[&str], character: &str) -> Vec<&'static str> {
     if tokens.contains(&"air") && tokens.contains(&"sideb")                                  { subactions = vec!("SpecialAirS") }
 
     // taunts
-    if tokens.contains(&"utaunt") { subactions = vec!("AppealHi") }
-    if tokens.contains(&"dtaunt") { subactions = vec!("AppealLw") }
+    if tokens.contains(&"utaunt") { subactions = vec!("AppealHiR") }
+    if tokens.contains(&"dtaunt") { subactions = vec!("AppealLwR") }
     if tokens.contains(&"staunt") { subactions = vec!("AppealS") }
     if tokens.contains(&"up")   && tokens.contains(&"taunt") { subactions = vec!("AppealHi") }
     if tokens.contains(&"down") && tokens.contains(&"taunt") { subactions = vec!("AppealLw") }
