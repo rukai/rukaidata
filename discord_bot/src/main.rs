@@ -305,7 +305,7 @@ async fn main() {
         .parse()
         .expect("APPLICATION_ID must be numeric");
 
-    let mut client = Client::builder(&discord_token)
+    let mut client = Client::builder(&discord_token, GatewayIntents::default())
         .event_handler(Handler)
         .application_id(application_id)
         .await

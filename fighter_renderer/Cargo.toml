@@ -6,7 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-brawllib_rs = "0.24"
+#brawllib_rs = "0.24"
+brawllib_rs = { git = "https://github.com/rukai/brawllib_rs" }
 wgpu = { version = "0.12", features = ["webgl"] }
 log = "0.4"
 bincode = "1"
