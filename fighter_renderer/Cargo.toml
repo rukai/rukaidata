@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 #brawllib_rs = "0.24"
 brawllib_rs = { git = "https://github.com/rukai/brawllib_rs" }
-wgpu = { version = "0.12", features = ["webgl"] }
+wgpu = { version = "0.13", features = ["webgl"] }
 log = "0.4"
 bincode = "1"
 # TODO: remove and make brawllib set the css-size feature when css-size is upstreamed

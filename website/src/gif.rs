@@ -37,11 +37,7 @@ pub fn generate(brawl_mods: &BrawlMods) {
                     );
                     let path = format!("../root{}", twitter_image);
 
-                    let rx = futures::executor::block_on(renderer::render_gif(
-                        &mut state,
-                        &fighter.fighter,
-                        index,
-                    ));
+                    let rx = renderer::render_gif(&mut state, &fighter.fighter, index);
                     gif_waits.push(GifWait { path, rx });
 
                     info!(
