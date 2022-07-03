@@ -1,3 +1,7 @@
+// This lint is stupid.
+// I need an import and an unwrap to use `write!`, make the API more ergnomic before forcing it on me.
+#![allow(clippy::format_push_string)]
+
 #[macro_use]
 extern crate serde_derive;
 #[macro_use]

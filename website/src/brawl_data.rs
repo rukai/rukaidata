@@ -385,7 +385,7 @@ impl BrawlMod {
             } else if link.name.contains("AttackEnd") {
                 misc.push(link);
             } else if link.name.contains("Attack") {
-                let number: String = link.name.chars().filter(|x| x.is_digit(10)).collect();
+                let number: String = link.name.chars().filter(char::is_ascii_digit).collect();
                 if link.name.contains("Air") {
                     attacks_aerial.push(link);
                 } else if link.name.contains("Attack") && number.starts_with('1') {
