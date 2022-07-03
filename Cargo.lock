@@ -1866,7 +1866,6 @@ dependencies = [
  "handlebars",
  "log",
  "minifier",
- "num_cpus",
  "rayon",
  "serde",
  "serde_derive",

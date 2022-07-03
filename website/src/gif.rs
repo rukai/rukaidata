@@ -45,7 +45,11 @@ pub fn generate(brawl_mods: &BrawlMods) {
                         brawl_mod.name, fighter_name, subaction.name
                     );
 
-                    if gif_waits.len() >= num_cpus::get() {
+                    if gif_waits.len()
+                        >= std::thread::available_parallelism()
+                            .map(|x| x.into())
+                            .unwrap_or(1)
+                    {
                         gif_waits.remove(0).wait();
                     }
                 }
