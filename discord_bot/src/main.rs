@@ -167,7 +167,7 @@ impl EventHandler for Handler {
             let lower = msg.content.trim().to_lowercase();
             let tokens: Vec<_> = lower.split_whitespace().collect();
 
-            if let Some(command) = tokens.get(0) {
+            if let Some(command) = tokens.first() {
                 if *command == ".brawldata" || *command == ".pm3.02data" || *command == ".pm3.6data" || *command == ".p+data" || *command == ".xpdata" || *command == ".lxpdata" || *command == ".lxp2.1data"
                 || *command == "!brawldata" || *command == "!pm3.02data" || *command == "!pm3.6data" || *command == "!p+data" || *command == "!xpdata" || *command == "!lxpdata" || *command == "!lxp2.1data" || *command == "!pmdata"
                 || *command == "!secretdata" || *command == ".secretdata" {

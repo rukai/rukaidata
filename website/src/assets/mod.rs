@@ -89,7 +89,7 @@ impl AssetPaths {
             // Can't complain though, the minifier repo does say its not ready yet :P
 
             let mut hasher = Sha256::default();
-            hasher.update(&minified);
+            hasher.update(minified);
             let hash: String = hasher
                 .finalize()
                 .iter()
