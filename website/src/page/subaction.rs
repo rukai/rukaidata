@@ -505,6 +505,7 @@ pub fn generate(
 
                             // store twitter string values here
                             let mut damage = String::new();
+                            let mut shieldstun = String::new();
                             let mut wdsk = String::new();
                             let mut bkb = String::new();
                             let mut kbg = String::new();
@@ -605,8 +606,8 @@ pub fn generate(
                                             row.push(hit.flinchless.to_string());
                                         }
 
-                                        let shieldstun = ((hit.damage + 4.45) * 0.447).floor();
-                                        row.push(shieldstun.to_string());
+                                        let shieldstun_calc = ((hit.damage + 4.45) * 0.447).floor();
+                                        row.push(shieldstun_calc.to_string());
 
                                         let game_hitlag_mult = if brawl_mod.is_mod {
                                             0.33333 // correct for pm and recent p+ (might be wrong for other mods, oh well)
@@ -657,6 +658,9 @@ pub fn generate(
                                         // generate the hitbox string for the twitter description
                                         if !damage.is_empty() {
                                             damage.push(',');
+                                        }
+                                        if !shieldstun.is_empty() {
+                                            shieldstun.push(',');
                                         }
                                         if !wdsk.is_empty() {
                                             wdsk.push(',');
@@ -720,6 +724,7 @@ pub fn generate(
                                         }
 
                                         damage.push_str(&hit.damage.to_string());
+                                        shieldstun.push_str(&shieldstun_calc.to_string());
                                         wdsk.push_str(&hit.wdsk.to_string());
                                         bkb.push_str(&hit.bkb.to_string());
                                         kbg.push_str(&hit.kbg.to_string());
@@ -828,6 +833,7 @@ pub fn generate(
                             if !rows.is_empty() {
                                 twitter_hitboxes.push_str(&format!("\n\n{}", frames));
                                 twitter_hitboxes.push_str(&format!("\nDamage: {}", damage));
+                                twitter_hitboxes.push_str(&format!("\nShield Stun: {}", shieldstun));
                                 if use_wdsk {
                                     twitter_hitboxes.push_str(&format!("\nWDSK: {}", wdsk));
                                 }
