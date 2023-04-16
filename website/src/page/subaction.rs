@@ -357,23 +357,23 @@ pub fn generate(
 
                         twitter_hitboxes.push_str("\n\nThrow");
                         twitter_hitboxes.push_str(&format!("\n{}", &frames));
-                        twitter_hitboxes.push_str(&format!("\nDamage: {}", throw.damage));
+                        twitter_hitboxes.push_str(&format!("\nDamage:{}", throw.damage));
                         if use_wdsk {
-                            twitter_hitboxes.push_str(&format!("\nWDSK: {}", throw.wdsk));
+                            twitter_hitboxes.push_str(&format!("\nWDSK:{}", throw.wdsk));
                         }
-                        twitter_hitboxes.push_str(&format!("\nBKB: {}", throw.bkb));
-                        twitter_hitboxes.push_str(&format!("\nKBG: {}", throw.kbg));
-                        twitter_hitboxes.push_str(&format!("\nAngle: {}", throw.trajectory));
-                        twitter_hitboxes.push_str(&format!("\nEffect: {:?}", throw.effect));
-                        twitter_hitboxes.push_str(&format!("\nWDTS: {}", throw.weight_dependent_speed));
+                        twitter_hitboxes.push_str(&format!("\nBKB:{}", throw.bkb));
+                        twitter_hitboxes.push_str(&format!("\nKBG:{}", throw.kbg));
+                        twitter_hitboxes.push_str(&format!("\nAngle:{}", throw.trajectory));
+                        twitter_hitboxes.push_str(&format!("\nEffect:{:?}", throw.effect));
+                        twitter_hitboxes.push_str(&format!("\nWDTS:{}", throw.weight_dependent_speed));
                         twitter_hitboxes.push_str(&match throw.grab_target {
-                            GrabTarget::None              => "\nGrab Target: N".into(),
-                            GrabTarget::GroundedOnly      => "\nGrab Target: G".into(),
-                            GrabTarget::AerialOnly        => "\nGrab Target: A".into(),
-                            GrabTarget::AerialAndGrounded => "\nGrab Target: AG".into(),
-                            GrabTarget::Unknown (_)       => format!("\nGrab Target: {:?}", throw.grab_target),
+                            GrabTarget::None              => "\nGrabTarget:N".into(),
+                            GrabTarget::GroundedOnly      => "\nGrabTarget:G".into(),
+                            GrabTarget::AerialOnly        => "\nGrabTarget:A".into(),
+                            GrabTarget::AerialAndGrounded => "\nGrabTarget:AG".into(),
+                            GrabTarget::Unknown (_)       => format!("\nGrabTarget:{:?}", throw.grab_target),
                         });
-                        twitter_hitboxes.push_str(&format!("\nIframes: {}", throw.i_frames));
+                        twitter_hitboxes.push_str(&format!("\nIframes:{}", throw.i_frames));
 
                         let rows = vec!(row);
 
@@ -385,9 +385,9 @@ pub fn generate(
                     if prev_values != next_values || i + 1 == subaction.frames.len() {
                         if let Some(first_frame) = last_change_frame {
                             let frames = if first_frame + 1 == i {
-                                format!("Frame: {}", i)
+                                format!("Frame:{}", i)
                             } else {
-                                format!("Frames: {}-{}", first_frame+1, i)
+                                format!("Frames:{}-{}", first_frame+1, i)
                             };
 
                             let mut hitboxes = vec!();
@@ -832,64 +832,64 @@ pub fn generate(
 
                             if !rows.is_empty() {
                                 twitter_hitboxes.push_str(&format!("\n\n{}", frames));
-                                twitter_hitboxes.push_str(&format!("\nDamage: {}", damage));
-                                twitter_hitboxes.push_str(&format!("\nShield Stun: {}", shieldstun));
+                                twitter_hitboxes.push_str(&format!("\nDamage:{}", damage));
+                                twitter_hitboxes.push_str(&format!("\nShieldStun:{}", shieldstun));
                                 if use_wdsk {
-                                    twitter_hitboxes.push_str(&format!("\nWDSK: {}", wdsk));
+                                    twitter_hitboxes.push_str(&format!("\nWDSK:{}",wdsk));
                                 }
-                                twitter_hitboxes.push_str(&format!("\nBKB: {}", bkb));
-                                twitter_hitboxes.push_str(&format!("\nKBG: {}", kbg));
-                                twitter_hitboxes.push_str(&format!("\nAngle: {}", angle));
+                                twitter_hitboxes.push_str(&format!("\nBKB:{}", bkb));
+                                twitter_hitboxes.push_str(&format!("\nKBG:{}", kbg));
+                                twitter_hitboxes.push_str(&format!("\nAngle:{}", angle));
                                 if use_angle_flipping {
-                                    twitter_hitboxes.push_str(&format!("\nAngle Flip: {}", angle_flipping));
+                                    twitter_hitboxes.push_str(&format!("\nAngleFlip:{}", angle_flipping));
                                 }
                                 if twitter_use_effect {
-                                    twitter_hitboxes.push_str(&format!("\nEffect: {}", effect));
+                                    twitter_hitboxes.push_str(&format!("\nEffect:{}", shorten_list(effect)));
                                 }
                                 if use_clang {
-                                    twitter_hitboxes.push_str(&format!("\nClang: {}", clang));
+                                    twitter_hitboxes.push_str(&format!("\nClang:{}", clang));
                                 }
                                 if use_direct {
-                                    twitter_hitboxes.push_str(&format!("\nDirect: {}", direct));
+                                    twitter_hitboxes.push_str(&format!("\nDirect:{}", direct));
                                 }
                                 if use_hitlag_mult {
-                                    twitter_hitboxes.push_str(&format!("\nHitlag Mult: {}", hitlag_mult));
+                                    twitter_hitboxes.push_str(&format!("\nHitlagMult:{}", hitlag_mult));
                                 }
                                 if use_sdi_mult {
-                                    twitter_hitboxes.push_str(&format!("\nSDI Mult: {}", sdi_mult));
+                                    twitter_hitboxes.push_str(&format!("\nSDIMult:{}", sdi_mult));
                                 }
                                 if use_shield_damage {
-                                    twitter_hitboxes.push_str(&format!("\nShield Damage: {}", shield_damage));
+                                    twitter_hitboxes.push_str(&format!("\nShieldDamage:{}", shield_damage));
                                 }
                                 if use_tripping_rate {
-                                    twitter_hitboxes.push_str(&format!("\nTripping Rate: {}", tripping_rate));
+                                    twitter_hitboxes.push_str(&format!("\nTrippingRate:{}", tripping_rate));
                                 }
                                 if use_rehit_rate {
-                                    twitter_hitboxes.push_str(&format!("\nRehit Rate: {}", rehit_rate));
+                                    twitter_hitboxes.push_str(&format!("\nRehitRate:{}", rehit_rate));
                                 }
                                 if use_can_be_shielded {
-                                    twitter_hitboxes.push_str(&format!("\nCan Be Shielded: {}", can_be_shielded));
+                                    twitter_hitboxes.push_str(&format!("\nCanBeShielded:{}", can_be_shielded));
                                 }
                                 if use_can_be_reflected {
-                                    twitter_hitboxes.push_str(&format!("\nCan Be Reflected: {}", can_be_reflected));
+                                    twitter_hitboxes.push_str(&format!("\nCanBeReflected:{}", can_be_reflected));
                                 }
                                 if use_can_be_absorbed {
-                                    twitter_hitboxes.push_str(&format!("\nCan Be Absorbed: {}", can_be_absorbed));
+                                    twitter_hitboxes.push_str(&format!("\nCanBeAbsorbed:{}", can_be_absorbed));
                                 }
                                 if use_remain_grabbed {
-                                    twitter_hitboxes.push_str(&format!("\nRemain Grabbed: {}", remain_grabbed));
+                                    twitter_hitboxes.push_str(&format!("\nRemainGrabbed:{}", remain_grabbed));
                                 }
                                 if use_ignore_invincibility {
-                                    twitter_hitboxes.push_str(&format!("\nIgnore Invincibility: {}", ignore_invincibility));
+                                    twitter_hitboxes.push_str(&format!("\nIgnoreInvincibility:{}", ignore_invincibility));
                                 }
                                 if use_freeze_frame_disable {
-                                    twitter_hitboxes.push_str(&format!("\nDisable Freeze Frame: {}", freeze_frame_disable));
+                                    twitter_hitboxes.push_str(&format!("\nDisableFreezeFrame:{}", freeze_frame_disable));
                                 }
                                 if use_flinchless {
-                                    twitter_hitboxes.push_str(&format!("\nFlinchless: {}", flinchless));
+                                    twitter_hitboxes.push_str(&format!("\nFlinchless:{}", flinchless));
                                 }
                                 if has_grab {
-                                    twitter_hitboxes.push_str("\nHas Grabbox");
+                                    twitter_hitboxes.push_str("\nHasGrabbox");
                                 }
 
                                 // Assert that the header size is the same as all rows because its easy to forget to add an empty cell when a column is not used
@@ -920,28 +920,28 @@ pub fn generate(
                 //
                 // We can't reuse the `attributes` vec as we have different values here e.g. frame count and no subaction index
                 let mut twitter_description = String::new();
-                twitter_description.push_str(&format!("Frames: {}", subaction.frames.len()));
-                twitter_description.push_str(&format!("\nIASA: {}", iasa_string));
+                twitter_description.push_str(&format!("Frames:{}", subaction.frames.len()));
+                twitter_description.push_str(&format!("\nIASA:{}", iasa_string));
                 if !auto_cancel.is_empty() {
-                    twitter_description.push_str(&format!("\nAuto Cancel: {}", auto_cancel));
+                    twitter_description.push_str(&format!("\nAutoCancel:{}", auto_cancel));
                 }
                 if let Some(landing_lag) = subaction.landing_lag {
-                    twitter_description.push_str(&format!("\nLanding Lag: {}", landing_lag));
+                    twitter_description.push_str(&format!("\nLandingLag:{}", landing_lag));
                 }
                 if !intangible.is_empty() {
-                    twitter_description.push_str(&format!("\nFully Intangible: {}", intangible));
+                    twitter_description.push_str(&format!("\nFullyIntangible:{}", intangible));
                 }
                 if !invincible.is_empty() {
-                    twitter_description.push_str(&format!("\nFully Invincible: {}", invincible));
+                    twitter_description.push_str(&format!("\nFullyInvincible:{}", invincible));
                 }
                 if !partial_intangible.is_empty() {
-                    twitter_description.push_str(&format!("\nPartially Intangible: {}", partial_intangible));
+                    twitter_description.push_str(&format!("\nPartiallyIntangible:{}", partial_intangible));
                 }
                 if !partial_invincible.is_empty() {
-                    twitter_description.push_str(&format!("\nPartially Invincible: {}", partial_invincible));
+                    twitter_description.push_str(&format!("\nPartiallyInvincible:{}", partial_invincible));
                 }
                 if !reverse_direction.is_empty() {
-                    twitter_description.push_str(&format!("\nDirection Reverse Frames: {}", reverse_direction));
+                    twitter_description.push_str(&format!("\nDirectionReverseFrames:{}", reverse_direction));
                 }
 
                 twitter_description.push_str(&twitter_hitboxes);
@@ -1028,6 +1028,18 @@ pub fn generate(
             });
         }
     }
+}
+
+fn shorten_list(value: String) -> String {
+    if let Some(first_value) = value.split(',').next() {
+        if value.split(',').all(|x| x == first_value) {
+            let new_value = format!("All {first_value}");
+            if new_value.len() < value.len() {
+                return new_value;
+            }
+        }
+    }
+    value
 }
 
 fn range_string(start: usize, end: usize) -> String {
