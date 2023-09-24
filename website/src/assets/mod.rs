@@ -134,7 +134,7 @@ impl AssetPaths {
             }
 
             {
-                let contents = fs::read(&format!(
+                let contents = fs::read(format!(
                     "../fighter_renderer/target/generated/{}",
                     WASM_FILE_NAME
                 ))

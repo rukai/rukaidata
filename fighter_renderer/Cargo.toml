@@ -6,16 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-#brawllib_rs = "0.24"
-brawllib_rs = { git = "https://github.com/rukai/brawllib_rs" }
-wgpu = { version = "0.13", features = ["webgl"] }
+brawllib_rs = "0.25"
 log = "0.4"
 bincode = "1"
-# TODO: remove and make brawllib set the css-size feature when css-size is upstreamed
-winit = { version = "0.26", features = ["css-size"]}
 
 # wasm
-console_log = "0.2"
+console_log = "1.0"
 console_error_panic_hook = "0.1"
 wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
@@ -44,6 +40,3 @@ opt-level = 'z'
 
 [lib]
 crate-type = ["cdylib"]
-
-[patch.crates-io]
-winit = { git = "https://github.com/rukai/winit", branch = "rukaidata_fork"}
