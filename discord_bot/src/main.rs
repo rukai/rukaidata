@@ -43,7 +43,7 @@ fn data_command(
     let fighter_option = match command
         .data
         .options
-        .get(0)
+        .first()
         .unwrap()
         .resolved
         .as_ref()

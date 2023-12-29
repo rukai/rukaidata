@@ -1,6 +1,6 @@
 use crate::cli::CLIResults;
+use std::fmt::Write;
 use std::fs;
-use std::io::Write;
 use std::path::Path;
 use subprocess::{Exec, Redirection};
 
@@ -25,9 +25,16 @@ fn run_command_in_dir(command: &str, args: &[&str], dir: &str) {
         )
     }
 }
+fn hash(value: &[u8]) -> String {
+    let mut hasher = Sha256::default();
+    hasher.update(value);
+    hasher.finalize().iter().fold(String::new(), |mut out, x| {
+        write!(out, "{x:x}").unwrap();
+        out
+    })
+}
 
 impl AssetPaths {
-    #[allow(clippy::new_without_default)]
     pub fn new(cli: &CLIResults) -> AssetPaths {
         fs::create_dir_all("../root/assets_static").unwrap();
 
@@ -36,48 +43,27 @@ impl AssetPaths {
 
             let minified = minifier::css::minify(contents).unwrap();
 
-            let mut hasher = Sha256::default();
-            hasher.update(&minified);
-            let hash: String = hasher
-                .finalize()
-                .iter()
-                .map(|x| format!("{:x}", x))
-                .collect();
-
-            let path = format!("/assets_static/{}.css", hash);
-            fs::write(format!("../root/{}", path), minified).unwrap();
+            let hash = hash(minified.as_bytes());
+            let path = format!("/assets_static/{hash}.css");
+            fs::write(format!("../root/{path}"), minified).unwrap();
             path
         };
 
         let spritesheet_png = {
             let contents = include_bytes!("spritesheet.png");
 
-            let mut hasher = Sha256::default();
-            hasher.write_all(contents).unwrap();
-            let hash: String = hasher
-                .finalize()
-                .iter()
-                .map(|x| format!("{:x}", x))
-                .collect();
-
-            let path = format!("/assets_static/{}.png", hash);
-            fs::write(format!("../root/{}", path), contents).unwrap();
+            let hash = hash(contents);
+            let path = format!("/assets_static/{hash}.png");
+            fs::write(format!("../root/{path}"), contents).unwrap();
             path
         };
 
         let favicon_png = {
             let contents = include_bytes!("favicon.png");
 
-            let mut hasher = Sha256::default();
-            hasher.write_all(contents).unwrap();
-            let hash: String = hasher
-                .finalize()
-                .iter()
-                .map(|x| format!("{:x}", x))
-                .collect();
-
-            let path = format!("/assets_static/{}.png", hash);
-            fs::write(format!("../root/{}", path), contents).unwrap();
+            let hash = hash(contents);
+            let path = format!("/assets_static/{hash}.png");
+            fs::write(format!("../root/{path}"), contents).unwrap();
             path
         };
 
@@ -88,16 +74,9 @@ impl AssetPaths {
             // let minified = minifier::js::minify(&contents); // TODO: Welp ... this is very clearly broken.
             // Can't complain though, the minifier repo does say its not ready yet :P
 
-            let mut hasher = Sha256::default();
-            hasher.update(minified);
-            let hash: String = hasher
-                .finalize()
-                .iter()
-                .map(|x| format!("{:x}", x))
-                .collect();
-
-            let path = format!("/assets_static/{}.js", hash);
-            fs::write(format!("../root/{}", path), minified.as_bytes()).unwrap();
+            let hash = hash(minified.as_bytes());
+            let path = format!("/assets_static/{hash}.js");
+            fs::write(format!("../root/{path}"), minified.as_bytes()).unwrap();
             path
         };
 
@@ -139,15 +118,9 @@ impl AssetPaths {
                     WASM_FILE_NAME
                 ))
                 .unwrap();
-                let mut hasher = Sha256::default();
-                hasher.update(&contents);
-                let hash: String = hasher
-                    .finalize()
-                    .iter()
-                    .map(|x| format!("{:x}", x))
-                    .collect();
-                let path = format!("/assets_static/{}.wasm", hash);
-                fs::write(format!("../root/{}", path), contents).unwrap();
+                let hash = hash(&contents);
+                let path = format!("/assets_static/{hash}.wasm");
+                fs::write(format!("../root/{path}"), contents).unwrap();
                 path
             }
         } else {
@@ -166,16 +139,9 @@ impl AssetPaths {
             assert!(contents.contains(WASM_FILE_NAME));
             contents = contents.replace(WASM_FILE_NAME, wasm_file_name);
 
-            let mut hasher = Sha256::default();
-            hasher.update(&contents);
-            let hash: String = hasher
-                .finalize()
-                .iter()
-                .map(|x| format!("{:x}", x))
-                .collect();
-
-            let path = format!("/assets_static/{}.js", hash);
-            fs::write(format!("../root/{}", path), contents).unwrap();
+            let hash = hash(contents.as_bytes());
+            let path = format!("/assets_static/{hash}.js");
+            fs::write(format!("../root/{path}"), contents).unwrap();
             path
         } else {
             String::new()

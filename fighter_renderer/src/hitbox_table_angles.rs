@@ -64,7 +64,7 @@ fn draw_angle(
     context.set_fill_style(&color.into());
     context.set_line_width(2.0);
     context.begin_path();
-    context.arc(x as f64, y as f64, 2.0, 0.0, PI * 2.0).unwrap();
+    context.arc(x, y, 2.0, 0.0, PI * 2.0).unwrap();
     context.fill();
 
     context.begin_path();
