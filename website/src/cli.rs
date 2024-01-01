@@ -15,6 +15,7 @@ pub(crate) fn parse_cli() -> Option<CLIResults> {
     opts.optflag("g", "gif", "Enable subaction gif generation");
     opts.optflag("w", "web", "Enable website generation");
     opts.optflag("a", "wasm", "Use wasm/wgpu backend");
+    opts.optflag("s", "serve", "serve the website after generating it");
     opts.optopt(
         "m",
         "mods",
@@ -53,6 +54,7 @@ pub(crate) fn parse_cli() -> Option<CLIResults> {
     let generate_gifs = matches.opt_present("g");
     let generate_web = matches.opt_present("w");
     let wasm_mode = matches.opt_present("a");
+    let serve = matches.opt_present("s");
 
     Some(CLIResults {
         mod_names,
@@ -60,6 +62,7 @@ pub(crate) fn parse_cli() -> Option<CLIResults> {
         generate_gifs,
         generate_web,
         wasm_mode,
+        serve,
     })
 }
 
@@ -69,4 +72,5 @@ pub struct CLIResults {
     pub generate_gifs: bool,
     pub generate_web: bool,
     pub wasm_mode: bool,
+    pub serve: bool,
 }

@@ -14,8 +14,10 @@ pub mod brawl_data;
 pub mod cli;
 pub mod gif;
 pub mod logger;
+pub mod output;
 pub mod page;
 pub mod process_scripts;
+mod serve;
 
 use assets::AssetPaths;
 use brawl_data::BrawlMods;
@@ -50,6 +52,10 @@ fn main() {
 
             if cli.generate_gifs {
                 gif::generate(&brawl_mods);
+            }
+
+            if cli.serve {
+                serve::serve();
             }
         }
     }

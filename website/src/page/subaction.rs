@@ -1,15 +1,12 @@
-use std::fs;
-use std::fs::File;
-
+use crate::assets::AssetPaths;
+use crate::brawl_data::{BrawlMods, SubactionLinks};
+use crate::output::OutDir;
+use crate::page::{NavLink, Preload};
+use crate::process_scripts;
 use brawllib_rs::high_level_fighter::CollisionBoxValues;
 use brawllib_rs::script_ast::{AngleFlip, GrabTarget, HitBoxEffect};
 use handlebars::Handlebars;
 use rayon::prelude::*;
-
-use crate::assets::AssetPaths;
-use crate::brawl_data::{BrawlMods, SubactionLinks};
-use crate::page::{NavLink, Preload};
-use crate::process_scripts;
 
 pub fn generate(
     handlebars: &Handlebars,
@@ -21,11 +18,10 @@ pub fn generate(
         let mod_links = brawl_mods.gen_mod_links(brawl_mod.name.clone());
 
         for fighter in &brawl_mod.fighters {
-            fs::create_dir_all(format!(
-                "../root/{}/{}/subactions",
+            let dir = OutDir::new(&format!(
+                "{}/{}/subactions",
                 brawl_mod.name, fighter.fighter.name
-            ))
-            .unwrap();
+            ));
 
             fighter.fighter.subactions.par_iter().enumerate().for_each(|(index, subaction)| {
                 let fighter_name = &fighter.fighter.name;
@@ -991,8 +987,7 @@ pub fn generate(
 
                 if wasm_mode {
                     let bin = bincode::serialize(&subaction).unwrap();
-                    let bin_path = format!("../root/{}/{}/subactions/{}.bin", brawl_mod.name, fighter_name, subaction.name);
-                    std::fs::write(bin_path, bin).unwrap();
+                    dir.create_compressed_file(&format!("{}.bin",subaction.name), &bin);
                 }
 
                 let page = SubactionPage {
@@ -1020,8 +1015,7 @@ pub fn generate(
                 };
 
                 {
-                    let path = format!("../root/{}/{}/subactions/{}.html", brawl_mod.name, fighter_name, subaction.name);
-                    let file = File::create(path).unwrap();
+                    let file = dir.compressed_file_writer(&format!("{}.html", subaction.name));
                     handlebars.render_to_write("subaction", &page, file).unwrap();
                 }
                 info!("{} {} {}", brawl_mod.name, fighter_name, subaction.name);

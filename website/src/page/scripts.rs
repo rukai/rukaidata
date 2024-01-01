@@ -1,12 +1,9 @@
-use std::fs;
-use std::fs::File;
-
-use handlebars::Handlebars;
-use rayon::prelude::*;
-
 use crate::assets::AssetPaths;
 use crate::brawl_data::BrawlMods;
+use crate::output::OutDir;
 use crate::page::NavLink;
+use handlebars::Handlebars;
+use rayon::prelude::*;
 
 pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetPaths) {
     for brawl_mod in &brawl_mods.mods {
@@ -25,16 +22,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                 assets,
             };
 
-            fs::create_dir_all(format!(
-                "../root/{}/{}/scripts",
-                brawl_mod.name, fighter.name
-            ))
-            .unwrap();
-            let path = format!(
-                "../root/{}/{}/scripts/index.html",
-                brawl_mod.name, fighter.name
-            );
-            let file = File::create(path).unwrap();
+            let file = OutDir::new(&format!("{}/{}/scripts", brawl_mod.name, fighter.name))
+                .compressed_file_writer("index.html");
             handlebars.render_to_write("scripts", &page, file).unwrap();
         });
     }
