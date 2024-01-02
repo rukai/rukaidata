@@ -16,7 +16,7 @@ log = "0.4"
 # This guy has no idea how to semver, not worth my time updating
 handlebars = { version = "=4.2.2", features = ["dir_source"] }
 rayon = "1"
-minifier = "0.0"
+minifier = "0.3"
 sha2 = "0.10"
 futures = "0.3"
 subprocess = "0.2.7"
