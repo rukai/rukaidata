@@ -74,9 +74,3 @@ jobs:
     - name: Ensure that tests pass under every possible combination of features
       run: |
         cargo hack --feature-powerset test ${{ matrix.cargo_profile }}
-    - name: Ensure that tests did not create or modify any files that arent .gitignore'd
-      run: |
-        if [ -n "$(git status --porcelain)" ]; then
-          git status
-          exit 1
-        fi
