@@ -13,7 +13,7 @@ pub fn generate(
     handlebars: &Handlebars,
     brawl_mods: &BrawlMods,
     assets: &AssetPaths,
-    wasm_mode: bool,
+    legacy_renderer: bool,
 ) {
     for brawl_mod in &brawl_mods.mods {
         let mod_links = brawl_mods.gen_mod_links(brawl_mod.name.clone());
@@ -976,17 +976,17 @@ pub fn generate(
                     },
                 ];
 
-                let preload = if wasm_mode {
-                    &preload
-                } else {
+                let preload = if legacy_renderer {
                     &[] as &[Preload]
+                } else {
+                    &preload
                 };
 
-                let subaction_bincode = if wasm_mode {
+                let subaction_bincode = if legacy_renderer {
+                    String::new()
+                } else {
                     let bin = bincode::serialize(&subaction).unwrap();
                     general_purpose::STANDARD.encode(bin)
-                } else {
-                    String::new()
                 };
 
                 let page = SubactionPage {
@@ -1010,7 +1010,7 @@ pub fn generate(
                     frame_buttons,
                     twitter_image,
                     twitter_description,
-                    wasm_mode,
+                    legacy_renderer,
                 };
 
                 {
@@ -1087,7 +1087,7 @@ pub struct SubactionPage<'a> {
     frame_buttons: Vec<FrameButton>,
     twitter_description: String,
     twitter_image: String,
-    wasm_mode: bool,
+    legacy_renderer: bool,
 }
 
 #[derive(Serialize)]

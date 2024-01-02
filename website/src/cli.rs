@@ -18,9 +18,9 @@ pub struct Args {
     #[clap(long, short = 'w', action)]
     pub generate_web: bool,
 
-    /// Use wasm/wgpu backend
-    #[clap(long, short = 'a', action)]
-    pub wasm_mode: bool,
+    /// Use the pure JS legacy renderer
+    #[clap(long, short = 'l', action)]
+    pub legacy_renderer: bool,
 
     /// Serve the website at localhost:8000 after generating it
     #[clap(long, short)]
