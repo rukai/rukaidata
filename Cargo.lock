@@ -2314,6 +2314,7 @@ name = "rukaidata_website"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "base64 0.21.5",
  "bincode",
  "brawllib_rs",
  "clap",

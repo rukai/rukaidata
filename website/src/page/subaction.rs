@@ -3,6 +3,7 @@ use crate::brawl_data::{BrawlMods, SubactionLinks};
 use crate::output::OutDir;
 use crate::page::{NavLink, Preload};
 use crate::process_scripts;
+use base64::{engine::general_purpose, Engine as _};
 use brawllib_rs::high_level_fighter::CollisionBoxValues;
 use brawllib_rs::script_ast::{AngleFlip, GrabTarget, HitBoxEffect};
 use handlebars::Handlebars;
@@ -973,10 +974,6 @@ pub fn generate(
                         path: assets.fighter_renderer_js.clone(),
                         as_: "script".to_string(),
                     },
-                    Preload {
-                        path: format!("{}.bin", subaction.name),
-                        as_: "fetch".to_string(),
-                    },
                 ];
 
                 let preload = if wasm_mode {
@@ -985,10 +982,12 @@ pub fn generate(
                     &[] as &[Preload]
                 };
 
-                if wasm_mode {
+                let subaction_bincode = if wasm_mode {
                     let bin = bincode::serialize(&subaction).unwrap();
-                    dir.create_compressed_file(&format!("{}.bin",subaction.name), &bin);
-                }
+                    general_purpose::STANDARD.encode(bin)
+                } else {
+                    String::new()
+                };
 
                 let page = SubactionPage {
                     assets,
@@ -997,9 +996,9 @@ pub fn generate(
                     mod_links:          &mod_links,
                     title:              format!("{} - {} - Subaction - {}", brawl_mod.name, fighter_name, subaction.name),
                     subaction_links:    brawl_mod.gen_subaction_links(&fighter.fighter, subaction.name.clone()),
-                    subaction_bin_path: format!("{}.bin", subaction.name),
                     subaction:          serde_json::to_string(&subaction).unwrap(),
                     subaction_extent:   serde_json::to_string(&subaction_extent).unwrap(),
+                    subaction_bincode,
                     attributes,
                     throw_table,
                     hitbox_tables,
@@ -1078,7 +1077,7 @@ pub struct SubactionPage<'a> {
     attributes: Vec<Attribute>,
     throw_table: Option<HitBoxTable>,
     hitbox_tables: Vec<HitBoxTable>,
-    subaction_bin_path: String,
+    subaction_bincode: String,
     subaction: String,
     subaction_extent: String,
     script_main: String,

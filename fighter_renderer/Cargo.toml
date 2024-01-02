@@ -15,7 +15,7 @@ console_log = "1.0"
 console_error_panic_hook = "0.1"
 wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
-js-sys = "0.3.55"
+base64 = "0.21.5"
 
 [dependencies.web-sys]
 version = "0.3.4"
@@ -27,10 +27,6 @@ features = [
   'HtmlCollection',
   'HtmlInputElement',
   'HtmlSelectElement',
-  'Request',
-  'RequestInit',
-  'RequestMode',
-  'Response',
   'Window',
 ]
 
