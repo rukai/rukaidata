@@ -45,7 +45,7 @@ fn main() {
             page::actions::generate(&handlebars, &brawl_mods, &assets);
             page::action::generate(&handlebars, &brawl_mods, &assets);
             page::subactions::generate(&handlebars, &brawl_mods, &assets);
-            page::subaction::generate(&handlebars, &brawl_mods, &assets, args.wasm_mode);
+            page::subaction::generate(&handlebars, &brawl_mods, &assets, args.legacy_renderer);
             page::script::generate(&handlebars, &brawl_mods, &assets);
             page::scripts::generate(&handlebars, &brawl_mods, &assets);
             page::variables::generate(&handlebars, &brawl_mods, &assets);

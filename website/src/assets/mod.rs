@@ -71,7 +71,9 @@ impl AssetPaths {
         };
 
         const WASM_FILE_NAME: &str = "fighter_renderer_bg.wasm";
-        let fighter_renderer_wasm = if args.wasm_mode {
+        let fighter_renderer_wasm = if args.legacy_renderer {
+            String::new()
+        } else {
             {
                 let all_args = if env!("PROFILE") == "release" {
                     vec!["build", "--release"]
@@ -111,11 +113,11 @@ impl AssetPaths {
                 let hash = hash(&contents);
                 dir.create_compressed_file(&format!("{hash}.wasm"), &contents)
             }
-        } else {
-            String::new()
         };
 
-        let fighter_renderer_js = if args.wasm_mode {
+        let fighter_renderer_js = if args.legacy_renderer {
+            String::new()
+        } else {
             let mut contents =
                 fs::read_to_string("../fighter_renderer/target/generated/fighter_renderer.js")
                     .unwrap();
@@ -129,8 +131,6 @@ impl AssetPaths {
 
             let hash = hash(contents.as_bytes());
             dir.create_compressed_file(&format!("{hash}.js"), contents.as_bytes())
-        } else {
-            String::new()
         };
 
         AssetPaths {
