@@ -1,13 +1,10 @@
-use std::fs;
-use std::fs::File;
-
-use handlebars::Handlebars;
-use rayon::prelude::*;
-
 use crate::assets::AssetPaths;
 use crate::brawl_data::BrawlMods;
+use crate::output::OutDir;
 use crate::page::NavLink;
 use crate::process_scripts;
+use handlebars::Handlebars;
+use rayon::prelude::*;
 
 pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetPaths) {
     for brawl_mod in &brawl_mods.mods {
@@ -51,16 +48,11 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                         assets,
                     };
 
-                    fs::create_dir_all(format!(
-                        "../root/{}/{}/scripts",
+                    let dir = OutDir::new(&format!(
+                        "{}/{}/scripts",
                         brawl_mod.name, fighter.fighter.name
-                    ))
-                    .unwrap();
-                    let path = format!(
-                        "../root/{}/{}/scripts/0x{:x}.html",
-                        brawl_mod.name, fighter.fighter.name, script.offset
-                    );
-                    let file = File::create(path).unwrap();
+                    ));
+                    let file = dir.compressed_file_writer(&format!("0x{:x}.html", script.offset));
                     handlebars.render_to_write("script", &page, file).unwrap();
                     info!(
                         "{} {} 0x{:x}",
@@ -95,16 +87,11 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                         assets,
                     };
 
-                    fs::create_dir_all(format!(
-                        "../root/{}/{}/scripts_common",
+                    let dir = OutDir::new(&format!(
+                        "{}/{}/scripts_common",
                         brawl_mod.name, fighter.fighter.name
-                    ))
-                    .unwrap();
-                    let path = format!(
-                        "../root/{}/{}/scripts_common/0x{:x}.html",
-                        brawl_mod.name, fighter.fighter.name, script.offset
-                    );
-                    let file = File::create(path).unwrap();
+                    ));
+                    let file = dir.compressed_file_writer(&format!("0x{:x}.html", script.offset));
                     handlebars.render_to_write("script", &page, file).unwrap();
                     info!(
                         "{} {} 0x{:x}",
@@ -139,16 +126,11 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                         assets,
                     };
 
-                    fs::create_dir_all(format!(
-                        "../root/{}/{}/scripts_common",
+                    let dir = OutDir::new(&format!(
+                        "{}/{}/scripts_common",
                         brawl_mod.name, fighter.fighter.name
-                    ))
-                    .unwrap();
-                    let path = format!(
-                        "../root/{}/{}/scripts_common/{}.html",
-                        brawl_mod.name, fighter.fighter.name, script.name
-                    );
-                    let file = File::create(path).unwrap();
+                    ));
+                    let file = dir.compressed_file_writer(&format!("{}.html", script.name));
                     handlebars.render_to_write("script", &page, file).unwrap();
                     info!(
                         "{} {} {}",

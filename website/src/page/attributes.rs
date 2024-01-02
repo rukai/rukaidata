@@ -1,14 +1,10 @@
-use std::fs;
-use std::fs::File;
-
-use handlebars::Handlebars;
-use rayon::prelude::*;
-
-use brawllib_rs::sakurai::fighter_data::FighterAttributes;
-
 use crate::assets::AssetPaths;
 use crate::brawl_data::BrawlMods;
+use crate::output::OutDir;
 use crate::page::NavLink;
+use brawllib_rs::sakurai::fighter_data::FighterAttributes;
+use handlebars::Handlebars;
+use rayon::prelude::*;
 
 pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetPaths) {
     for brawl_mod in &brawl_mods.mods {
@@ -23,12 +19,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
                 attributes: attributes_to_strings(&fighter.attributes),
             };
 
-            fs::create_dir_all(format!("../root/{}/{}", brawl_mod.name, fighter.name)).unwrap();
-            let path = format!(
-                "../root/{}/{}/attributes.html",
-                brawl_mod.name, fighter.name
-            );
-            let file = File::create(path).unwrap();
+            let file = OutDir::new(&format!("{}/{}", brawl_mod.name, fighter.name))
+                .compressed_file_writer("attributes.html");
             handlebars
                 .render_to_write("attributes", &page, file)
                 .unwrap();

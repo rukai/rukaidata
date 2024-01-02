@@ -1,4 +1,4 @@
-use crate::cli::CLIResults;
+use crate::{cli::CLIResults, output::OutDir};
 use std::fmt::Write;
 use std::fs;
 use std::path::Path;
@@ -36,7 +36,7 @@ fn hash(value: &[u8]) -> String {
 
 impl AssetPaths {
     pub fn new(cli: &CLIResults) -> AssetPaths {
-        fs::create_dir_all("../root/assets_static").unwrap();
+        let dir = OutDir::new("assets_static");
 
         let style_css = {
             let contents = include_str!("style.css");
@@ -44,27 +44,19 @@ impl AssetPaths {
             let minified = minifier::css::minify(contents).unwrap();
 
             let hash = hash(minified.as_bytes());
-            let path = format!("/assets_static/{hash}.css");
-            fs::write(format!("../root/{path}"), minified).unwrap();
-            path
+            dir.create_compressed_file(&format!("{hash}.css"), minified.as_bytes())
         };
 
         let spritesheet_png = {
             let contents = include_bytes!("spritesheet.png");
-
             let hash = hash(contents);
-            let path = format!("/assets_static/{hash}.png");
-            fs::write(format!("../root/{path}"), contents).unwrap();
-            path
+            dir.create_compressed_file(&format!("{hash}.png"), contents)
         };
 
         let favicon_png = {
             let contents = include_bytes!("favicon.png");
-
             let hash = hash(contents);
-            let path = format!("/assets_static/{hash}.png");
-            fs::write(format!("../root/{path}"), contents).unwrap();
-            path
+            dir.create_compressed_file(&format!("{hash}.png"), contents)
         };
 
         let subaction_render_js = {
@@ -75,9 +67,7 @@ impl AssetPaths {
             // Can't complain though, the minifier repo does say its not ready yet :P
 
             let hash = hash(minified.as_bytes());
-            let path = format!("/assets_static/{hash}.js");
-            fs::write(format!("../root/{path}"), minified.as_bytes()).unwrap();
-            path
+            dir.create_compressed_file(&format!("{hash}.js"), minified.as_bytes())
         };
 
         const WASM_FILE_NAME: &str = "fighter_renderer_bg.wasm";
@@ -119,9 +109,7 @@ impl AssetPaths {
                 ))
                 .unwrap();
                 let hash = hash(&contents);
-                let path = format!("/assets_static/{hash}.wasm");
-                fs::write(format!("../root/{path}"), contents).unwrap();
-                path
+                dir.create_compressed_file(&format!("{hash}.wasm"), &contents)
             }
         } else {
             String::new()
@@ -140,9 +128,7 @@ impl AssetPaths {
             contents = contents.replace(WASM_FILE_NAME, wasm_file_name);
 
             let hash = hash(contents.as_bytes());
-            let path = format!("/assets_static/{hash}.js");
-            fs::write(format!("../root/{path}"), contents).unwrap();
-            path
+            dir.create_compressed_file(&format!("{hash}.js"), contents.as_bytes())
         } else {
             String::new()
         };

@@ -1,19 +1,19 @@
-use std::fs;
-use std::sync::mpsc::Receiver;
-
+use crate::brawl_data::BrawlMods;
+use crate::output::OutDir;
 use brawllib_rs::renderer;
 use brawllib_rs::renderer::WgpuState;
-
-use crate::brawl_data::BrawlMods;
+use std::sync::mpsc::Receiver;
 
 struct GifWait {
-    path: String,
+    dir: OutDir,
+    file_name: String,
     rx: Receiver<Vec<u8>>,
 }
 
 impl GifWait {
     fn wait(self) {
-        fs::write(self.path, self.rx.recv().unwrap()).unwrap();
+        self.dir
+            .create_compressed_file(&self.file_name, &self.rx.recv().unwrap());
     }
 }
 
@@ -23,22 +23,16 @@ pub fn generate(brawl_mods: &BrawlMods) {
     for brawl_mod in &brawl_mods.mods {
         for fighter in &brawl_mod.fighters {
             let fighter_name = &fighter.fighter.name;
-            fs::create_dir_all(format!(
-                "../root/{}/{}/subactions",
-                brawl_mod.name, fighter_name
-            ))
-            .unwrap();
+            let dir = OutDir::new(&format!("{}/{}/subactions", brawl_mod.name, fighter_name));
 
             for (index, subaction) in fighter.fighter.subactions.iter().enumerate() {
                 if !subaction.frames.is_empty() {
-                    let twitter_image = format!(
-                        "/{}/{}/subactions/{}.gif",
-                        brawl_mod.name, fighter_name, subaction.name
-                    );
-                    let path = format!("../root{}", twitter_image);
-
                     let rx = renderer::render_gif(&mut state, &fighter.fighter, index);
-                    gif_waits.push(GifWait { path, rx });
+                    gif_waits.push(GifWait {
+                        file_name: format!("{}.gif", subaction.name),
+                        rx,
+                        dir: dir.clone(),
+                    });
 
                     info!(
                         "{} {} {} GIF started",

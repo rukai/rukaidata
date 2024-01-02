@@ -1,10 +1,8 @@
-use std::fs::File;
-
-use handlebars::Handlebars;
-
 use crate::assets::AssetPaths;
 use crate::brawl_data::BrawlMods;
+use crate::output::OutDir;
 use crate::page::NavLink;
+use handlebars::Handlebars;
 
 pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetPaths) {
     let page = IndexPage {
@@ -12,8 +10,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
         mod_links: brawl_mods.gen_mod_links(String::new()),
         assets,
     };
-    let file = File::create("../root/index.html").unwrap();
-    handlebars.render_to_write("index", &page, file).unwrap();
+    let writer = OutDir::new(".").compressed_file_writer("index.html");
+    handlebars.render_to_write("index", &page, writer).unwrap();
 }
 
 #[derive(Serialize)]
