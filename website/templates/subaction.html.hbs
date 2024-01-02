@@ -454,10 +454,11 @@
 {{#if wasm_mode}}
 <script type="module">
     import init, { run } from "{{assets.fighter_renderer_js}}";
+    const fighter_subaction_data = "{{{ subaction_bincode }}}";
     // TODO: apparently we wont need to do just async wrapper + init call nonsense in the future
     (async function () {
         await init();
-        run('{{subaction_bin_path}}');
+        run(fighter_subaction_data);
     })();
 </script>
 {{else}}
