@@ -1,4 +1,4 @@
-use crate::{cli::CLIResults, output::OutDir};
+use crate::{cli::Args, output::OutDir};
 use std::fmt::Write;
 use std::fs;
 use std::path::Path;
@@ -35,7 +35,7 @@ fn hash(value: &[u8]) -> String {
 }
 
 impl AssetPaths {
-    pub fn new(cli: &CLIResults) -> AssetPaths {
+    pub fn new(args: &Args) -> AssetPaths {
         let dir = OutDir::new("assets_static");
 
         let style_css = {
@@ -71,7 +71,7 @@ impl AssetPaths {
         };
 
         const WASM_FILE_NAME: &str = "fighter_renderer_bg.wasm";
-        let fighter_renderer_wasm = if cli.wasm_mode {
+        let fighter_renderer_wasm = if args.wasm_mode {
             {
                 let all_args = if env!("PROFILE") == "release" {
                     vec!["build", "--release"]
@@ -115,7 +115,7 @@ impl AssetPaths {
             String::new()
         };
 
-        let fighter_renderer_js = if cli.wasm_mode {
+        let fighter_renderer_js = if args.wasm_mode {
             let mut contents =
                 fs::read_to_string("../fighter_renderer/target/generated/fighter_renderer.js")
                     .unwrap();

@@ -19,13 +19,13 @@ impl OutDir {
 
     pub fn compressed_file_writer(&self, file_name: &str) -> GzEncoder<File> {
         let file = File::create(self.path.join(file_name)).unwrap();
-        flate2::write::GzEncoder::new(file, Compression::best())
+        GzEncoder::new(file, Compression::best())
     }
 
     pub fn create_compressed_file(&self, file_name: &str, data: &[u8]) -> String {
         let path = self.path.join(file_name);
         let file = File::create(&path).unwrap();
-        let mut writer = flate2::write::GzEncoder::new(file, Compression::best()); //TODO: try deflate
+        let mut writer = GzEncoder::new(file, Compression::best());
         writer.write_all(data).unwrap();
         Path::new("/")
             .join(path.strip_prefix("../root").unwrap())

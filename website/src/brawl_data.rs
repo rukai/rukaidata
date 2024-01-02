@@ -7,7 +7,7 @@ use brawllib_rs::brawl_mod::BrawlMod as BrawllibMod;
 use brawllib_rs::fighter::ModType;
 use brawllib_rs::high_level_fighter::HighLevelFighter;
 
-use crate::cli::CLIResults;
+use crate::cli::Args;
 use crate::page::NavLink;
 
 pub struct BrawlMods {
@@ -33,7 +33,7 @@ pub struct ScriptInfo {
 }
 
 impl BrawlMods {
-    pub fn new(cli: &CLIResults) -> Option<BrawlMods> {
+    pub fn new(args: &Args) -> Option<BrawlMods> {
         let mut mod_order = String::new();
         if let Ok(mut file) = File::open("../data/mods.txt") {
             file.read_to_string(&mut mod_order).unwrap();
@@ -52,7 +52,7 @@ impl BrawlMods {
 
                 let mods: Vec<_> = dir
                     .filter(|x| x.as_ref().unwrap().path().is_dir())
-                    .filter_map(|x| BrawlMod::new(x.unwrap(), cli))
+                    .filter_map(|x| BrawlMod::new(x.unwrap(), args))
                     .collect();
 
                 // If nav links are not manually specified, automatically generate them.
@@ -89,10 +89,10 @@ impl BrawlMods {
 }
 
 impl BrawlMod {
-    pub fn new(data: DirEntry, cli: &CLIResults) -> Option<BrawlMod> {
+    pub fn new(data: DirEntry, args: &Args) -> Option<BrawlMod> {
         let mod_name = data.file_name().into_string().unwrap();
         let lower_mod_name = mod_name.to_lowercase();
-        if cli.mod_names.is_empty() || cli.mod_names.iter().any(|x| x == &lower_mod_name) {
+        if args.mod_names.is_empty() || args.mod_names.iter().any(|x| x == &lower_mod_name) {
             let is_mod = lower_mod_name != "brawl";
             let mod_path = if is_mod { Some(data.path()) } else { None };
             let brawl_path = if is_mod {
@@ -121,8 +121,8 @@ impl BrawlMod {
                     ModType::ModFromScratch => false,
                 } && is_mod;
 
-                if (cli.fighter_names.is_empty()
-                    || cli.fighter_names.iter().any(|x| x == &lower_fighter_name))
+                if (args.fighter_names.is_empty()
+                    || args.fighter_names.iter().any(|x| x == &lower_fighter_name))
                     && lower_fighter_name != "poketrainer"
                     && !unmodified_fighter_in_mod
                 {
