@@ -41,7 +41,7 @@ impl AssetPaths {
         let style_css = {
             let contents = include_str!("style.css");
 
-            let minified = minifier::css::minify(contents).unwrap();
+            let minified = minifier::css::minify(contents).unwrap().to_string();
 
             let hash = hash(minified.as_bytes());
             dir.create_compressed_file(&format!("{hash}.css"), minified.as_bytes())
