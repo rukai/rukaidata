@@ -5,7 +5,7 @@ cd "$( dirname -- "${BASH_SOURCE[0]}" )/../root"
 
 # `cache-control: max-age=31536000` results in the browser never requesting the file until the cache is cleaned or cleared.
 echo -e "\ndeploy assets_static"
-aws s3 sync --exclude "*" --include "*.png" assets_static s3://$OUTPUT_BUCKET_NAME/assets_static --cache-control max-age=31536000 --content-encoding gzip
+aws s3 sync assets_static s3://$OUTPUT_BUCKET_NAME/assets_static --cache-control max-age=31536000 --content-encoding gzip
 
 # `cache-control: no-cache` results in:
 # 1.   a 5 minute period in which no requests are made to the server, relying entirely on cached data (browser dependent)
