@@ -1,76 +1,40 @@
-use std::env;
+use clap::Parser;
 
-use getopts::Options;
-
-fn print_usage(program: &str, opts: Options) {
-    let brief = format!("Usage: {} [options] [list of fighters to export]", program);
-    print!("{}", opts.usage(&brief));
-}
-
-pub(crate) fn parse_cli() -> Option<CLIResults> {
-    let args: Vec<String> = env::args().collect();
-    let program = &args[0];
-
-    let mut opts = Options::new();
-    opts.optflag("g", "gif", "Enable subaction gif generation");
-    opts.optflag("w", "web", "Enable website generation");
-    opts.optflag("a", "wasm", "Use wasm/wgpu backend");
-    opts.optflag("s", "serve", "serve the website after generating it");
-    opts.optopt(
-        "m",
-        "mods",
-        "List of mod folders in data/ to use",
-        "NAME1,NAME2,NAME3...",
-    );
-    opts.optopt(
-        "f",
-        "fighters",
-        "List of fighters to use",
-        "NAME1,NAME2,NAME3...",
-    );
-
-    let matches = match opts.parse(&args[1..]) {
-        Ok(m) => m,
-        Err(_) => {
-            print_usage(program, opts);
-            return None;
-        }
-    };
-
-    let mut fighter_names: Vec<String> = vec![];
-    if let Some(f_match) = matches.opt_str("f") {
-        for fighter_name in f_match.split(',') {
-            fighter_names.push(fighter_name.to_lowercase());
-        }
-    }
-
-    let mut mod_names = vec![];
-    if let Some(m_match) = matches.opt_str("m") {
-        for mod_name in m_match.split(',') {
-            mod_names.push(mod_name.to_lowercase());
-        }
-    }
-
-    let generate_gifs = matches.opt_present("g");
-    let generate_web = matches.opt_present("w");
-    let wasm_mode = matches.opt_present("a");
-    let serve = matches.opt_present("s");
-
-    Some(CLIResults {
-        mod_names,
-        fighter_names,
-        generate_gifs,
-        generate_web,
-        wasm_mode,
-        serve,
-    })
-}
-
-pub struct CLIResults {
+#[derive(Parser, Clone)]
+pub struct Args {
+    #[clap(long, short, value_delimiter = ',')]
+    /// List of mod folders in data/ to use
     pub mod_names: Vec<String>,
+
+    /// List of fighters to use
+    #[clap(long, short, value_delimiter = ',')]
     pub fighter_names: Vec<String>,
+
+    /// Enable subaction gif generation
+    #[clap(long, short, action)]
     pub generate_gifs: bool,
+
+    /// Enable website generation
+    #[clap(long, short = 'w', action)]
     pub generate_web: bool,
+
+    /// Use wasm/wgpu backend
+    #[clap(long, short = 'a', action)]
     pub wasm_mode: bool,
+
+    /// Serve the website at localhost:8000 after generating it
+    #[clap(long, short)]
+    #[clap(long, short, action)]
     pub serve: bool,
+}
+
+pub fn args() -> Args {
+    let mut args = Args::parse();
+    for m in &mut args.mod_names {
+        m.make_ascii_lowercase();
+    }
+    for f in &mut args.fighter_names {
+        f.make_ascii_lowercase();
+    }
+    args
 }
