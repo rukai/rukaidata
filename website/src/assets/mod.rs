@@ -59,15 +59,13 @@ impl AssetPaths {
             dir.create_compressed_file(&format!("{hash}.png"), contents)
         };
 
-        let subaction_render_js = {
+        let legacy_subaction_render_js = if args.legacy_renderer {
             let contents = include_str!("subaction_render.js");
 
-            let minified = contents;
-            // let minified = minifier::js::minify(&contents); // TODO: Welp ... this is very clearly broken.
-            // Can't complain though, the minifier repo does say its not ready yet :P
-
-            let hash = hash(minified.as_bytes());
-            dir.create_compressed_file(&format!("{hash}.js"), minified.as_bytes())
+            let hash = hash(contents.as_bytes());
+            dir.create_compressed_file(&format!("{hash}.js"), contents.as_bytes())
+        } else {
+            String::new()
         };
 
         const WASM_FILE_NAME: &str = "fighter_renderer_bg.wasm";
@@ -137,7 +135,7 @@ impl AssetPaths {
             favicon_png,
             spritesheet_png,
             style_css,
-            subaction_render_js,
+            legacy_subaction_render_js,
             fighter_renderer_wasm,
             fighter_renderer_js,
         }
@@ -149,7 +147,7 @@ pub struct AssetPaths {
     pub favicon_png: String,
     pub spritesheet_png: String,
     pub style_css: String,
-    pub subaction_render_js: String,
+    pub legacy_subaction_render_js: String,
     pub fighter_renderer_wasm: String,
     pub fighter_renderer_js: String,
 }
