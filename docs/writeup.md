@@ -6,34 +6,72 @@ rukaidata is a website that displays framedata on the characters in Super Smash 
 Previously framedata was manually compiled in large forum posts. e.g. https://smashboards.com/threads/squirtle-hitboxes-and-frame-data-3-6.395456/
 However with a new version of Project M (P+) in the works, I wanted to automate this process.
 In this article I'm going to run through technical details of how brawl works to explain how I did this.
+I will assume you are familiar with programming, basic game dev concepts and basic understanding of the game itself.
 
 With a modded Wii you can rip your brawl disk to an ISO file.
-Then using a tool like dolphin you can extract the files from the ISO to your own filesystem.
+Then using a tool like [dolphin](https://dolphin-emu.org/) you can extract the files from the ISO to your own filesystem.
 
 ![Brawl files shown in dolphin](fs_marth.png)
 
 And this is where rukaidata starts.
-It reads the file containing the hitbox and hurtbox data it wants and then produces html tables + a 3D model.
-Pretty straightforward, right? Nope.
-I'm going to show you just how far this rabbit hole goes.
+It reads the file containing the [hitbox](https://en.wiktionary.org/wiki/hitbox) and [hurtbox](https://en.wiktionary.org/wiki/hurtbox) data it wants and then produces html tables + a 3D model.
+Presumably there would be a data structure that defines what hitboxes and hurtboxes occur on each frame.
+Something like this?
+```json
+{
+    "frames": [
+        {
+            "hitboxes": [
+                {
+                    "x": 15.4,
+                    "y": 15.4,
+                }
+            ]
+            "hurtboxes: [ .. ]
+        },
+        {
+            "hitboxes": [
+                {
+                    "x": 15.4,
+                    "y": 15.4,
+                },
+                {
+                    "x": 15.4,
+                    "y": 15.4,
+                }
+            ]
+        }
+    ]
+}
+```
 
-If you want a TLDR; jump to the "Putting it all together" section.
+This would define 1 hitbox on the first frame and 2 on the second frame of the characters move.
+While I think this is a good idea, and wrote a [game](https://canoncollision.com/) / [engine](https://github.com/rukai/PF_Sandbox) around this approach, the developers of brawl instead valued having hitboxes and hurtboxes derived from the animation of the characters models.
+
+This has the advantages that:
+*   Its quicker to define a characters moves and hitbox definitions will track animations if they are tweaked.
+*   Hitbox placement is robust to dynamic changes in the game e.g. a character moves faster or increases in size due to an in game mechanic.
+
+However, for rukaidata, this turns a simple excercise in parsing and drawing some circles in webgl/webgpu into a hugely complex endeavor involving the parsing of character models, animations and scripts.
+The rest of this article will walk through all of this.
 
 ## Brawl character files
 
 Each Brawl character has many files, but there are 3 main types.
-For Mario these are:
+For Zelda these are:
 
-*   FitMario.pac - Contains constants and scripts for the characters actions.
-*   FitMario00.pac - Contains the 3D models for the 1st costume
-*   FitMario01.pac - Contains the 3D models for the 2nd costume ... and so on ...
-*   FitMarioMotionEtc - Contains the animations for all of the characters actions.
+*   FitZelda.pac - Contains constants and scripts for the characters actions.
+*   FitZelda00.pac - Contains the 3D models for the 1st costume
+*   FitZelda01.pac - Contains the 3D models for the 2nd costume ... and so on ...
+*   FitZeldaMotionEtc - Contains the animations for all of the characters actions.
 
 Brawl characters have a number of actions which are further split into subactions.
 There is generally one subaction per action, except for special moves and smash attacks.
 The subactions are where most of the interesting stuff happens.
 
-### The costume file (FitMario00.pac)
+![](actions.png)
+
+### The costume file (FitZelda00.pac)
 
 The main components of a brawl 3d model (known as MDL0) are:
 *   Vertices - A list of (x, y, z) points in 3D space defining the surface of the model.
@@ -58,7 +96,7 @@ Each costume file duplicates all of this data, even for data like bones where th
 
 Relevant source code: MDL0 parser: https://github.com/rukai/brawllib_rs/tree/master/src/mdl0
 
-### The animation file (FitMarioMotionEtc.pac)
+### The animation file (FitZeldaMotionEtc.pac)
 
 Contains the animations (known as CHR0) for every subaction.
 
@@ -68,7 +106,7 @@ Each animation consists of:
 
 Each CHR0Child consists of:
 *   The name of the bone this CHR0Child is specifying the animation for.
-*   A list of keyframes in one of 6 formats.
+*   A list of [keyframes](https://en.wikipedia.org/wiki/Key_frame) in one of 6 formats.
 
 No matter which format is used each keyframe can be processed into:
 *   The frame the keyframe specifies 
@@ -93,7 +131,7 @@ Relevant source code:
 *   CHR0 parser: https://github.com/rukai/brawllib_rs/blob/master/src/chr0.rs
 *   Applying CHR0 to the bones: https://github.com/rukai/brawllib_rs/blob/27b7aca33ca111635863d7c41eb83c7e2db04f7d/src/high_level_fighter.rs#L413
 
-### The constants and scripts file (FitMario00.pac)
+### The constants and scripts file (FitZelda.pac)
 
 The game logic for each character is split between:
 *   C++ of which we can only see the compiled PPC assembly. - This is very difficult to modify and understand.
@@ -101,16 +139,20 @@ The game logic for each character is split between:
 
 #### Hurtboxes
 
-The C++ code lives elsewhere but refers to many constants and data structures in this file.
-Hurtboxes are one such data structure.
-They are really spheres that get stretched into cylinders.
-There is a list of hurtboxes with each one containing:
+The list of hurtboxes are defined in a hurtboxes section in the FitZelda.pac file.
+Brawl's C++ engine reads from each characters version of this file when determining collisions.
+
+Hurtboxes are spheres that are optionally stretched into spherical cylinders.
+Each hurtbox is defined with these properties:
 *   Bone index - The bone the hurtbox is attached to.
 *   Offset - Offsets the hurtboxes position from the bone its attached to.
 *   Stretch - An offset to stretch the sphere into a cylinder with hemispherical ends. A value of [0, 0, 0] results in a perfect sphere with no stretching.
 *   Radius - The radius of the sphere.
 
 "Attaching" the hurtbox to a bone means we apply the bones transformation matrix resulting from the current animation + frame to the hurtbox.
+
+This single list of hurtboxes are the same for all actions but some actions will turn on/off specific hurtboxes.
+For example sonic will disable all body hurtboxes and enable the spin hurtbox when using spin attacks.
 
 Relevant source code: fighter data parser: https://github.com/rukai/brawllib_rs/blob/master/src/sakurai/fighter_data/mod.rs
 
@@ -216,14 +258,14 @@ An FSM of 2, would move a hitbox normally occurring on frame 5 to occur on frame
 In order to get this crucial data I read the contents of WiiRD emulated Wii memory at the offset this table is stored at.
 I then parse the data and make it available to the script runner.
 
-This is easily the hackiest, most hardcoded thing in rukaidata but the extra accuracy it provides is invaluable.
+This is easily the hackiest, most hardcoded thing in rukaidata but IMO the extra accuracy it provides is worth the hack.
 
 ## Putting it all together
 
 The process I use to display the hurtboxes and hitboxes for a brawl mod looks like this:
 1.  Run the WiiRD codeset, modifying Fighter.pac and keeping the WiiRD Wii Memory.
 2.  Retrieve the animation engine FSMs from the WiiRD Wii memory
-3.  Parse the animations from FitMarioMotionEtc.pac, the bones from FitMario00.pac and the hurtboxes and the scripts from FitMario.pac and Fighter.pac.
+3.  Parse the animations from FitZeldaMotionEtc.pac, the bones from FitZelda00.pac and the hurtboxes and the scripts from FitZelda.pac and Fighter.pac.
 4.  Iterate over every frame, of every subaction, of every character.
     1.  Apply the animation of the current subaction and frame to the bones.
     2.  Run the subaction scripts for this frame.
@@ -271,3 +313,13 @@ This could occur with hardcoded values used at page generation time, or I would 
 Currently rukaidata displays hitboxes, hurtboxes, ledge grab boxes and environment collision boxes.
 It would be really cool to render the character along with these visualisations.
 It would give the user an in-game grounding to what the data is showing.
+
+## Reflections on the overall approach
+
+If I were to start this project over from scratch I would take a completely different approach.
+To be truly accurate I should have extracted data from a live running game.
+There are a fair few actions that cannot be extracted because of the limitations in this approach to emulating brawl.
+This logic could probably either be done at the emulation level (within dolphin) or within Brawl itself.
+
+I have no desire to do this myself though.
+The current approach is good enough.
