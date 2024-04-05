@@ -1,0 +1,75 @@
+digraph G {
+	fontname="Helvetica,Arial,sans-serif"
+	node [fontname="Helvetica,Arial,sans-serif"]
+	edge [fontname="Helvetica,Arial,sans-serif"]
+
+	subgraph clusterwait {
+		node [style=filled];
+		wait1 -> wait1[label="Subaction completes"]
+		wait1[label="idle Subaction"]
+		label = "Idle action";
+		color=red;
+		fontcolor=red;
+	}
+
+	subgraph clusterattackS4start {
+		node [style=filled];
+		attackS4start[label="Side Smash start subaction"];
+		label = "Side Smash Start action";
+		color=red;
+		fontcolor=red;
+	}
+
+	subgraph clusterattackS4Hold {
+		node [style=filled];
+		attackS4hold[label="Side Smash hold subaction"];
+		label = "Side Smash hold action";
+		color=red;
+		fontcolor=red;
+	}
+
+	subgraph clusterattackS4 {
+		node [style=filled];
+		attackS4[label="Side Smash subaction"];
+		label = "Side Smash action";
+		color=red;
+		fontcolor=red;
+	}
+
+	subgraph clusterattack11 {
+		node [style=filled];
+		attack11[label="Jab subaction"];
+		label = "Jab action";
+		color=red;
+		fontcolor=red;
+	}
+
+	subgraph clusterspecialS {
+		node [style=filled];
+		specialSStart -> specialSLoop[label="subaction completes"]
+		specialSLoop -> specialSEnd[label="Projectile collides\nand is destroyed"]
+		specialSStart[label="startup subaction"]
+		specialSLoop[label="projectile control subaction"]
+		specialSEnd[label="winddown subaction"]
+		label = "Side special action";
+		color=red;
+		fontcolor=red;
+	}
+
+	wait1 -> attackS4start[label="press A and  ← or →"]
+	attackS4start -> attackS4hold[label="subaction completes"]
+	attackS4hold -> attackS4[label="release A"]
+	wait1 -> attack11[label="Press A"]
+	wait1 -> specialSStart[label="press B and ← or →"]
+
+	attack11 -> end[label="subaction completes"]
+	attackS4 -> end[label="subaction completes"]
+	specialSEnd -> end[label="subaction completes"]
+
+	end [shape=Msquare,label="return to idle"];
+
+
+	// ruins positioning so add in manually with an image editor
+	//attack11 -> wait1[label="Subaction completes"]
+	//specialSEnd -> wait1[label="Subaction completes"]
+}
