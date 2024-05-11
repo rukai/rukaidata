@@ -1,4 +1,5 @@
-use env_logger::fmt::{Color, Formatter};
+use anstyle::{AnsiColor, Style};
+use env_logger::fmt::Formatter;
 use env_logger::Builder;
 use log::{Level, Record};
 use std::env;
@@ -13,18 +14,18 @@ pub fn init() {
 
 fn format(buf: &mut Formatter, record: &Record) -> io::Result<()> {
     let level = record.level();
-    let level_color = match level {
-        Level::Trace => Color::White,
-        Level::Debug => Color::Blue,
-        Level::Info => Color::Green,
-        Level::Warn => Color::Yellow,
-        Level::Error => Color::Red,
-    };
+    let level_style = Style::new().fg_color(Some(
+        match level {
+            Level::Trace => AnsiColor::White,
+            Level::Debug => AnsiColor::Blue,
+            Level::Info => AnsiColor::Green,
+            Level::Warn => AnsiColor::Yellow,
+            Level::Error => AnsiColor::Red,
+        }
+        .into(),
+    ));
 
-    let mut style = buf.style();
-    style.set_color(level_color);
-
-    let write_level = write!(buf, "{:>5}", style.value(level));
+    let write_level = write!(buf, "{level_style}{level:>5}{level_style:#}");
     let write_args = if let Some(module_path) = record.module_path() {
         writeln!(buf, " {} {}", module_path, record.args())
     } else {
