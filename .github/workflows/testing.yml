@@ -74,3 +74,9 @@ jobs:
     - name: Ensure that tests pass under every possible combination of features
       run: |
         cargo hack --feature-powerset test ${{ matrix.cargo_profile }}
+    - name: Run against empty data folder
+      if: runner.os == 'Linux'
+      run: |
+        cd website
+        sudo apt-get install binaryen
+        cargo run -- -w
