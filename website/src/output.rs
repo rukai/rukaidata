@@ -17,6 +17,12 @@ impl OutDir {
         OutDir { path }
     }
 
+    pub fn new_path(path: &Path) -> Self {
+        let path = Path::new("../root").join(path);
+        fs::create_dir_all(&path).unwrap();
+        OutDir { path }
+    }
+
     pub fn compressed_file_writer(&self, file_name: &str) -> GzEncoder<File> {
         let file = File::create(self.path.join(file_name)).unwrap();
         GzEncoder::new(file, Compression::best())

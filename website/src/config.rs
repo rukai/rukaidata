@@ -9,6 +9,10 @@ use std::{
 pub struct Config {
     pub legacy_renderer: bool,
     pub mods: Vec<String>,
+    /// Mod directories are still created in the true root outside of the web root.
+    /// This is too maintain backwards compatibility with existing links to rukaidata.com
+    /// We could very easily introduce a web_root_mods field so that mods
+    /// could be also set to the same directory allowing other users to fully alter the web root.
     pub web_root: String,
 }
 
@@ -20,7 +24,7 @@ impl Config {
         } else {
             let config = Config {
                 legacy_renderer: false,
-                mods: vec![],
+                mods: vec!["Brawl".to_owned()],
                 web_root: "/".to_owned(),
             };
             config.save(&path);

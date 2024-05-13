@@ -10,7 +10,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
         mod_links: brawl_mods.gen_mod_links(String::new()),
         assets,
     };
-    let writer = OutDir::new(".").compressed_file_writer("index.html");
+    let writer =
+        OutDir::new(assets.root_index.trim_start_matches('/')).compressed_file_writer("index.html");
     handlebars.render_to_write("index", &page, writer).unwrap();
 }
 

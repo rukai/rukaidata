@@ -36,7 +36,14 @@ fn hash(value: &[u8]) -> String {
 
 impl AssetPaths {
     pub fn new(config: &Config) -> AssetPaths {
-        let dir = OutDir::new("assets_static");
+        let dir = OutDir::new_path(
+            Path::new(&config.web_root)
+                .join("assets_static")
+                .strip_prefix("/")
+                .unwrap(),
+        );
+
+        let root_index = config.web_root.clone();
 
         let style_css = {
             let contents = include_str!("style.css");
@@ -132,6 +139,7 @@ impl AssetPaths {
         };
 
         AssetPaths {
+            root_index,
             favicon_png,
             spritesheet_png,
             style_css,
@@ -144,6 +152,7 @@ impl AssetPaths {
 
 #[derive(Serialize)]
 pub struct AssetPaths {
+    pub root_index: String,
     pub favicon_png: String,
     pub spritesheet_png: String,
     pub style_css: String,
