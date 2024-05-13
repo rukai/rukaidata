@@ -7,11 +7,13 @@ extern crate serde_derive;
 #[macro_use]
 extern crate log;
 
+use config::Config;
 use handlebars::Handlebars;
 
 pub mod assets;
 pub mod brawl_data;
 pub mod cli;
+pub mod config;
 pub mod gif;
 pub mod logger;
 pub mod output;
@@ -25,8 +27,9 @@ use brawl_data::BrawlMods;
 fn main() {
     logger::init();
     let args = cli::args();
+    let config = Config::load().unwrap();
 
-    if let Some(brawl_mods) = BrawlMods::new(&args) {
+    if let Some(brawl_mods) = BrawlMods::new(&config, &args) {
         info!("brawl files loaded");
 
         if args.generate_web {
@@ -36,7 +39,7 @@ fn main() {
                 .unwrap();
             info!("handlebars templates loaded");
 
-            let assets = AssetPaths::new(&args);
+            let assets = AssetPaths::new(&config);
             page::index::generate(&handlebars, &brawl_mods, &assets);
             page::error::generate(&handlebars, &brawl_mods, &assets);
             page::brawl_mod::generate(&handlebars, &brawl_mods, &assets);
@@ -45,7 +48,7 @@ fn main() {
             page::actions::generate(&handlebars, &brawl_mods, &assets);
             page::action::generate(&handlebars, &brawl_mods, &assets);
             page::subactions::generate(&handlebars, &brawl_mods, &assets);
-            page::subaction::generate(&handlebars, &brawl_mods, &assets, args.legacy_renderer);
+            page::subaction::generate(&handlebars, &brawl_mods, &assets, config.legacy_renderer);
             page::script::generate(&handlebars, &brawl_mods, &assets);
             page::scripts::generate(&handlebars, &brawl_mods, &assets);
             page::variables::generate(&handlebars, &brawl_mods, &assets);
