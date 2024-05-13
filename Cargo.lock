@@ -2506,6 +2506,7 @@ name = "rukaidata_website"
 version = "0.1.0"
 dependencies = [
  "anstyle",
+ "anyhow",
  "axum",
  "base64 0.22.1",
  "bincode",

@@ -1,4 +1,4 @@
-use crate::{cli::Args, output::OutDir};
+use crate::{config::Config, output::OutDir};
 use std::fmt::Write;
 use std::fs;
 use std::path::Path;
@@ -35,7 +35,7 @@ fn hash(value: &[u8]) -> String {
 }
 
 impl AssetPaths {
-    pub fn new(args: &Args) -> AssetPaths {
+    pub fn new(config: &Config) -> AssetPaths {
         let dir = OutDir::new("assets_static");
 
         let style_css = {
@@ -59,7 +59,7 @@ impl AssetPaths {
             dir.create_compressed_file(&format!("{hash}.png"), contents)
         };
 
-        let legacy_subaction_render_js = if args.legacy_renderer {
+        let legacy_subaction_render_js = if config.legacy_renderer {
             let contents = include_str!("subaction_render.js");
 
             let hash = hash(contents.as_bytes());
@@ -69,7 +69,7 @@ impl AssetPaths {
         };
 
         const WASM_FILE_NAME: &str = "fighter_renderer_bg.wasm";
-        let fighter_renderer_wasm = if args.legacy_renderer {
+        let fighter_renderer_wasm = if config.legacy_renderer {
             String::new()
         } else {
             {
@@ -113,7 +113,7 @@ impl AssetPaths {
             }
         };
 
-        let fighter_renderer_js = if args.legacy_renderer {
+        let fighter_renderer_js = if config.legacy_renderer {
             String::new()
         } else {
             let mut contents =

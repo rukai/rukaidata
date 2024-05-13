@@ -1,14 +1,12 @@
-use std::collections::HashMap;
-use std::fs;
-use std::fs::{DirEntry, File};
-use std::io::Read;
-
+use crate::cli::Args;
+use crate::config::Config;
+use crate::page::NavLink;
 use brawllib_rs::brawl_mod::BrawlMod as BrawllibMod;
 use brawllib_rs::fighter::ModType;
 use brawllib_rs::high_level_fighter::HighLevelFighter;
-
-use crate::cli::Args;
-use crate::page::NavLink;
+use std::collections::HashMap;
+use std::fs;
+use std::fs::DirEntry;
 
 pub struct BrawlMods {
     pub mods: Vec<BrawlMod>,
@@ -33,16 +31,11 @@ pub struct ScriptInfo {
 }
 
 impl BrawlMods {
-    pub fn new(args: &Args) -> Option<BrawlMods> {
-        let mut mod_order = String::new();
-        if let Ok(mut file) = File::open("../data/mods.txt") {
-            file.read_to_string(&mut mod_order).unwrap();
-        }
-
+    pub fn new(config: &Config, args: &Args) -> Option<BrawlMods> {
         match fs::read_dir("../data") {
             Ok(dir) => {
                 let mut mod_links = vec![];
-                for name in mod_order.trim().lines() {
+                for name in &config.mods {
                     mod_links.push(NavLink {
                         name: name.to_string(),
                         link: format!("/{}", name),
