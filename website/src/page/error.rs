@@ -9,7 +9,8 @@ pub fn generate(handlebars: &Handlebars, brawl_mods: &BrawlMods, assets: &AssetP
         assets,
         mod_links: brawl_mods.gen_mod_links(String::new()),
     };
-    let file = OutDir::new(".").compressed_file_writer("error.html");
+    let file =
+        OutDir::new(assets.root_index.trim_start_matches('/')).compressed_file_writer("error.html");
     handlebars.render_to_write("error", &page, file).unwrap();
 }
 
