@@ -25,7 +25,7 @@ wasm-bindgen-cli-support = "0.2.78"
 flate2 = "1.0.28"
 tokio = { version = "1.35.1", features = ["full"] }
 axum = "0.7.3"
-tower-http = { version = "0.5.0", features = ["fs"], git = "https://github.com/rukai/tower-http", branch = "servedir_compress_in_place_hack" }
+tower-http = { version = "0.5.0", features = ["fs"] }
 clap = { version = "4.4.12", features = ["derive"] }
 base64 = "0.22.1"
 anstyle = "1.0.7"
