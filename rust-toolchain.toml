@@ -1,4 +1,6 @@
 [toolchain]
-channel = "1.79"
+# rust 1.82 and 1.83 produce a broken wasm file :/
+# Seems related https://github.com/trunk-rs/trunk/issues/904
+channel = "1.81"
 components = [ "rustfmt", "clippy" ]
 targets = [ "wasm32-unknown-unknown" ]

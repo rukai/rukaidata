@@ -7,13 +7,14 @@ description = "Uses brawllib_rs to display frame data of characters"
 repository = "https://github.com/rukai/rukaidata"
 
 [dependencies]
-brawllib_rs = "0.26"
+brawllib_rs = "0.27"
 serde_derive = "1"
 serde = "1"
 serde_json = "1"
 env_logger = "0.11"
 log = "0.4"
 # This guy has no idea how to semver, not worth my time updating
+# TODO: swap to rinja when I get time
 handlebars = { version = "=4.2.2", features = ["dir_source"] }
 rayon = "1"
 minifier = "0.3"
@@ -25,7 +26,7 @@ wasm-bindgen-cli-support = "0.2.78"
 flate2 = "1.0.28"
 tokio = { version = "1.35.1", features = ["full"] }
 axum = "0.7.3"
-tower-http = { version = "0.5.0", features = ["fs"] }
+tower-http = { version = "0.6.0", features = ["fs"] }
 clap = { version = "4.4.12", features = ["derive"] }
 base64 = "0.22.1"
 anstyle = "1.0.7"
