@@ -60,8 +60,8 @@ fn draw_angle(
     color: &str,
 ) {
     let angle_radians = angle_degrees / 180.0 * PI;
-    context.set_stroke_style(&color.into());
-    context.set_fill_style(&color.into());
+    context.set_stroke_style_str(color);
+    context.set_fill_style_str(color);
     context.set_line_width(2.0);
     context.begin_path();
     context.arc(x, y, 2.0, 0.0, PI * 2.0).unwrap();

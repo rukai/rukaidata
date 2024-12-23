@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-brawllib_rs = "0.26"
+brawllib_rs = "0.27"
 log = "0.4"
 bincode = "1"
 
