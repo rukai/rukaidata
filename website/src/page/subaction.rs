@@ -3,7 +3,7 @@ use crate::brawl_data::{BrawlMods, SubactionLinks};
 use crate::output::OutDir;
 use crate::page::{NavLink, Preload};
 use crate::process_scripts;
-use base64::{engine::general_purpose, Engine as _};
+use base64::{Engine as _, engine::general_purpose};
 use brawllib_rs::high_level_fighter::CollisionBoxValues;
 use brawllib_rs::script_ast::{AngleFlip, GrabTarget, HitBoxEffect};
 use handlebars::Handlebars;

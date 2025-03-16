@@ -1,6 +1,6 @@
 use anstyle::{AnsiColor, Style};
-use env_logger::fmt::Formatter;
 use env_logger::Builder;
+use env_logger::fmt::Formatter;
 use log::{Level, Record};
 use std::env;
 use std::io;

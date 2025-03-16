@@ -228,9 +228,11 @@ impl BrawlMod {
                             format!("/{}/{}/scripts/{}.html", mod_name, fighter.name, name);
                         // fragment scripts should not have duplicate offsets, they are
                         // guaranteed unique by the way they are generated.
-                        assert!(script_lookup
-                            .insert(script.offset, ScriptInfo { name, address })
-                            .is_none());
+                        assert!(
+                            script_lookup
+                                .insert(script.offset, ScriptInfo { name, address })
+                                .is_none()
+                        );
                     }
 
                     for script in &fighter.scripts_fragment_common {
@@ -239,9 +241,11 @@ impl BrawlMod {
                             "/{}/{}/scripts_common/{}.html",
                             mod_name, fighter.name, name
                         );
-                        assert!(script_lookup_common
-                            .insert(script.offset, ScriptInfo { name, address })
-                            .is_none());
+                        assert!(
+                            script_lookup_common
+                                .insert(script.offset, ScriptInfo { name, address })
+                                .is_none()
+                        );
                     }
 
                     brawl_fighters.push(BrawlFighter {

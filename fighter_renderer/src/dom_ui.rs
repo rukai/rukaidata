@@ -5,8 +5,8 @@ use brawllib_rs::renderer::app::state::{
 };
 use brawllib_rs::renderer::camera::CharacterFacing;
 
-use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
+use wasm_bindgen::prelude::*;
 use web_sys::{Document, HtmlElement, HtmlInputElement, HtmlSelectElement};
 
 pub fn init(
