@@ -90,7 +90,7 @@ async fn data(
         None => {
             return Err(
                 format!("fighter `{}` does not exist in mod `{}`", fighter, mod_path).into(),
-            )
+            );
         }
     };
 

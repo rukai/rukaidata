@@ -1,6 +1,6 @@
 #![allow(clippy::unused_unit)] // the wasm_bindgen macro is expanding to code that clippy doesnt like
 
-use base64::{engine::general_purpose, Engine as _};
+use base64::{Engine as _, engine::general_purpose};
 use brawllib_rs::high_level_fighter::HighLevelSubaction;
 use brawllib_rs::renderer::app::App;
 use log::Level;

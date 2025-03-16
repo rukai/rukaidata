@@ -1,4 +1,4 @@
-use axum::{middleware::map_response, response::Response, routing, Router};
+use axum::{Router, middleware::map_response, response::Response, routing};
 use tower_http::services::ServeDir;
 
 pub fn serve() {
