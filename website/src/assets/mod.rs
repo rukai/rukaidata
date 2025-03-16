@@ -102,11 +102,14 @@ impl AssetPaths {
                     .generate(destination_dir)
                     .unwrap();
 
-                run_command_in_dir(
-                    "wasm-opt",
-                    &["-Oz", "-o", WASM_FILE_NAME, WASM_FILE_NAME],
-                    "../fighter_renderer/target/generated/",
-                );
+                // wasm-opt is broken with latest rust release
+                // possibly related: https://github.com/trunk-rs/trunk/issues/904
+                // Once wasm-opt is fixed again we should reenable this important size optimization
+                // run_command_in_dir(
+                //     "wasm-opt",
+                //     &["-Oz", "-o", WASM_FILE_NAME, WASM_FILE_NAME],
+                //     "../fighter_renderer/target/generated/",
+                // );
             }
 
             {
