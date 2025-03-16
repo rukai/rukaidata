@@ -29,7 +29,9 @@ async fn run_async(subaction_bincode: String) {
 
 async fn get_subaction(subaction_bincode: &str) -> HighLevelSubaction {
     let data = general_purpose::STANDARD.decode(subaction_bincode).unwrap();
-    bincode::deserialize_from(data.as_slice()).unwrap()
+    bincode::serde::decode_from_slice(data.as_slice(), bincode::config::standard())
+        .unwrap()
+        .0
 }
 
 pub async fn run_renderer(document: Document, subaction: HighLevelSubaction) {
