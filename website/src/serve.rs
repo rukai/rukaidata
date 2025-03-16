@@ -8,8 +8,7 @@ pub fn serve() {
 
 async fn run() {
     // build our application with a route
-    let app = Router::new().nest_service(
-        "/",
+    let app = Router::new().fallback_service(
         routing::get_service(ServeDir::new("../root"))
             .layer(map_response(insert_compression_header)),
     );

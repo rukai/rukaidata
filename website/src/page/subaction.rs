@@ -985,7 +985,7 @@ pub fn generate(
                 let subaction_bincode = if legacy_renderer {
                     String::new()
                 } else {
-                    let bin = bincode::serialize(&subaction).unwrap();
+                    let bin = bincode::serde::encode_to_vec(subaction, bincode::config::standard()).unwrap();
                     general_purpose::STANDARD.encode(bin)
                 };
 
