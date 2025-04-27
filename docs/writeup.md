@@ -58,7 +58,7 @@ Something like this?
 ```
 
 This would define 1 hitbox on the 3rd frame and 2 on the 4th frame of the characters move.
-While I think this is a good idea, and wrote a [game](https://canoncollision.com/) / [engine](https://github.com/rukai/PF_Sandbox) around this approach, the developers of brawl instead chose to have hitboxes and hurtboxes derived from the animation of the characters 3D models at runtime.
+While I think this is a good idea, and wrote a [game](https://rukai.xyz/canoncollision) / [engine](https://github.com/rukai/PF_Sandbox) around this approach, the developers of brawl instead chose to have hitboxes and hurtboxes derived from the animation of the characters 3D models at runtime.
 
 Brawl's approach has the advantage that:
 *   Its quicker to define a characters moves and hitbox definitions will track animations if they are tweaked.
