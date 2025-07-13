@@ -1044,18 +1044,31 @@ fn range_string(start: usize, end: usize) -> String {
 }
 
 fn angle_string(angle: i32, id: u8) -> String {
+    // &#013; is required encoding for newline
     let angle_name = match angle {
         0 => String::from(
-            r#"<abbr title="Angle 0: When opponent is hit on the ground they remain in nontumble grounded hitstun regardless of knockback">0</abbr>"#,
+            r#"<abbr title="Angle 0:&#013;When opponent is hit on the ground they remain in nontumble grounded hitstun regardless of knockback">0</abbr>"#,
         ),
         361 => String::from(
-            r#"<abbr title="Sakurai Angle: When hit in the air angle is 45. When hit on the ground, if knockback < 32 then angle is 0, otherwise angle is 44.">361</abbr>"#,
+            r#"<abbr title="Sakurai Angle:&#013;When hit in the air angle is 45. When hit on the ground, if knockback < 32 then angle is 0 (they remain in nontumble grounded hitstun regardless of knockback), otherwise angle is 44.">361</abbr>"#,
         ),
         363 => String::from(
-            r#"<abbr title="Autolink Angle: Angle is the angle the attacker is travelling on the frame collision occurred.">363</abbr>"#,
+            r#"<abbr title="Autolink Angle:&#013;Angle is the angle the attacker is travelling on the frame collision occurred. Attacker momentum is also added on top of knockback.">363</abbr>"#,
         ),
         365 => String::from(
-            r#"<abbr title="Speed Dependent Autolink angle: Angle is the angle the attacker is travelling on the frame collision occurred. The knockback of the move is solely determined by the attackers velocity. Higher velocity results in more knockback.">365</abbr>"#,
+            r#"<abbr title="Autolink w/ only 50% momentum:&#013;Angle is the angle the attacker is travelling on the frame collision occurred. 50% of attacker momentum is also added on top of knockback. In P+ minimum vertical speed is capped at -0.5">365</abbr>"#,
+        ),
+        512 => String::from(
+            r#"<abbr title="CUSTOM Inwards Autolink:&#013;Sends inside based on hitbox center.">512</abbr>"#,
+        ),
+        513 => String::from(
+            r#"<abbr title="CUSTOM Outwards Autolink:&#013;Sends outside based on hitbox center.">513</abbr>"#,
+        ),
+        514 => String::from(
+            r#"<abbr title="CUSTOM Inwards Autolink w/ Attacker speed + victim distance:&#013;Sends inside based on hitbox center. Attacker speed is added like normal autolink angles, knockback becomes stronger based on the victim distance.">514</abbr>"#,
+        ),
+        515 => String::from(
+            r#"<abbr title="CUSTOM Outwards Autolink w/ Attacker speed + victim distance:&#013;Sends outside based on hitbox center. Attacker speed is added like normal autolink angles, knockback becomes stronger based on the victim distance.">515</abbr>"#,
         ),
         a => a.to_string(),
     };
