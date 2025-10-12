@@ -96,53 +96,49 @@ pub fn generate(
                     if all_invincible && start_invincible.is_none() {
                         start_invincible = Some(i);
                     }
-                    if !all_invincible {
-                        if let Some(start) = start_invincible.take() {
+                    if !all_invincible
+                        && let Some(start) = start_invincible.take() {
                             if !invincible.is_empty() {
                                 invincible.push_str(", ");
                             }
                             invincible.push_str(&range_string(start + 1, i));
                         }
-                    }
 
                     // partially invincible
                     if !all_invincible && any_invincible && start_partial_invincible.is_none() {
                         start_partial_invincible = Some(i);
                     }
-                    if !any_invincible {
-                        if let Some(start) = start_partial_invincible.take() {
+                    if !any_invincible
+                        && let Some(start) = start_partial_invincible.take() {
                             if !partial_invincible.is_empty() {
                                 partial_invincible.push_str(", ");
                             }
                             partial_invincible.push_str(&range_string(start + 1, i));
                         }
-                    }
 
                     // fully intangible
                     if all_intangible && start_intangible.is_none() {
                         start_intangible = Some(i);
                     }
-                    if !all_intangible {
-                        if let Some(start) = start_intangible.take() {
+                    if !all_intangible
+                        && let Some(start) = start_intangible.take() {
                             if !intangible.is_empty() {
                                 intangible.push_str(", ");
                             }
                             intangible.push_str(&range_string(start + 1, i));
                         }
-                    }
 
                     // partially intangible
                     if !all_intangible && any_intangible && start_partial_intangible.is_none() {
                         start_partial_intangible = Some(i);
                     }
-                    if !any_intangible {
-                        if let Some(start) = start_partial_intangible.take() {
+                    if !any_intangible
+                        && let Some(start) = start_partial_intangible.take() {
                             if !partial_intangible.is_empty() {
                                 partial_intangible.push_str(", ");
                             }
                             partial_intangible.push_str(&range_string(start + 1, i));
                         }
-                    }
 
                     if frame.reverse_direction {
                         if !reverse_direction.is_empty() {
@@ -246,14 +242,13 @@ pub fn generate(
                     if has_hitboxes && start_hitboxes_active.is_none() {
                         start_hitboxes_active = Some(i);
                     }
-                    if !has_hitboxes {
-                        if let Some(start) = start_hitboxes_active.take() {
+                    if !has_hitboxes
+                        && let Some(start) = start_hitboxes_active.take() {
                             if !hitboxes_active.is_empty() {
                                 hitboxes_active.push_str(", ");
                             }
                             hitboxes_active.push_str(&range_string(start + 1, i));
                         }
-                    }
                 }
 
                 // handle hitboxes that were not deleted
@@ -379,8 +374,8 @@ pub fn generate(
 
                     // start a new table when ((the hitbox values or number of hitboxes change) and there are hitboxes) or it is the last frame
                     // TODO: This comparison ignores hitbox_id, is this acceptable?
-                    if prev_values != next_values || i + 1 == subaction.frames.len() {
-                        if let Some(first_frame) = last_change_frame {
+                    if (prev_values != next_values || i + 1 == subaction.frames.len())
+                        && let Some(first_frame) = last_change_frame {
                             let frames = if first_frame + 1 == i {
                                 format!("Frame:{}", i)
                             } else {
@@ -898,7 +893,6 @@ pub fn generate(
                                 hitbox_tables.push(HitBoxTable { frames, header, rows });
                             }
                         }
-                    }
 
                     // set initial last_change_frame
                     if prev_values != next_values && !frame.hit_boxes.is_empty() && last_change_frame.is_none() {
@@ -1024,12 +1018,12 @@ pub fn generate(
 }
 
 fn shorten_list(value: String) -> String {
-    if let Some(first_value) = value.split(',').next() {
-        if value.split(',').all(|x| x == first_value) {
-            let new_value = format!("All {first_value}");
-            if new_value.len() < value.len() {
-                return new_value;
-            }
+    if let Some(first_value) = value.split(',').next()
+        && value.split(',').all(|x| x == first_value)
+    {
+        let new_value = format!("All {first_value}");
+        if new_value.len() < value.len() {
+            return new_value;
         }
     }
     value
