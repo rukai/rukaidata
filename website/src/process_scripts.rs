@@ -62,10 +62,10 @@ pub fn process_events(
                     Iterations::Finite (i) => i.to_string(),
                     Iterations::Infinite => "Infinite".to_string(),
                 };
-                result.push_str(&format!("<li>loop {} times: {}</li>", iterations, &process_events(&block.events, common, brawl_mod, fighter)));
+                result.push_str(&format!("<li>loop {} times: {}</li>", iterations, process_events(&block.events, common, brawl_mod, fighter)));
             }
             EventAst::IfStatement ( IfStatement { test, then_branch, else_branch } ) => {
-                result.push_str(&format!("<li>if ({}) {}</li>", process_expression(test), &process_events(&then_branch.events, common, brawl_mod, fighter)));
+                result.push_str(&format!("<li>if ({}) {}</li>", process_expression(test), process_events(&then_branch.events, common, brawl_mod, fighter)));
 
                 if let Some(else_branch) = else_branch {
                     result.push_str("<li>else");

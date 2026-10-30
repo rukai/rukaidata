@@ -40,7 +40,7 @@ pub fn generate(
                 let script_sfx   = process_scripts::process_events(&subaction.scripts.script_sfx.block.events, false, brawl_mod, fighter);
                 let script_other = process_scripts::process_events(&subaction.scripts.script_other.block.events, false, brawl_mod, fighter);
 
-                let mut frame_buttons = vec!();
+                let mut frame_buttons = vec![];
                 for (mut index, frame) in subaction.frames.iter().enumerate() {
                     index += 1;
                     let class = if !frame.hit_boxes.is_empty() {
@@ -174,12 +174,12 @@ pub fn generate(
                     partial_intangible.push_str(&range_string(start + 1, subaction.frames.len()));
                 }
 
-                let mut attributes = vec!(
+                let mut attributes = vec![
                     Attribute {
                         name: r#"<abbr title="Interruptible As Soon As. The first frame the subaction can be interrupted with another subaction.">IASA</abbr>"#.into(),
                         value: iasa_string.clone(),
                     }
-                );
+                ];
                 if !auto_cancel.is_empty() {
                     attributes.push(Attribute {
                         name: r#"<abbr title="The frames during which landing will auto cancel.">Auto Cancel Window</abbr>"#.into(),
@@ -292,7 +292,7 @@ pub fn generate(
                 });
 
                 // generate hitbox tables
-                let mut hitbox_tables = vec!();
+                let mut hitbox_tables = vec![];
                 let mut throw_table = None;
                 let mut twitter_hitboxes = String::new();
                 let mut last_change_frame = None;
@@ -308,7 +308,7 @@ pub fn generate(
                     let prev_values = if let Some(prev_frame) = prev_frame {
                         prev_frame.hit_boxes.iter().map(|x| &x.next_values).collect()
                     } else {
-                        vec!()
+                        vec![]
                     };
                     let next_values: Vec<_> = frame.hit_boxes.iter().map(|x| &x.next_values).collect();
 
@@ -317,9 +317,9 @@ pub fn generate(
 
                         let use_wdsk = throw.wdsk != 0;
 
-                        let mut header = vec!(
+                        let mut header = vec![
                             r#"<abbr title="Damage">Dmg</abbr>"#
-                        );
+                        ];
                         if use_wdsk {
                             header.push(r#"<abbr title="Weight Dependent Set Knockback. When this value is not 0, an entirely different formula is used to calculate knockback. In this formula hitbox damage and current % are ignored.">WDSK</abbr>"#);
                         }
@@ -332,9 +332,9 @@ pub fn generate(
                         header.push("Iframes");
                         header.push(r#"<abbr title="Weight Dependent Throw Speed: When enabled, the frame speed of the subaction is multiplied by 2 - weight / 100. Where weight is that of the victim">WDTS</abbr>"#);
 
-                        let mut row = vec!(
+                        let mut row = vec![
                             throw.damage.to_string()
-                        );
+                        ];
                         if use_wdsk {
                             row.push(throw.wdsk.to_string());
                         }
@@ -348,7 +348,7 @@ pub fn generate(
                         row.push(format!("{}", throw.weight_dependent_speed));
 
                         twitter_hitboxes.push_str("\n\nThrow");
-                        twitter_hitboxes.push_str(&format!("\n{}", &frames));
+                        twitter_hitboxes.push_str(&format!("\n{}", frames));
                         twitter_hitboxes.push_str(&format!("\nDamage:{}", throw.damage));
                         if use_wdsk {
                             twitter_hitboxes.push_str(&format!("\nWDSK:{}", throw.wdsk));
@@ -367,7 +367,7 @@ pub fn generate(
                         });
                         twitter_hitboxes.push_str(&format!("\nIframes:{}", throw.i_frames));
 
-                        let rows = vec!(row);
+                        let rows = vec![row];
 
                         throw_table = Some(HitBoxTable { frames, header, rows });
                     }
@@ -382,7 +382,7 @@ pub fn generate(
                                 format!("Frames:{}-{}", first_frame+1, i)
                             };
 
-                            let mut hitboxes = vec!();
+                            let mut hitboxes = vec![];
                             for colbox in prev_frame.map(|x| &x.hit_boxes).unwrap_or(&frame.hit_boxes) {
                                 match &colbox.next_values {
                                     CollisionBoxValues::Grab (_) => { }
@@ -433,11 +433,11 @@ pub fn generate(
                             });
 
                             last_change_frame = Some(i);
-                            let mut header = vec!(
+                            let mut header = vec![
                                 r#"<abbr title="Hitboxes in different sets can rehit the same enemy across multiple frames. i.e. a multi-hit move. Hitboxes in different sets can also hit in the same frame, the damage is the total of all hit hitboxes however the knockback and angle is taken from the hitbox with the most knockback.">Set</abbr>"#,
                                 r#"<abbr title="Lower hitbox IDs take priority over higher ones. i.e. if hitbox 0 and 1 are both hit, hitbox 0 is used">ID</abbr>"#,
                                 r#"<abbr title="Damage">Dmg</abbr>"#,
-                            );
+                            ];
                             if use_wdsk {
                                 header.push(r#"<abbr title="Weight Dependent Set Knockback. When this value is not 0, an entirely different formula is used to calculate knockback. In this formula hitbox damage and current % are ignored.">WDSK</abbr>"#);
                             }
@@ -520,9 +520,9 @@ pub fn generate(
                             let mut flinchless = String::new();
                             let mut has_grab = false;
 
-                            let mut rows = vec!();
+                            let mut rows = vec![];
                             for hitbox in prev_frame.map(|x| &x.hit_boxes).unwrap_or(&frame.hit_boxes) {
-                                let mut row = vec!();
+                                let mut row = vec![];
 
                                 // everything else
                                 match &hitbox.next_values {
@@ -938,7 +938,7 @@ pub fn generate(
                 twitter_description.push_str(&twitter_hitboxes);
 
                 // generate fighter links
-                let mut fighter_links = vec!();
+                let mut fighter_links = vec![];
                 for nav_fighter in &brawl_mod.fighters {
                     let nav_fighter = &nav_fighter.fighter;
                     let subaction_name = if nav_fighter.subactions.iter().any(|x| x.name == subaction.name) {
