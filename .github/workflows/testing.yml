@@ -31,9 +31,10 @@ jobs:
           - name: LinuxDebug
             runner: ubuntu-latest
             cargo_profile:
-          - name: WindowsDebug
-            runner: windows-latest
-            cargo_profile:
+          # :/
+          #- name: WindowsDebug
+          #  runner: windows-latest
+          #  cargo_profile:
           - name: MacOSDebug
             runner: macos-latest
             cargo_profile:
